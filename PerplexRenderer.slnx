@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="PerplexRenderer.vcxproj" Id="710fca08-0c81-425a-b7b7-ebf0d405d608" />
+</Solution>
