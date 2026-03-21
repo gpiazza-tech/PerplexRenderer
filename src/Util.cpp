@@ -1,9 +1,7 @@
+#include <pch.h>
 #include "Util.h"
 
-#include <fstream>
-#include <glm.hpp>
-
-std::string g_ProjectPath = "C:\\dev\\VisualStudio\\OpenGLSandbox";
+std::string g_ProjectPath = "C:\\dev\\PerplexRenderer";
 
 std::string StringFromFile(const std::filesystem::path& path)
 {

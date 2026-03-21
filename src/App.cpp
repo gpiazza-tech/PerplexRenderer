@@ -1,16 +1,7 @@
+#include <pch.h>
 #include "App.h"
 
 #include "Util.h"
-
-#include <iostream>
-#include <filesystem>
-#include <cstdlib>
-#include <ctime>
-
-#include <imgui.h>
-
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
 
 #include "Renderer/Renderer.h"
 #include "Renderer/ParticleSystem.h"
@@ -73,7 +64,7 @@ void AppStart()
 void AppUpdate()
 {
     static glm::vec3 cameraPosition = glm::vec3();
-    static glm::vec3 bobPosition = glm::vec3();
+    static glm::vec3 bobPosition = glm::vec3(-1.0f, 0.0f, 0.0f);
     static glm::vec3 pixelPosition = glm::vec3();
     static glm::vec3 blasterPosition = glm::vec3();
     g_View = glm::translate(glm::mat4(1.0f), -cameraPosition);
@@ -95,8 +86,10 @@ void AppUpdate()
     Renderer::BeginBatch();
     
     // Particles
-    static float speed = 0.0f;
-    g_ParticleSystem.Update(speed);
+    static float speed = 80.0f;
+    static bool play = false;
+    if (play)
+        g_ParticleSystem.Update(speed);
     g_ParticleSystem.Render();
 
     // Quads
@@ -129,13 +122,23 @@ void AppUpdate()
     {
         ImGui::Begin("Controls", &showWindow);
 
+        // Object GUI
         ImGui::DragFloat3("Camera", &cameraPosition.x, 0.01f);
         ImGui::DragFloat3("Bob", &bobPosition.x, 0.01f);
+
+        // Particle GUI
         ImGui::DragFloat("Particle Speed", &speed, 0.01f);
-        if (ImGui::Button("Restart"))
+        if (ImGui::Button("Reset"))
         {
-            g_ParticleSystem.Restart();
+            g_ParticleSystem.Reset();
+            play = false;
         }
+        if (ImGui::Button("Start"))
+            play = true;
+        if (ImGui::Button("Stop"))
+            play = false;
+
+        // Postprocessing GUI
         ImGui::Checkbox("Bloom", &bloom);
         ImGui::SliderFloat("Filter radius", &filterRadius, 0.0f, 0.1f);
         ImGui::Checkbox("Tonemap", &tonemap);

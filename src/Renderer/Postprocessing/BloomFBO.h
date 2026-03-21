@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glm.hpp>
-
 struct BloomMip
 {
 	glm::vec2 Size;

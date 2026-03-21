@@ -1,6 +1,5 @@
+#include <pch.h>
 #include "ScreenQuad.h"
-
-#include <gl/glew.h>
 
 ScreenQuad::ScreenQuad()
 {

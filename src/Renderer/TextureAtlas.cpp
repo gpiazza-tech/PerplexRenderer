@@ -1,10 +1,9 @@
+#include <pch.h>
 #include "TextureAtlas.h"
 
 #include "Texture.h"
-#include "../Util.h"
+#include "Util.h"
 
-#include <gl/glew.h>
-#include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 

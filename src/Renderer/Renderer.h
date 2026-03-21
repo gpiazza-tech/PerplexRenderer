@@ -2,12 +2,7 @@
 
 #include "Texture.h"
 
-#include <gl/glew.h>
 #include <GLFW/glfw3.h>
-#include <glm.hpp>
-
-#include <string>
-#include <filesystem>
 
 #define ASSERT(x) if(!(x)) __debugbreak();
 #define BREAK() __debugbreak()
@@ -32,7 +27,7 @@ public:
     static void EndBatch();
     static void Flush();
 
-    static void DrawPixel(const glm::vec2& position, const glm::vec4& color = glm::vec4(1.0f));
+    static void DrawPixel(const glm::vec2& position, const glm::vec4& color = glm::vec4(1.0f), bool pixelPerfect = true);
     static void DrawQuad(const glm::vec2& position, const Texture& texture);
-    static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const Texture& texture);
+    static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const Texture& texture, bool pixelPerfect);
 };

@@ -1,8 +1,7 @@
+#include <pch.h>
 #include "RenderCommands.h"
 
 #include "ScreenQuad.h"
-
-#include <gl/glew.h>
 
 void RenderCommands::DrawScreen()
 {

@@ -1,12 +1,9 @@
+#include <pch.h>
 #include "Tonemapper.h"
 
-#include "../../Util.h"
-#include "../RenderCommands.h"
-#include "../Shader.h"
-
-#include <iostream>
-
-#include <gl/glew.h>
+#include "Renderer/RenderCommands.h"
+#include "Renderer/Shader.h"
+#include "Util.h"
 
 void Tonemapper::Init(int width, int height)
 {

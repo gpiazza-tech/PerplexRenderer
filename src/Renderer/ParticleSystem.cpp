@@ -1,11 +1,8 @@
+#include <pch.h>
 #include "ParticleSystem.h"
 
 #include "Renderer.h"
-#include "../Util.h"
-
-#include <ctime>
-#include <cstdlib>
-#include <gl/glew.h>
+#include "Util.h"
 
 void ParticleSystem::Create(size_t particleCount)
 {
@@ -60,7 +57,7 @@ void ParticleSystem::CreateFromTexture(const Texture& texture)
         particle.Position = particle.StartPosition;
 
         // Particle Velocity
-        float velocityRandomness = 0.5f;
+        float velocityRandomness = 0.1f;
         particle.Velocity = glm::vec2(particle.StartPosition - m_Center);
         float xRand = ((float)std::rand() / RAND_MAX - 0.5f) * velocityRandomness;
         float yRand = ((float)std::rand() / RAND_MAX - 0.5f) * velocityRandomness;
@@ -71,7 +68,7 @@ void ParticleSystem::CreateFromTexture(const Texture& texture)
     }
 }
 
-void ParticleSystem::Restart()
+void ParticleSystem::Reset()
 {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     for (auto& particle : m_Particles)
@@ -92,6 +89,6 @@ void ParticleSystem::Render()
 {
     for (auto& particle : m_Particles)
     {
-        Renderer::DrawPixel(particle.Position, particle.Color);
+        Renderer::DrawPixel(particle.Position, particle.Color, false);
     }
 }

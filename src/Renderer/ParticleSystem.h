@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glm.hpp>
-
 struct Particle
 {
 	glm::vec2 StartPosition = glm::vec2(0.0f);
@@ -20,7 +18,9 @@ public:
 
 	void Create(size_t particleCount);
 	void CreateFromTexture(const Texture& texture);
-	void Restart();
+
+	void Reset();
+
 	void Update(float speed);
 	void Render();
 private:

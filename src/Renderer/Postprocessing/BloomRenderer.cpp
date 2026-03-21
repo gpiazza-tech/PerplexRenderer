@@ -1,13 +1,8 @@
+#include <pch.h>
 #include "BloomRenderer.h"
 
-#include "../Shader.h"
-#include "../RenderCommands.h"
-
-#include "../../Util.h"
-
-#include <iostream>
-#include <filesystem>
-#include <gl/glew.h>
+#include "Renderer/Shader.h"
+#include "Renderer/RenderCommands.h"
 
 namespace fs = std::filesystem;
 

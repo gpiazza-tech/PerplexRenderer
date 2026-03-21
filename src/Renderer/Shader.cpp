@@ -1,10 +1,8 @@
+#include <pch.h>
 #include "Shader.h"
 
 #include "Renderer.h"
-#include "../Util.h"
-
-#include <iostream>
-#include <gl/glew.h>
+#include "Util.h"
 
 uint32_t CompileShader(uint32_t type, const std::string& source)
 {

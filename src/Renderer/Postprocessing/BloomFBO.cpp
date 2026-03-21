@@ -1,7 +1,5 @@
+#include <pch.h>
 #include "BloomFBO.h"
-
-#include <gl/glew.h>
-#include <iostream>
 
 bool BloomFBO::Init(uint32_t windowWidth, uint32_t windowHeight, uint32_t mipChainLength)
 {

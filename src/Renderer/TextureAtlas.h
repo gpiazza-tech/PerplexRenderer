@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <filesystem>
-
 struct Texture;
 
 class TextureAtlas

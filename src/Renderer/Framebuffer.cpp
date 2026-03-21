@@ -1,12 +1,8 @@
+#include <pch.h>
 #include "Framebuffer.h"
 
 #include "RenderCommands.h"
 #include "Shader.h"
-#include "../Util.h"
-
-#include <gl/glew.h>
-#include <iostream>
-#include <filesystem>
 
 namespace fs = std::filesystem;
 

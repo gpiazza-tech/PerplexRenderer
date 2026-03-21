@@ -1,11 +1,8 @@
+#include <pch.h>
 #include "Renderer.h"
 
 #include "Shader.h"
-#include "../Util.h"
-
-#include <iostream>
-#include <ext/matrix_transform.hpp>
-#include <ext/matrix_clip_space.hpp>
+#include "Util.h"
 
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
     GLenum severity, GLsizei length,
@@ -159,17 +156,17 @@ void Renderer::Flush()
     s_Data.IndexCount = 0;
 }
 
-void Renderer::DrawPixel(const glm::vec2& position, const glm::vec4& color)
+void Renderer::DrawPixel(const glm::vec2& position, const glm::vec4& color, bool pixelPerfect)
 {
-    DrawQuad(position, glm::vec2(1.0f), color, s_Data.PixelTexture);
+    DrawQuad(position, glm::vec2(1.0f), color, s_Data.PixelTexture, pixelPerfect);
 }
 
 void Renderer::DrawQuad(const glm::vec2& position, const Texture& texture)
 {
-    Renderer::DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), texture);
+    Renderer::DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), texture, true);
 }
 
-void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const Texture& texture)
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const Texture& texture, bool pixelPerfect)
 {
     if (s_Data.IndexCount >= s_MaxIndexCount)
     {
@@ -180,30 +177,30 @@ void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const 
 
     float emission = 1.0f;
     glm::vec2 scaledSize = { size.x * texture.ScaleFactorX, size.y * texture.ScaleFactorY };
-    glm::vec2 pixelPerfectPosition = MakePixelPerfect({ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit);
+    glm::vec2 renderPosition = pixelPerfect ? MakePixelPerfect({ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit) : position;
 
-    s_Data.QuadBufferPtr->Position = { pixelPerfectPosition.x, pixelPerfectPosition.y, 0.0f };
+    s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y, 0.0f };
     s_Data.QuadBufferPtr->Color = color;
     s_Data.QuadBufferPtr->TexCoord = { texture.Xmin, texture.Ymin };
     s_Data.QuadBufferPtr->TexIndex = 0;
     s_Data.QuadBufferPtr->Emission = emission;
     s_Data.QuadBufferPtr++;
 
-    s_Data.QuadBufferPtr->Position = { pixelPerfectPosition.x + scaledSize.x, pixelPerfectPosition.y, 0.0f };
+    s_Data.QuadBufferPtr->Position = { renderPosition.x + scaledSize.x, renderPosition.y, 0.0f };
     s_Data.QuadBufferPtr->Color = color;
     s_Data.QuadBufferPtr->TexCoord = { texture.Xmax, texture.Ymin };
     s_Data.QuadBufferPtr->TexIndex = 0;
     s_Data.QuadBufferPtr->Emission = emission;
     s_Data.QuadBufferPtr++;
 
-    s_Data.QuadBufferPtr->Position = { pixelPerfectPosition.x + scaledSize.x, pixelPerfectPosition.y + scaledSize.y, 0.0f };
+    s_Data.QuadBufferPtr->Position = { renderPosition.x + scaledSize.x, renderPosition.y + scaledSize.y, 0.0f };
     s_Data.QuadBufferPtr->Color = color;
     s_Data.QuadBufferPtr->TexCoord = { texture.Xmax, texture.Ymax };
     s_Data.QuadBufferPtr->TexIndex = 0;
     s_Data.QuadBufferPtr->Emission = emission;
     s_Data.QuadBufferPtr++;
 
-    s_Data.QuadBufferPtr->Position = { pixelPerfectPosition.x, pixelPerfectPosition.y + scaledSize.y, 0.0f };
+    s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y + scaledSize.y, 0.0f };
     s_Data.QuadBufferPtr->Color = color;
     s_Data.QuadBufferPtr->TexCoord = { texture.Xmin, texture.Ymax };
     s_Data.QuadBufferPtr->TexIndex = 0;
