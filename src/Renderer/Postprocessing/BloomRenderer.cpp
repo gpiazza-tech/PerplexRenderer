@@ -75,7 +75,7 @@ void BloomRenderer::RenderDownsamples(uint32_t srcTexture)
 	for (size_t i = 0; i < m_FBO.MipChain().size(); i++)
 	{
 		const BloomMip& mip = mipChain[i];
-		glViewport(0, 0, mip.Size.x, mip.Size.y);
+		glViewport(0, 0, (GLsizei)mip.Size.x, (GLsizei)mip.Size.y);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mip.Texture, 0);
 
 		RenderCommands::DrawScreen();
@@ -110,7 +110,7 @@ void BloomRenderer::RenderUpsamples(float filterRadius)
 		glBindTexture(GL_TEXTURE_2D, mip.Texture);
 
 		// Set write texture
-		glViewport(0, 0, nextMip.Size.x, nextMip.Size.y);
+		glViewport(0, 0, (GLsizei)nextMip.Size.x, (GLsizei)nextMip.Size.y);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, nextMip.Texture, 0);
 
 		RenderCommands::DrawScreen();

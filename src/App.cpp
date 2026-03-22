@@ -61,7 +61,7 @@ void AppStart()
     Renderer::SetPixelTexture(g_Pixel);
 }
 
-void AppUpdate()
+void AppUpdate(float ts)
 {
     static glm::vec3 cameraPosition = glm::vec3();
     static glm::vec3 bobPosition = glm::vec3(-1.0f, 0.0f, 0.0f);
@@ -86,10 +86,9 @@ void AppUpdate()
     Renderer::BeginBatch();
     
     // Particles
-    static float speed = 80.0f;
     static bool play = false;
     if (play)
-        g_ParticleSystem.Update(speed);
+        g_ParticleSystem.Update(ts);
     g_ParticleSystem.Render();
 
     // Quads
@@ -122,12 +121,28 @@ void AppUpdate()
     {
         ImGui::Begin("Controls", &showWindow);
 
+        // Stats
+        std::string timeStr = std::format("{}", ts);
+        std::string fpsStr = std::format("{}", 1.0f / ts);
+        ImGui::LabelText("Timestep", timeStr.c_str());
+        ImGui::LabelText("FPS", fpsStr.c_str());
+
         // Object GUI
         ImGui::DragFloat3("Camera", &cameraPosition.x, 0.01f);
         ImGui::DragFloat3("Bob", &bobPosition.x, 0.01f);
 
         // Particle GUI
-        ImGui::DragFloat("Particle Speed", &speed, 0.01f);
+        ParticleSystemSettings settings = g_ParticleSystem.GetSettings();
+
+        ImGui::DragFloat("Speed", &settings.Speed, 0.01f);
+        ImGui::DragFloat("Gravity Multiplier", &settings.GravityMultiplier, 0.01f);
+        ImGui::DragFloat("Air Friction", &settings.AirFriction, 0.01f);
+        ImGui::SliderFloat("Velocity Randomness", &settings.VelocityRandomness, 0.0f, 1.0f);
+        ImGui::DragFloat2("Start Velocity", &settings.StartVelocity.x, 0.1f);
+        ImGui::DragFloat("Velocity Multiplier", &settings.VelocityMultiplier, 0.1f);
+        ImGui::Checkbox("Pixel Perfect", &settings.PixelPerfect);
+
+        g_ParticleSystem.SetSettings(settings);
         if (ImGui::Button("Reset"))
         {
             g_ParticleSystem.Reset();
@@ -147,7 +162,7 @@ void AppUpdate()
         ImGui::Image(g_BloomRenderer.BloomTexture(), ImVec2(g_Width * bloomImageSize, g_Height * bloomImageSize));
 
         float tonemapImageSize = 0.3f;
-        ImGui::Image(g_Tonemapper.TonemappedTexture (), ImVec2(g_Width * bloomImageSize, g_Height * bloomImageSize));
+        ImGui::Image(g_Tonemapper.TonemappedTexture(), ImVec2(g_Width * bloomImageSize, g_Height * bloomImageSize));
 
         float textureAtlasImageSize = 10.0f;
         ImGui::Image(g_ColorAtlas.GetAtlasTexture(), ImVec2(g_Width * textureAtlasImageSize, g_Height * textureAtlasImageSize));

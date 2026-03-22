@@ -8,19 +8,19 @@ void OnGLFWwindowResize(GLFWwindow* window, int width, int height)
 
 void OnGLFWwindowRefresh(GLFWwindow* window)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
 
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+    //ImGui_ImplOpenGL3_NewFrame();
+    //ImGui_ImplGlfw_NewFrame();
+    //ImGui::NewFrame();
 
-    AppUpdate();
+    //AppUpdate();
 
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    //ImGui::Render();
+    //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-    /* Swap front and back buffers */
-    glfwSwapBuffers(window);
+    ///* Swap front and back buffers */
+    //glfwSwapBuffers(window);
 }
 
 int main(void)
@@ -42,6 +42,9 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
+    /* Disable Vsync */
+    glfwSwapInterval(0);
+
     glfwSetFramebufferSizeCallback(window, OnGLFWwindowResize);
     glfwSetWindowRefreshCallback(window, OnGLFWwindowRefresh);
 
@@ -57,16 +60,21 @@ int main(void)
 
     ImGui::StyleColorsDark();
 
+    double time = glfwGetTime();
+    double lastTime = time;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        time = glfwGetTime();
+
         glClear(GL_COLOR_BUFFER_BIT);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        AppUpdate();
+        AppUpdate(time - lastTime);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -76,6 +84,7 @@ int main(void)
 
         /* Poll for and process events */
         glfwPollEvents();
+        lastTime = time;
     }
 
     AppStop();
