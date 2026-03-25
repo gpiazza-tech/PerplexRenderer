@@ -2,6 +2,7 @@
 #include "BloomRenderer.h"
 
 #include "Renderer/Shader.h"
+#include "Renderer/Framebuffer.h"
 #include "Renderer/RenderCommands.h"
 
 namespace fs = std::filesystem;
@@ -12,7 +13,7 @@ bool BloomRenderer::Init(uint32_t windowWidth, uint32_t windowHeight)
 	m_SrcViewportSizeFloat = glm::vec2((float)windowWidth, (float)windowHeight);
 
 	// Framebuffer
-	const uint32_t numBloomMips = 5;
+	const uint32_t numBloomMips = 6;
 	bool status = m_FBO.Init(windowWidth, windowHeight, numBloomMips);
 	if (!status)
 	{
@@ -20,9 +21,17 @@ bool BloomRenderer::Init(uint32_t windowWidth, uint32_t windowHeight)
 		return false;
 	}
 
+	m_PrefilterFBO = Framebuffer(windowWidth, windowHeight, true);
+
 	// Shaders
-	m_DownsampleShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\DownsampleFragment.glsl");
-	m_UpsampleShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\UpsampleFragment.glsl");
+	m_PrefilterShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\PrefilterFragment.glsl");
+	m_DownsampleShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\DownsampleFragment.glsl");
+	m_UpsampleShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\UpsampleFragment.glsl");
+	m_ScreenShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\ScreenFragment.glsl");
+
+	m_PrefilterShader->Use();
+	m_PrefilterShader->SetUniformInt("u_Texture", 0);
+	m_PrefilterShader->EndUse();
 
 	m_DownsampleShader->Use();
 	m_DownsampleShader->SetUniformInt("u_Texture", 0);
@@ -32,6 +41,10 @@ bool BloomRenderer::Init(uint32_t windowWidth, uint32_t windowHeight)
 	m_UpsampleShader->SetUniformInt("u_Texture", 0);
 	m_UpsampleShader->EndUse();
 
+	m_ScreenShader->Use();
+	m_ScreenShader->SetUniformInt("u_Texture", 0);
+	m_ScreenShader->EndUse();
+
 	return true;
 }
 
@@ -39,16 +52,18 @@ void BloomRenderer::Destroy()
 {
 	m_FBO.Destroy();
 
+	delete m_PrefilterShader;
 	delete m_DownsampleShader;
 	delete m_UpsampleShader;
+	delete m_ScreenShader;
 }
 
-void BloomRenderer::RenderBloomTexture(uint32_t srcTexture, float filterRadius)
+void BloomRenderer::RenderBloomTexture(uint32_t srcTexture, float threshold, float filterRadius)
 {
-	m_FBO.Bind();
-
-	this->RenderDownsamples(srcTexture);
+	this->Prefilter(srcTexture, threshold);
+	this->RenderDownsamples(m_PrefilterFBO.GetTextureID());
 	this->RenderUpsamples(filterRadius);
+	this->Combine(srcTexture);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, m_SrcViewportSize.x, m_SrcViewportSize.y);
@@ -57,6 +72,27 @@ void BloomRenderer::RenderBloomTexture(uint32_t srcTexture, float filterRadius)
 uint32_t BloomRenderer::BloomTexture()
 {
 	return m_FBO.MipChain()[0].Texture;
+}
+
+void BloomRenderer::Prefilter(uint32_t srcTexture, float threshold)
+{
+	glDisable(GL_BLEND);
+	glViewport(0, 0, m_SrcViewportSize.x, m_SrcViewportSize.y);
+
+	// input texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, srcTexture);
+	// output texture
+	m_PrefilterFBO.Bind();
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	m_PrefilterShader->Use();
+	m_PrefilterShader->SetUniformFloat("u_Threshold", threshold);
+	RenderCommands::DrawScreen();
+	m_PrefilterShader->EndUse();
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void BloomRenderer::RenderDownsamples(uint32_t srcTexture)
@@ -71,6 +107,8 @@ void BloomRenderer::RenderDownsamples(uint32_t srcTexture)
 	// Bind srcTexture as the initial texture input
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
+
+	m_FBO.Bind();
 
 	for (size_t i = 0; i < m_FBO.MipChain().size(); i++)
 	{
@@ -100,6 +138,8 @@ void BloomRenderer::RenderUpsamples(float filterRadius)
 	glBlendFunc(GL_ONE, GL_ONE);
 	glBlendEquation(GL_FUNC_ADD);
 
+	m_FBO.Bind();
+
 	for (size_t i = mipChain.size() - 1; i > 0; i--)
 	{
 		const BloomMip& mip = mipChain[i];
@@ -117,6 +157,30 @@ void BloomRenderer::RenderUpsamples(float filterRadius)
 	}
 
 	glDisable(GL_BLEND);
-
 	m_UpsampleShader->EndUse();
+}
+
+void BloomRenderer::Combine(uint32_t srcTexture)
+{
+	glBindTextureUnit(0, srcTexture);
+	m_FBO.Bind();
+
+	m_ScreenShader->Use();
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	glBlendEquation(GL_FUNC_ADD);
+
+	RenderCommands::DrawScreen();
+
+	glDisable(GL_BLEND);
+	m_ScreenShader->EndUse();
+}
+
+void BloomRenderer::Resize(uint32_t width, uint32_t height)
+{
+	m_SrcViewportSize.x = width;
+	m_SrcViewportSize.y = height;
+
+	m_SrcViewportSizeFloat.x = (float)width;
+	m_SrcViewportSizeFloat.y = (float)height;
 }

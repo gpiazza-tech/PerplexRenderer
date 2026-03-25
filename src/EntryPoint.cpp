@@ -8,19 +8,19 @@ void OnGLFWwindowResize(GLFWwindow* window, int width, int height)
 
 void OnGLFWwindowRefresh(GLFWwindow* window)
 {
-    //glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    //ImGui_ImplOpenGL3_NewFrame();
-    //ImGui_ImplGlfw_NewFrame();
-    //ImGui::NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
 
-    //AppUpdate();
+    AppUpdate(0);
 
-    //ImGui::Render();
-    //ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-    ///* Swap front and back buffers */
-    //glfwSwapBuffers(window);
+    /* Swap front and back buffers */
+    glfwSwapBuffers(window);
 }
 
 int main(void)
@@ -32,7 +32,7 @@ int main(void)
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Sandbox", NULL, NULL);
+    window = glfwCreateWindow(1920, 1080, "Sandbox", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -41,6 +41,7 @@ int main(void)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
+    glfwSetWindowSizeLimits(window, 200, 200, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
     /* Disable Vsync */
     glfwSwapInterval(0);

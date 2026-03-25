@@ -160,6 +160,7 @@
     <ClCompile Include="src\Renderer\ScreenQuad.cpp" />
     <ClCompile Include="src\Renderer\Shader.cpp" />
     <ClCompile Include="src\Renderer\TextureAtlas.cpp" />
+    <ClCompile Include="src\Renderer\TextureRegistry.cpp" />
     <ClCompile Include="src\Util.cpp" />
     <ClCompile Include="vendor\imgui\include\backends\imgui_impl_glfw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -204,6 +205,7 @@
     <ClInclude Include="src\Renderer\Shader.h" />
     <ClInclude Include="src\Renderer\Texture.h" />
     <ClInclude Include="src\Renderer\TextureAtlas.h" />
+    <ClInclude Include="src\Renderer\TextureRegistry.h" />
     <ClInclude Include="src\Util.h" />
     <ClInclude Include="vendor\imgui\include\backends\imgui_impl_glfw.h" />
     <ClInclude Include="vendor\imgui\include\backends\imgui_impl_opengl3.h" />
@@ -217,12 +219,13 @@
     <ClInclude Include="vendor\stb_image\include\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\DownsampleFragment.glsl" />
+    <None Include="res\shaders\postprocessing\DownsampleFragment.glsl" />
+    <None Include="res\shaders\postprocessing\PrefilterFragment.glsl" />
     <None Include="res\shaders\SpriteVertex.glsl" />
     <None Include="res\shaders\ScreenFragment.glsl" />
     <None Include="res\shaders\ScreenVertex.glsl" />
-    <None Include="res\shaders\TonemapFragment.glsl" />
-    <None Include="res\shaders\UpsampleFragment.glsl" />
+    <None Include="res\shaders\postprocessing\TonemapFragment.glsl" />
+    <None Include="res\shaders\postprocessing\UpsampleFragment.glsl" />
     <None Include="res\shaders\SpriteFragment.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

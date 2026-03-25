@@ -6,7 +6,7 @@ class Framebuffer
 {
 public:
 	Framebuffer() = default;
-	Framebuffer(int width, int height);
+	Framebuffer(int width, int height, bool hdr = false);
 	~Framebuffer();
 
 	void Bind();
@@ -18,9 +18,12 @@ public:
 
 	inline const uint32_t GetWidth() const { return m_Width; }
 	inline const uint32_t GetHeight() const { return m_Height; }
+
+	void Resize(uint32_t width, uint32_t height);
 private:
 	uint32_t m_FBO;
 	uint32_t m_RBO;
+	uint32_t m_DepthStencilTexture;
 	uint32_t m_Texture;
 	uint32_t m_Width;
 	uint32_t m_Height;

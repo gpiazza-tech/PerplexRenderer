@@ -78,6 +78,9 @@
     <ClCompile Include="src\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\TextureRegistry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer\Renderer.h">
@@ -152,14 +155,18 @@
     <ClInclude Include="src\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Renderer\TextureRegistry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\SpriteFragment.glsl" />
     <None Include="res\shaders\SpriteVertex.glsl" />
     <None Include="res\shaders\ScreenVertex.glsl" />
     <None Include="res\shaders\ScreenFragment.glsl" />
-    <None Include="res\shaders\DownsampleFragment.glsl" />
-    <None Include="res\shaders\UpsampleFragment.glsl" />
-    <None Include="res\shaders\TonemapFragment.glsl" />
+    <None Include="res\shaders\postprocessing\DownsampleFragment.glsl" />
+    <None Include="res\shaders\postprocessing\UpsampleFragment.glsl" />
+    <None Include="res\shaders\postprocessing\TonemapFragment.glsl" />
+    <None Include="res\shaders\postprocessing\PrefilterFragment.glsl" />
   </ItemGroup>
 </Project>

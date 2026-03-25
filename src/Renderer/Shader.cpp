@@ -107,6 +107,12 @@ void Shader::SetUniformFloat(const char* name, float val)
     ASSERT(location != -1);
     glUniform1f(location, val);
 }
+void Shader::SetUniformFloat(const char* name, float* ptr)
+{
+    int32_t location = glGetUniformLocation(m_RendererID, name);
+    ASSERT(location != -1);
+    glUniform1fv(location, 1, (GLfloat*)ptr);
+}
 void Shader::SetUniformFloat2(const char* name, float val1, float val2)
 {
     int32_t location = glGetUniformLocation(m_RendererID, name);

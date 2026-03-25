@@ -10,13 +10,10 @@ bool BloomFBO::Init(uint32_t windowWidth, uint32_t windowHeight, uint32_t mipCha
 	glm::ivec2 mipIntSize((int)windowWidth, (int)windowHeight);
 
 	m_MipChain.reserve(mipChainLength);
-	
 	for (size_t i = 0; i < mipChainLength; i++)
 	{
 		BloomMip mip;
 
-		mipSize *= 0.5f;
-		mipIntSize /= 2;
 		mip.Size = mipSize;
 		mip.IntSize = mipIntSize;
 
@@ -31,6 +28,10 @@ bool BloomFBO::Init(uint32_t windowWidth, uint32_t windowHeight, uint32_t mipCha
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		m_MipChain.emplace_back(mip);
+
+		// setup next mip
+		mipSize *= 0.5f;
+		mipIntSize /= 2;
 	}
 
 	// attach first mip texture to color attachment 0

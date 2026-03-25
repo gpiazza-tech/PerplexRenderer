@@ -2,6 +2,8 @@
 #include "Renderer.h"
 
 #include "Shader.h"
+#include "Texture.h"
+#include "TextureRegistry.h"
 #include "Util.h"
 
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
@@ -47,9 +49,12 @@ struct RendererData
     Shader SpriteShader;
     uint32_t PixelsPerUnit;
     Texture PixelTexture;
+
+    glm::mat4 Projection;
 };
 
 static RendererData s_Data;
+static TextureRegistry s_TextureRegistry;
 
 void Renderer::Init(uint32_t pixelsPerUnit)
 {
@@ -109,6 +114,8 @@ void Renderer::Init(uint32_t pixelsPerUnit)
     s_Data.SpriteShader.EndUse();
 
     s_Data.PixelsPerUnit = pixelsPerUnit;
+
+    s_TextureRegistry.Init();
 }
 
 void Renderer::Shutdown()
@@ -125,7 +132,7 @@ void Renderer::SetPixelTexture(const Texture& texture)
     s_Data.PixelTexture = texture;
 }
 
-void Renderer::BeginBatch()
+void Renderer::BeginBatch(glm::mat4 projection)
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -133,9 +140,12 @@ void Renderer::BeginBatch()
 
     s_Data.QuadBufferPtr = s_Data.QuadBuffer;
 
+    s_Data.Projection = projection;
+    glm::mat4 viewProj = projection * glm::mat4(1.0f);
     s_Data.SpriteShader.Use();
-    glm::mat4 viewProj = glm::mat4(glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f) * glm::mat4(1.0f));
     s_Data.SpriteShader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
+
+    s_TextureRegistry.BindToTextureUnits();
 }
 
 void Renderer::EndBatch()
@@ -158,24 +168,28 @@ void Renderer::Flush()
 
 void Renderer::DrawPixel(const glm::vec2& position, const glm::vec4& color, bool pixelPerfect)
 {
-    DrawQuad(position, glm::vec2(1.0f), color, s_Data.PixelTexture, pixelPerfect);
+    DrawQuad(position, glm::vec2(1.0f), color, 1.0f, s_Data.PixelTexture, pixelPerfect);
 }
 
 void Renderer::DrawQuad(const glm::vec2& position, const Texture& texture)
 {
-    Renderer::DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), texture, true);
+    DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), 1.0f, texture, true);
 }
 
-void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const Texture& texture, bool pixelPerfect)
+void Renderer::DrawQuad(const glm::vec2& position, const Texture& texture, float emission)
+{
+    DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), emission, texture, true);
+}
+
+void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float emission, const Texture& texture, bool pixelPerfect)
 {
     if (s_Data.IndexCount >= s_MaxIndexCount)
     {
         EndBatch();
         Flush(); 
-        BeginBatch();
+        BeginBatch(s_Data.Projection);
     }
 
-    float emission = 1.0f;
     glm::vec2 scaledSize = { size.x * texture.ScaleFactorX, size.y * texture.ScaleFactorY };
     glm::vec2 renderPosition = pixelPerfect ? MakePixelPerfect({ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit) : position;
 
@@ -208,6 +222,11 @@ void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const 
     s_Data.QuadBufferPtr++;
 
     s_Data.IndexCount += 6;
+}
+
+TextureRegistry& Renderer::GetTextureRegistry()
+{
+    return s_TextureRegistry;
 }
 
 

@@ -35,7 +35,7 @@ public:
 	void Reset();
 
 	void Update(float speed);
-	void Render();
+	void Render(const glm::vec2& position);
 
 	inline const ParticleSystemSettings& GetSettings() { return m_Settings; }
 	inline void SetSettings(const ParticleSystemSettings& settings) { m_Settings = settings; }

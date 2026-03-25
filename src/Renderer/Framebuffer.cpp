@@ -6,28 +6,35 @@
 
 namespace fs = std::filesystem;
 
-Framebuffer::Framebuffer(int width, int height)
-    : m_Width(width), m_Height(height)
+Framebuffer::Framebuffer(int width, int height, bool hdr)
+    : m_Width(width), m_Height(height), m_FBO(0), m_RBO(0)
 {
     glGenFramebuffers(1, &m_FBO);
     glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
     // Colorbuffer texture
     glGenTextures(1, &m_Texture);
     glBindTexture(GL_TEXTURE_2D, m_Texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    if (hdr)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+    else
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
-    // attach colorbuffer to framebuffer
+    
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture, 0);
-    // Render Object
-    glGenRenderbuffers(1, &m_RBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, m_RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    // attach stencil and depth buffer
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO);
-    // check if framebuffer is complete
+
+    // Stencil and depth texture buffer
+    glGenTextures(1, &m_DepthStencilTexture);
+    glBindTexture(GL_TEXTURE_2D, m_DepthStencilTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthStencilTexture, 0);
+
+    // Assert
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Error: Framebuffer is not complete" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -89,6 +96,22 @@ void Framebuffer::DrawToScreen()
     m_ScreenShader->SetUniformInt("u_Texture", 0);
     RenderCommands::DrawScreen();
     m_ScreenShader->EndUse();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Framebuffer::Resize(uint32_t width, uint32_t height)
+{
+    m_Width = width;
+    m_Height = height;
+
+    // Resize color
+    glBindTexture(GL_TEXTURE_2D, m_Texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+
+    // Resize depth and stencil
+    glBindTexture(GL_TEXTURE_2D, m_DepthStencilTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 }

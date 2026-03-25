@@ -5,37 +5,54 @@
 
 #include "Renderer/Renderer.h"
 #include "Renderer/ParticleSystem.h"
-#include "Renderer/Shader.h"
 #include "Renderer/Framebuffer.h"
-#include "Renderer/RenderCommands.h"
 #include "Renderer/Texture.h"
 #include "Renderer/TextureAtlas.h"
+#include "Renderer/TextureRegistry.h"
 #include "Renderer/Postprocessing/BloomRenderer.h"
 #include "Renderer/Postprocessing/Tonemapper.h"
 
+#include <glm.hpp>
+
+#include <cstdint>
+#include <algorithm>
+
 namespace fs = std::filesystem;
 
-uint32_t g_Width = 640;
-uint32_t g_Height = 480;
+uint32_t g_Width = 1920;
+uint32_t g_Height = 1080;
 uint32_t g_PixelsPerUnit = 16;
 
 Texture g_Pixel;
 Texture g_Bob;
+Texture g_Bobby;
 Texture g_Blaster;
 
-TextureAtlas g_ColorAtlas;
+// TextureAtlas g_ColorAtlas;
 // TextureAtlas g_EmmissionAtlas;
 // TextureAtlas g_NormalAtlas;
 
+ParticleSystem g_ParticleSystem;
+
 BloomRenderer g_BloomRenderer;
 Tonemapper g_Tonemapper;
+
 Framebuffer g_Framebuffer;
 
-glm::mat4 g_Proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
-glm::mat4 g_View = glm::mat4(1.0f);
 glm::mat4 g_Model = glm::mat4(1.0f);
+glm::mat4 g_View = glm::mat4(1.0f);
+glm::mat4 g_Proj = glm::mat4(1.0f);
 
-ParticleSystem g_ParticleSystem;
+float g_CameraZoom = 2.0f;
+
+static void UpdateProjection()
+{
+    float ratio = std::min(2.0 / (float)g_Width, 1.5 / (float)g_Height);
+    float semiWidth = RoundToNearestFraction((float)g_Width * ratio * g_CameraZoom, g_PixelsPerUnit);
+    float semiHeight = RoundToNearestFraction((float)g_Height * ratio * g_CameraZoom, g_PixelsPerUnit);
+
+    g_Proj = glm::ortho(-semiWidth, semiWidth, -semiHeight, semiHeight, -1.0f, 1.0f);
+}
 
 void AppStart()
 {
@@ -44,20 +61,28 @@ void AppStart()
     glDebugMessageCallback(GLDebugMessageCallback, nullptr);
     glViewport(0, 0, g_Width, g_Height);
 
-    // Textures
-    g_ColorAtlas.Create(1024, g_PixelsPerUnit);
-    g_Pixel = g_ColorAtlas.AddTexture("res\\textures\\White.png");
-    g_Bob = g_ColorAtlas.AddTexture("res\\textures\\Bob.png");
-    g_Blaster = g_ColorAtlas.AddTexture("res\\textures\\Blaster.png");
+    Renderer::Init(g_PixelsPerUnit);
 
-    g_ParticleSystem.CreateFromTexture(g_Bob);
+    // Textures
+    // g_ColorAtlas.Create(1024, g_PixelsPerUnit);
+    g_Pixel =   Renderer::GetTextureRegistry().Add("res\\textures\\White.png");
+    g_Bob =     Renderer::GetTextureRegistry().Add("res\\textures\\Bob.png", "res\\textures\\Bob_Emission.png");
+    g_Bobby =   Renderer::GetTextureRegistry().Add("res\\textures\\Bobby.png");
+    g_Blaster = Renderer::GetTextureRegistry().Add("res\\textures\\Blaster.png");
+
+    // Particle System
+    g_ParticleSystem.CreateFromTexture(g_Bobby);
+    ParticleSystemSettings defaultSettings = ParticleSystemSettings();
+    defaultSettings.VelocityMultiplier = 10.0f;
+    defaultSettings.GravityMultiplier = 0.05f;
+    defaultSettings.StartVelocity = { 0.0f, 0.2f };
+    g_ParticleSystem.SetSettings(defaultSettings);
 
     // Postprocessing
     g_BloomRenderer.Init(g_Width, g_Height);
     g_Tonemapper.Init(g_Width, g_Height);
-    g_Framebuffer = Framebuffer(g_Width, g_Height);
-
-    Renderer::Init(g_PixelsPerUnit);
+    g_Framebuffer = Framebuffer(g_Width, g_Height, true);
+    
     Renderer::SetPixelTexture(g_Pixel);
 }
 
@@ -71,42 +96,44 @@ void AppUpdate(float ts)
 
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
+    glViewport(0, 0, g_Width, g_Height);
+    UpdateProjection();
 
     // Bind what we need
     g_Framebuffer.Bind();
 
-    glClearColor(0.2f, 0.4f, 0.6f, 1.0f);
+    glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
     // Render Scene
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, g_ColorAtlas.GetAtlasTexture());
-
-    Renderer::BeginBatch();
+    Renderer::BeginBatch(g_Proj);
     
     // Particles
+    static glm::vec2 particleSystemPosition = { 0.0f, 0.0f };
     static bool play = false;
     if (play)
         g_ParticleSystem.Update(ts);
-    g_ParticleSystem.Render();
+    g_ParticleSystem.Render(particleSystemPosition);
 
     // Quads
-    Renderer::DrawQuad(bobPosition, g_Bob);
+    static float bobEmission = 1.0f;
+    Renderer::DrawQuad(bobPosition, g_Bob, bobEmission);
 
     Renderer::EndBatch();
     Renderer::Flush();
 
     // Postprocessing
-    static bool bloom = false;
-    static float filterRadius = 0.01f;
+    static bool bloom = true;
+    static float threshold = 1.0f;
+    static float filterRadius = 0.003f;
     if (bloom)
     {
-        g_BloomRenderer.RenderBloomTexture(g_Framebuffer.GetTextureID(), filterRadius);
+        g_BloomRenderer.RenderBloomTexture(g_Framebuffer.GetTextureID(), threshold, filterRadius);
         g_Framebuffer.DrawTexture(g_BloomRenderer.BloomTexture());
     }
 
-    static bool tonemap = false;
+    static bool tonemap = true;
     if (tonemap)
     {
         g_Tonemapper.RenderTonemap(g_Framebuffer.GetTextureID());
@@ -129,7 +156,10 @@ void AppUpdate(float ts)
 
         // Object GUI
         ImGui::DragFloat3("Camera", &cameraPosition.x, 0.01f);
+        ImGui::DragFloat("Zoom", &g_CameraZoom, 0.01f);
         ImGui::DragFloat3("Bob", &bobPosition.x, 0.01f);
+        ImGui::DragFloat("Bob Emission", &bobEmission, 0.01f);
+        ImGui::DragFloat3("Particle System", &particleSystemPosition.x, 0.01f);
 
         // Particle GUI
         ParticleSystemSettings settings = g_ParticleSystem.GetSettings();
@@ -155,6 +185,7 @@ void AppUpdate(float ts)
 
         // Postprocessing GUI
         ImGui::Checkbox("Bloom", &bloom);
+        ImGui::DragFloat("Threshold", &threshold, 0.1f);
         ImGui::SliderFloat("Filter radius", &filterRadius, 0.0f, 0.1f);
         ImGui::Checkbox("Tonemap", &tonemap);
 
@@ -164,8 +195,8 @@ void AppUpdate(float ts)
         float tonemapImageSize = 0.3f;
         ImGui::Image(g_Tonemapper.TonemappedTexture(), ImVec2(g_Width * bloomImageSize, g_Height * bloomImageSize));
 
-        float textureAtlasImageSize = 10.0f;
-        ImGui::Image(g_ColorAtlas.GetAtlasTexture(), ImVec2(g_Width * textureAtlasImageSize, g_Height * textureAtlasImageSize));
+        // float textureAtlasImageSize = 10.0f;
+        // ImGui::Image(g_ColorAtlas.GetAtlasTexture(), ImVec2(g_Width * textureAtlasImageSize, g_Height * textureAtlasImageSize));
 
         ImGui::End();
     }
@@ -180,5 +211,13 @@ void OnWindowResize(int width, int height)
 {
     g_Width = width;
     g_Height = height;
+
+    // Resize buffers
+    g_BloomRenderer.Resize(width, height);
+    g_Framebuffer.Resize(width, height);
+
     glViewport(0, 0, g_Width, g_Height);
+
+    // Projection
+    UpdateProjection();
 }

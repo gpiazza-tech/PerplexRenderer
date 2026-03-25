@@ -31,7 +31,7 @@ void Tonemapper::Init(int width, int height)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// Shader
-	m_TonemapShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\TonemapFragment.glsl");
+	m_TonemapShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\TonemapFragment.glsl");
 }
 
 void Tonemapper::Destroy()

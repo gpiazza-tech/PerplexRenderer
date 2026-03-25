@@ -2,6 +2,7 @@
 #include "ParticleSystem.h"
 
 #include "Renderer.h"
+#include "Texture.h"
 #include "Util.h"
 
 void ParticleSystem::Create(size_t particleCount)
@@ -38,6 +39,7 @@ void ParticleSystem::CreateFromTexture(const Texture& texture)
 
     ASSERT(channels != nullptr);
 
+    glm::vec2 positionOffset = {  };
     for (size_t i = 0; i < texture.PixelWidth * texture.PixelHeight * 4; i += 4)
     {
         uint8_t a = channels[i + 3];
@@ -55,7 +57,7 @@ void ParticleSystem::CreateFromTexture(const Texture& texture)
         // Particle
         Particle particle = Particle();
         particle.Color = glm::vec4(r / (float)255, g / (float)255, b / (float)255, a / (float)255);
-        particle.Position = glm::vec2(pixelX / 16.0f, pixelY / 16.0f);
+        particle.Position = glm::vec2(pixelX / pixelsPerUnit, pixelY / pixelsPerUnit);
 
         // Particle Velocity
         particle.Velocity = glm::vec2(particle.Position - m_Center) + m_Settings.StartVelocity;
@@ -94,10 +96,10 @@ void ParticleSystem::Update(float ts)
     }
 }
 
-void ParticleSystem::Render()
+void ParticleSystem::Render(const glm::vec2& position)
 {
     for (auto& particle : m_Particles)
     {
-        Renderer::DrawPixel(particle.Position, particle.Color, m_Settings.PixelPerfect);
+        Renderer::DrawPixel(particle.Position + position, particle.Color, m_Settings.PixelPerfect);
     }
 }
