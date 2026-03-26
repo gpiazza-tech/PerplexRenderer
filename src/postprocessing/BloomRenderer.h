@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BloomFBO.h"
-#include "../Framebuffer.h"
+#include <rendering/Framebuffer.h>
 
 #include <fwd.hpp>
 

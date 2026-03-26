@@ -2,8 +2,8 @@
 #include "Framebuffer.h"
 
 #include "TextureBuffer.h"
-#include "RenderCommands.h"
 #include "Shader.h"
+#include <util/RenderCommands.h>
 
 #include <GL/glew.h>
 
@@ -26,11 +26,11 @@ namespace pxr
 
         // Color
         TextureBufferType colorTextureType = hdr ? TextureBufferType::HDR : TextureBufferType::LDR;
-        m_ColorTexture.Create(width, height, colorTextureType);
+        m_ColorTexture.Create(width, height, colorTextureType, TextureBufferFilterMode::Linear);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTexture.GetID(), 0);
 
         // Stencil and Depth
-        m_DepthStencilTexture.Create(width, height, TextureBufferType::DepthStencil);
+        m_DepthStencilTexture.Create(width, height, TextureBufferType::DepthStencil, TextureBufferFilterMode::Linear);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthStencilTexture.GetID(), 0);
 
         // Assert

@@ -2,13 +2,18 @@
 #include "TextureAtlas.h"
 
 #include "Texture.h"
-#include "Util.h"
+#include <rendering/TextureBuffer.h>
+#include <util/Util.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <gl/glew.h>
 
 #include <cstdint>
+#include <malloc.h>
+#include <filesystem>
+#include <iostream>
+#include <ostream>
 
 namespace pxr
 {
@@ -31,23 +36,12 @@ namespace pxr
 		m_CurrentX = 0;
 		m_CurrentY = 0;
 
-		glGenTextures(1, &m_Texture);
-		glBindTexture(GL_TEXTURE_2D, m_Texture);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-		glClearTexImage(m_Texture, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
+		m_Texture.Create(size, size, TextureBufferType::LDR, TextureBufferFilterMode::Nearest);
 	}
 
 	void TextureAtlas::Destroy()
 	{
-		glDeleteTextures(1, &m_Texture);
+		m_Texture.Destroy();
 	}
 
 	Texture TextureAtlas::AddTexture(const std::filesystem::path& path)
@@ -67,7 +61,7 @@ namespace pxr
 		AddPadding(width, height, rawImage, paddedImage);
 
 		// Push padded image to GPU
-		glBindTexture(GL_TEXTURE_2D, m_Texture);
+		glBindTexture(GL_TEXTURE_2D, m_Texture.GetID());
 		glTexSubImage2D(GL_TEXTURE_2D, 0, m_CurrentX, m_CurrentY, paddedWidth, paddedHeight, GL_RGBA, GL_UNSIGNED_BYTE, paddedImage);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -113,7 +107,7 @@ namespace pxr
 		AddPadding(width, height, rawImage, paddedImage);
 
 		// Push padded image to GPU
-		glBindTexture(GL_TEXTURE_2D, m_Texture);
+		glBindTexture(GL_TEXTURE_2D, m_Texture.GetID());
 		glTexSubImage2D(GL_TEXTURE_2D, 0, xPos - 1, yPos - 1, paddedWidth, paddedHeight, GL_RGBA, GL_UNSIGNED_BYTE, paddedImage);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -142,7 +136,7 @@ namespace pxr
 
 	uint32_t TextureAtlas::GetAtlasTexture()
 	{
-		return m_Texture;
+		return m_Texture.GetID();
 	}
 
 	void TextureAtlas::AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg)

@@ -1,8 +1,8 @@
 #include <pch.h>
 #include "Tonemapper.h"
 
-#include "Renderer/RenderCommands.h"
-#include "Renderer/Shader.h"
+#include <util/RenderCommands.h>
+#include <rendering/Shader.h>
 
 #include <GL/glew.h>
 

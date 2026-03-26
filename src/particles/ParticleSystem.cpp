@@ -1,8 +1,8 @@
 #include <pch.h>
 #include "ParticleSystem.h"
 
-#include "Renderer.h"
-#include "Texture.h"
+#include <rendering/Renderer.h>
+#include <texture/Texture.h>
 
 #include <GL/glew.h>
 #include <fwd.hpp>

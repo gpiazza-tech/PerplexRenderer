@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Framebuffer.h"
+#include <rendering/Framebuffer.h>
 
 #include <cstdint>
 

@@ -1,10 +1,10 @@
 #include <pch.h>
 #include "BloomRenderer.h"
 
-#include <Renderer/Shader.h>
-#include <Renderer/Framebuffer.h>
-#include <Renderer/RenderCommands.h>
-#include <Renderer/TextureBuffer.h>
+#include <rendering/Shader.h>
+#include <rendering/Framebuffer.h>
+#include <rendering/TextureBuffer.h>
+#include <util/RenderCommands.h>
 
 #include <GL/glew.h>
 

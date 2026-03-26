@@ -144,25 +144,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\App.cpp" />
-    <ClCompile Include="src\EntryPoint.cpp" />
+    <ClCompile Include="examples\App.cpp" />
+    <ClCompile Include="examples\EntryPoint.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\Renderer\ParticleSystem.cpp" />
-    <ClCompile Include="src\Renderer\Renderer.cpp" />
-    <ClCompile Include="src\Renderer\Framebuffer.cpp" />
-    <ClCompile Include="src\Renderer\Postprocessing\BloomFBO.cpp" />
-    <ClCompile Include="src\Renderer\Postprocessing\BloomRenderer.cpp" />
-    <ClCompile Include="src\Renderer\Postprocessing\Tonemapper.cpp" />
-    <ClCompile Include="src\Renderer\RenderCommands.cpp" />
-    <ClCompile Include="src\Renderer\ScreenQuad.cpp" />
-    <ClCompile Include="src\Renderer\Shader.cpp" />
-    <ClCompile Include="src\Renderer\TextureAtlas.cpp" />
-    <ClCompile Include="src\Renderer\TextureBuffer.cpp" />
-    <ClCompile Include="src\Renderer\TextureRegistry.cpp" />
-    <ClCompile Include="src\Util.cpp" />
+    <ClCompile Include="src\particles\ParticleSystem.cpp" />
+    <ClCompile Include="src\rendering\Renderer.cpp" />
+    <ClCompile Include="src\rendering\Framebuffer.cpp" />
+    <ClCompile Include="src\postprocessing\BloomFBO.cpp" />
+    <ClCompile Include="src\postprocessing\BloomRenderer.cpp" />
+    <ClCompile Include="src\postprocessing\Tonemapper.cpp" />
+    <ClCompile Include="src\util\RenderCommands.cpp" />
+    <ClCompile Include="src\util\ScreenQuad.cpp" />
+    <ClCompile Include="src\rendering\Shader.cpp" />
+    <ClCompile Include="src\texture\TextureAtlas.cpp" />
+    <ClCompile Include="src\rendering\TextureBuffer.cpp" />
+    <ClCompile Include="src\texture\TextureRegistry.cpp" />
+    <ClCompile Include="src\util\Util.cpp" />
     <ClCompile Include="vendor\imgui\include\backends\imgui_impl_glfw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
@@ -194,22 +194,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\pxr\pxr.h" />
-    <ClInclude Include="src\App.h" />
+    <ClInclude Include="examples\App.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Renderer\ParticleSystem.h" />
-    <ClInclude Include="src\Renderer\Renderer.h" />
-    <ClInclude Include="src\Renderer\Framebuffer.h" />
-    <ClInclude Include="src\Renderer\Postprocessing\BloomFBO.h" />
-    <ClInclude Include="src\Renderer\Postprocessing\BloomRenderer.h" />
-    <ClInclude Include="src\Renderer\Postprocessing\Tonemapper.h" />
-    <ClInclude Include="src\Renderer\RenderCommands.h" />
-    <ClInclude Include="src\Renderer\ScreenQuad.h" />
-    <ClInclude Include="src\Renderer\Shader.h" />
-    <ClInclude Include="src\Renderer\Texture.h" />
-    <ClInclude Include="src\Renderer\TextureAtlas.h" />
-    <ClInclude Include="src\Renderer\TextureBuffer.h" />
-    <ClInclude Include="src\Renderer\TextureRegistry.h" />
-    <ClInclude Include="src\Util.h" />
+    <ClInclude Include="src\particles\ParticleSystem.h" />
+    <ClInclude Include="src\rendering\Renderer.h" />
+    <ClInclude Include="src\rendering\Framebuffer.h" />
+    <ClInclude Include="src\postprocessing\BloomFBO.h" />
+    <ClInclude Include="src\postprocessing\BloomRenderer.h" />
+    <ClInclude Include="src\postprocessing\Tonemapper.h" />
+    <ClInclude Include="src\util\RenderCommands.h" />
+    <ClInclude Include="src\util\ScreenQuad.h" />
+    <ClInclude Include="src\rendering\Shader.h" />
+    <ClInclude Include="src\texture\Texture.h" />
+    <ClInclude Include="src\texture\TextureAtlas.h" />
+    <ClInclude Include="src\rendering\TextureBuffer.h" />
+    <ClInclude Include="src\texture\TextureRegistry.h" />
+    <ClInclude Include="src\util\Util.h" />
     <ClInclude Include="vendor\imgui\include\backends\imgui_impl_glfw.h" />
     <ClInclude Include="vendor\imgui\include\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="vendor\imgui\include\backends\imgui_impl_opengl3_loader.h" />

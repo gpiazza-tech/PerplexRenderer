@@ -2,9 +2,9 @@
 #include "Renderer.h"
 
 #include "Shader.h"
-#include "Texture.h"
-#include "TextureRegistry.h"
-#include "Util.h"
+#include <texture/Texture.h>
+#include <texture/TextureRegistry.h>
+#include <util/Util.h>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

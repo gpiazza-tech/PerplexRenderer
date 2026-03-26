@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "BloomFBO.h"
 
-#include <Renderer/TextureBuffer.h>
+#include <rendering/TextureBuffer.h>
 
 #include <GL/glew.h>
 #include <fwd.hpp>
@@ -23,7 +23,7 @@ namespace pxr
 		for (int i = 0; i < mipChainLength; i++)
 		{
 			TextureBuffer mip;
-			mip.Create(mipIntSize.x, mipIntSize.y, TextureBufferType::HDR);
+			mip.Create(mipIntSize.x, mipIntSize.y, TextureBufferType::HDR, TextureBufferFilterMode::Linear);
 			m_MipChain.emplace_back(mip);
 
 			// setup next mip

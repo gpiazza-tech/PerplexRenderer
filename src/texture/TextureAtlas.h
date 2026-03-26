@@ -1,5 +1,7 @@
 #pragma once
 
+#include <rendering/TextureBuffer.h>
+
 #include <cstdint>
 
 namespace pxr
@@ -22,7 +24,7 @@ namespace pxr
 	private:
 		void AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg);
 	private:
-		uint32_t m_Texture;
+		TextureBuffer m_Texture;
 
 		int m_MaxSize;
 		int m_Size;

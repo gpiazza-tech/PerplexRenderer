@@ -2,7 +2,7 @@
 #include "Shader.h"
 
 #include "Renderer.h"
-#include "Util.h"
+#include <util/Util.h>
 
 #include <GL/glew.h>
 

@@ -1,13 +1,13 @@
 #include <pch.h>
 #include "TextureBuffer.h"
 
-#include "gl/glew.h"
+#include <gl/glew.h>
 
 #include <iostream>
 
 namespace pxr
 {
-    void TextureBuffer::Create(int width, int height, TextureBufferType type)
+    void TextureBuffer::Create(int width, int height, TextureBufferType type, TextureBufferFilterMode filterMode)
     {
         m_Width = width;
         m_Height = height;
@@ -18,8 +18,26 @@ namespace pxr
 
         AllocateBuffer();
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        GLint glFilterMode = 0;
+        switch (filterMode)
+        {
+        case pxr::TextureBufferFilterMode::Linear:
+            glFilterMode = GL_LINEAR;
+            break;
+        case pxr::TextureBufferFilterMode::Nearest:
+            glFilterMode = GL_NEAREST;
+            break;
+        default:
+            std::cout << "TextureBufferFilterMode not supported!" << std::endl;
+            break;
+        }
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glFilterMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glFilterMode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        ClearBuffer();
+
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
@@ -60,6 +78,25 @@ namespace pxr
             break;
         case TextureBufferType::DepthStencil:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Width, m_Height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+            break;
+        default:
+            std::cout << "Unknown texture type!" << std::endl;
+            break;
+        }
+    }
+
+    void TextureBuffer::ClearBuffer()
+    {
+        switch (m_Type)
+        {
+        case TextureBufferType::LDR:
+            glClearTexImage(m_RendererID, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            break;
+        case TextureBufferType::HDR:
+            glClearTexImage(m_RendererID, 0, GL_RGBA, GL_FLOAT, nullptr);
+            break;
+        case TextureBufferType::DepthStencil:
+            glClearTexImage(m_RendererID, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
             break;
         default:
             std::cout << "Unknown texture type!" << std::endl;

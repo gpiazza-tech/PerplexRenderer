@@ -1,8 +1,6 @@
 #include <pch.h>
 #include "App.h"
 
-#include "Util.h"
-
 #include <pxr/pxr.h>
 
 #include <fwd.hpp>
@@ -20,10 +18,6 @@ uint32_t g_PixelsPerUnit = 16;
 pxr::Texture g_Bob;
 pxr::Texture g_Bobby;
 pxr::Texture g_Blaster;
-
-// TextureAtlas g_ColorAtlas;
-// TextureAtlas g_EmmissionAtlas;
-// TextureAtlas g_NormalAtlas;
 
 pxr::ParticleSystem g_ParticleSystem;
 

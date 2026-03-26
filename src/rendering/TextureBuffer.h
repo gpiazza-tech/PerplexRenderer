@@ -4,6 +4,13 @@
 
 namespace pxr
 {
+	enum class TextureBufferFilterMode
+	{
+		None = 0,
+		Linear,
+		Nearest
+	};
+
 	enum class TextureBufferType
 	{
 		None = 0,
@@ -21,7 +28,7 @@ namespace pxr
 		}
 		~TextureBuffer() {}
 
-		void Create(int width, int height, TextureBufferType type);
+		void Create(int width, int height, TextureBufferType type, TextureBufferFilterMode filterMode);
 		void Destroy();
 
 		inline int GetWidth() const { return m_Width; }
@@ -34,6 +41,7 @@ namespace pxr
 		void Resize(int width, int height);
 	private:
 		void AllocateBuffer();
+		void ClearBuffer();
 	private:
 		uint32_t m_RendererID;
 
