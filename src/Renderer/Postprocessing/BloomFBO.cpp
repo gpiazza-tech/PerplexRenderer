@@ -12,21 +12,8 @@ bool BloomFBO::Init(int windowWidth, int windowHeight, int mipChainLength)
 	m_MipChain.reserve(mipChainLength);
 	for (int i = 0; i < mipChainLength; i++)
 	{
-		BloomMip mip;
-
-		mip.Size = mipSize;
-		mip.IntSize = mipIntSize;
-
-		glGenTextures(1, &mip.Texture);
-		glBindTexture(GL_TEXTURE_2D, mip.Texture);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F, (int)mipSize.x, (int)mipSize.y, 0, GL_RGB, GL_FLOAT, nullptr);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
+		TextureBuffer mip;
+		mip.Create(mipIntSize.x, mipIntSize.y, TextureBufferType::HDR);
 		m_MipChain.emplace_back(mip);
 
 		// setup next mip
@@ -35,7 +22,7 @@ bool BloomFBO::Init(int windowWidth, int windowHeight, int mipChainLength)
 	}
 
 	// attach first mip texture to color attachment 0
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_MipChain[0].Texture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_MipChain[0].GetID(), 0);
 
 	// define color attachment 0 as the output of fragment shaders
 	uint32_t attachments[1] = { GL_COLOR_ATTACHMENT0 };
@@ -56,11 +43,9 @@ bool BloomFBO::Init(int windowWidth, int windowHeight, int mipChainLength)
 
 void BloomFBO::Destroy()
 {
-	for (size_t i = 0; i < m_MipChain.size(); i++)
-	{
-		glDeleteTextures(1, &m_MipChain[i].Texture);
-		m_MipChain[i].Texture = 0;
-	}
+	for (auto& mip : m_MipChain)
+		mip.Destroy();
+
 	glDeleteFramebuffers(1, &m_FBO);
 	m_FBO = 0;
 }
@@ -72,5 +57,6 @@ void BloomFBO::Bind()
 
 void BloomFBO::Resize(int width, int height)
 {
-	// TODO: Resize all mips
+	for (auto& mip : m_MipChain)
+		mip.Resize(width, height);
 }

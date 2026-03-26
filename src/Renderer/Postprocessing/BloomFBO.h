@@ -1,11 +1,9 @@
 #pragma once
 
-struct BloomMip
-{
-	glm::vec2 Size;
-	glm::ivec2 IntSize;
-	uint32_t Texture;
-};
+#include "../TextureBuffer.h"
+
+#include <vector>
+#include <cstdint>
 
 class BloomFBO
 {
@@ -16,10 +14,10 @@ public:
 	bool Init(int windowWidth, int windowHeight, int mipChainLength);
 	void Destroy();
 	void Bind();
-	inline const std::vector<BloomMip>& MipChain() const { return m_MipChain; }
+	inline std::vector<TextureBuffer>& MipChain() { return m_MipChain; }
 
 	void Resize(int width, int height);
 private:
 	uint32_t m_FBO = 0;
-	std::vector<BloomMip> m_MipChain;
+	std::vector<TextureBuffer> m_MipChain;
 };

@@ -3,47 +3,28 @@
 
 #include "Renderer/RenderCommands.h"
 #include "Renderer/Shader.h"
-#include "Util.h"
+
+#include <cstdint>
 
 void Tonemapper::Init(int width, int height)
 {
 	m_Width = width;
 	m_Height = height;
 
-	// Framebuffer
-	glGenFramebuffers(1, &m_FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-
-	// Colorbuffer texture
-	glGenTextures(1, &m_Texture);
-	glBindTexture(GL_TEXTURE_2D, m_Texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	// attach colorbuffer to framebuffer
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture, 0);
-
-	// check if framebuffer is complete
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Error: Framebuffer is not complete" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	// Shader
 	m_TonemapShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\TonemapFragment.glsl");
+	m_FBO.Create(width, height);
 }
 
 void Tonemapper::Destroy()
 {
-	glDeleteTextures(1, &m_Texture);
-
 	delete m_TonemapShader;
+	m_FBO.Destroy();
 }
 
 void Tonemapper::RenderTonemap(uint32_t srcTexture)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+	m_FBO.Bind();
+
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
 
@@ -60,5 +41,13 @@ void Tonemapper::RenderTonemap(uint32_t srcTexture)
 
 uint32_t Tonemapper::TonemappedTexture()
 {
-	return m_Texture;
+	return m_FBO.GetTextureID();
+}
+
+void Tonemapper::Resize(int width, int height)
+{
+	m_Width = width;
+	m_Height = height;
+	
+	m_FBO.Resize(width, height);
 }

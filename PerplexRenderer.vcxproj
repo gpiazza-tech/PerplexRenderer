@@ -160,6 +160,7 @@
     <ClCompile Include="src\Renderer\ScreenQuad.cpp" />
     <ClCompile Include="src\Renderer\Shader.cpp" />
     <ClCompile Include="src\Renderer\TextureAtlas.cpp" />
+    <ClCompile Include="src\Renderer\TextureBuffer.cpp" />
     <ClCompile Include="src\Renderer\TextureRegistry.cpp" />
     <ClCompile Include="src\Util.cpp" />
     <ClCompile Include="vendor\imgui\include\backends\imgui_impl_glfw.cpp">
@@ -205,6 +206,7 @@
     <ClInclude Include="src\Renderer\Shader.h" />
     <ClInclude Include="src\Renderer\Texture.h" />
     <ClInclude Include="src\Renderer\TextureAtlas.h" />
+    <ClInclude Include="src\Renderer\TextureBuffer.h" />
     <ClInclude Include="src\Renderer\TextureRegistry.h" />
     <ClInclude Include="src\Util.h" />
     <ClInclude Include="vendor\imgui\include\backends\imgui_impl_glfw.h" />

@@ -21,7 +21,7 @@ bool BloomRenderer::Init(uint32_t windowWidth, uint32_t windowHeight)
 		return false;
 	}
 
-	m_PrefilterFBO = Framebuffer(windowWidth, windowHeight, true);
+	m_PrefilterFBO.Create(windowWidth, windowHeight, true);
 
 	// Shaders
 	m_PrefilterShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\PrefilterFragment.glsl");
@@ -51,6 +51,7 @@ bool BloomRenderer::Init(uint32_t windowWidth, uint32_t windowHeight)
 void BloomRenderer::Destroy()
 {
 	m_FBO.Destroy();
+	m_PrefilterFBO.Destroy();
 
 	delete m_PrefilterShader;
 	delete m_DownsampleShader;
@@ -71,7 +72,7 @@ void BloomRenderer::RenderBloomTexture(uint32_t srcTexture, float threshold, flo
 
 uint32_t BloomRenderer::BloomTexture()
 {
-	return m_FBO.MipChain()[0].Texture;
+	return m_FBO.MipChain()[0].GetID();
 }
 
 void BloomRenderer::Prefilter(uint32_t srcTexture, float threshold)
@@ -99,7 +100,7 @@ void BloomRenderer::RenderDownsamples(uint32_t srcTexture)
 {
 	glDisable(GL_BLEND);
 
-	const std::vector<BloomMip>& mipChain = m_FBO.MipChain();
+	const std::vector<TextureBuffer>& mipChain = m_FBO.MipChain();
 
 	m_DownsampleShader->Use();
 	m_DownsampleShader->SetUniformFloat2("u_Resolution", m_SrcViewportSizeFloat.x, m_SrcViewportSizeFloat.y);
@@ -112,15 +113,15 @@ void BloomRenderer::RenderDownsamples(uint32_t srcTexture)
 
 	for (size_t i = 0; i < m_FBO.MipChain().size(); i++)
 	{
-		const BloomMip& mip = mipChain[i];
-		glViewport(0, 0, (GLsizei)mip.Size.x, (GLsizei)mip.Size.y);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mip.Texture, 0);
+		const TextureBuffer& mip = mipChain[i];
+		glViewport(0, 0, (GLsizei)mip.GetWidth(), (GLsizei)mip.GetHeight());
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mip.GetID(), 0);
 
 		RenderCommands::DrawScreen();
 
 		// Setup next iteration
-		m_DownsampleShader->SetUniformFloat2("u_Resolution", mip.Size.x, mip.Size.y);
-		glBindTexture(GL_TEXTURE_2D, mip.Texture);
+		m_DownsampleShader->SetUniformFloat2("u_Resolution", (float)mip.GetWidth(), (float)mip.GetHeight());
+		glBindTexture(GL_TEXTURE_2D, mip.GetID());
 	}
 
 	m_DownsampleShader->EndUse();
@@ -128,7 +129,7 @@ void BloomRenderer::RenderDownsamples(uint32_t srcTexture)
 
 void BloomRenderer::RenderUpsamples(float filterRadius)
 {
-	const std::vector<BloomMip>& mipChain = m_FBO.MipChain();
+	const std::vector<TextureBuffer>& mipChain = m_FBO.MipChain();
 
 	m_UpsampleShader->Use();
 	m_UpsampleShader->SetUniformFloat("u_FilterRadius", filterRadius);
@@ -142,16 +143,16 @@ void BloomRenderer::RenderUpsamples(float filterRadius)
 
 	for (size_t i = mipChain.size() - 1; i > 0; i--)
 	{
-		const BloomMip& mip = mipChain[i];
-		const BloomMip& nextMip = mipChain[i - 1];
+		const TextureBuffer& mip = mipChain[i];
+		const TextureBuffer& nextMip = mipChain[i - 1];
 
 		// Set read texture
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mip.Texture);
+		glBindTexture(GL_TEXTURE_2D, mip.GetID());
 
 		// Set write texture
-		glViewport(0, 0, (GLsizei)nextMip.Size.x, (GLsizei)nextMip.Size.y);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, nextMip.Texture, 0);
+		glViewport(0, 0, (GLsizei)nextMip.GetWidth(), (GLsizei)nextMip.GetHeight());
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, nextMip.GetID(), 0);
 
 		RenderCommands::DrawScreen();
 	}
@@ -184,5 +185,6 @@ void BloomRenderer::Resize(uint32_t width, uint32_t height)
 	m_SrcViewportSizeFloat.x = (float)width;
 	m_SrcViewportSizeFloat.y = (float)height;
 
+	m_PrefilterFBO.Resize(width, height);
 	m_FBO.Resize(width, height);
 }

@@ -79,7 +79,7 @@ void AppStart()
     // Postprocessing
     g_BloomRenderer.Init(g_Width, g_Height);
     g_Tonemapper.Init(g_Width, g_Height);
-    g_Framebuffer = Framebuffer(g_Width, g_Height, true);
+    g_Framebuffer.Create(g_Width, g_Height, true);
 }
 
 void AppUpdate(float ts)
@@ -90,17 +90,10 @@ void AppUpdate(float ts)
     static glm::vec3 blasterPosition = glm::vec3();
     g_View = glm::translate(glm::mat4(1.0f), -cameraPosition);
 
-    glDepthMask(GL_TRUE);
-    glDepthFunc(GL_LESS);
-    glViewport(0, 0, g_Width, g_Height);
     UpdateProjection();
 
     // Bind what we need
     g_Framebuffer.Bind();
-
-    glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
 
     // Render Scene
     Renderer::BeginBatch(g_Proj);
@@ -211,6 +204,7 @@ void OnWindowResize(int width, int height)
 
     // Resize buffers
     g_BloomRenderer.Resize(width, height);
+    g_Tonemapper.Resize(width, height);
     g_Framebuffer.Resize(width, height);
 
     glViewport(0, 0, g_Width, g_Height);

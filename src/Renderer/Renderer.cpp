@@ -135,6 +135,10 @@ void Renderer::BeginBatch(glm::mat4 projection)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glBlendEquation(GL_FUNC_ADD);
 
+    glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+
     s_Data.QuadBufferPtr = s_Data.QuadBuffer;
 
     s_Data.Projection = projection;

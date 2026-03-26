@@ -1,7 +1,10 @@
 #pragma once
 
+#include "../Framebuffer.h"
+
+#include <cstdint>
+
 class Shader;
-class Framebuffer;
 
 class Tonemapper
 {
@@ -14,10 +17,13 @@ public:
 
 	void RenderTonemap(uint32_t srcTexture);
 	uint32_t TonemappedTexture();
+
+	void Resize(int width, int height);
 private:
-	uint32_t m_Texture;
-	uint32_t m_FBO;
-	Shader* m_TonemapShader;
+	Framebuffer m_FBO;
+
 	int m_Width;
 	int m_Height;
+
+	Shader* m_TonemapShader;
 };
