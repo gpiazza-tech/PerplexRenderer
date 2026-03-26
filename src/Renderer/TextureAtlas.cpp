@@ -72,7 +72,6 @@ Texture TextureAtlas::AddTexture(const std::filesystem::path& path)
 
 	// Create Texture to return
 	Texture subTexture;
-	subTexture.AtlasTexture = m_Texture;
 
 	subTexture.PixelX = m_CurrentX + 1;
 	subTexture.PixelY = m_CurrentY + 1;
@@ -119,7 +118,6 @@ Texture TextureAtlas::AddTextureAt(const std::filesystem::path& path, int xPos, 
 
 	// Create Texture to return
 	Texture subTexture;
-	subTexture.AtlasTexture = m_Texture;
 
 	subTexture.PixelX = xPos;
 	subTexture.PixelY = yPos;

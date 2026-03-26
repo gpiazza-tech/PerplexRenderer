@@ -1,16 +1,16 @@
 #include <pch.h>
 #include "BloomFBO.h"
 
-bool BloomFBO::Init(uint32_t windowWidth, uint32_t windowHeight, uint32_t mipChainLength)
+bool BloomFBO::Init(int windowWidth, int windowHeight, int mipChainLength)
 {
 	glGenFramebuffers(1, &m_FBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
 	glm::vec2 mipSize((float)windowWidth, (float)windowHeight);
-	glm::ivec2 mipIntSize((int)windowWidth, (int)windowHeight);
+	glm::ivec2 mipIntSize(windowWidth, windowHeight);
 
 	m_MipChain.reserve(mipChainLength);
-	for (size_t i = 0; i < mipChainLength; i++)
+	for (int i = 0; i < mipChainLength; i++)
 	{
 		BloomMip mip;
 
@@ -68,4 +68,9 @@ void BloomFBO::Destroy()
 void BloomFBO::Bind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+}
+
+void BloomFBO::Resize(int width, int height)
+{
+	// TODO: Resize all mips
 }

@@ -22,13 +22,22 @@ void TextureRegistry::Init()
 
 Texture TextureRegistry::Add(const fs::path& color)
 {
-	return m_AtlasGroups[0].ColorAtlas.AddTexture(color);
+	Texture colorTexture = m_AtlasGroups[0].ColorAtlas.AddTexture(color);
+	colorTexture.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetAtlasTexture();
+	colorTexture.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetAtlasTexture();
+
+	return colorTexture;
 }
 
 Texture TextureRegistry::Add(const fs::path& color, const fs::path& emission)
 { 
 	Texture colorTexture = m_AtlasGroups[0].ColorAtlas.AddTexture(color);
+	colorTexture.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetAtlasTexture();
+	colorTexture.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetAtlasTexture();
+
 	Texture emissionTexture = m_AtlasGroups[0].EmissionAtlas.AddTextureAt(emission, colorTexture.PixelX, colorTexture.PixelY);
+	emissionTexture.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetAtlasTexture();
+	emissionTexture.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetAtlasTexture();
 
 	if (colorTexture.PixelWidth != emissionTexture.PixelWidth || colorTexture.PixelHeight != emissionTexture.PixelHeight)
 	{

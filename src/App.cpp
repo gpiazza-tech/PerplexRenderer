@@ -23,7 +23,6 @@ uint32_t g_Width = 1920;
 uint32_t g_Height = 1080;
 uint32_t g_PixelsPerUnit = 16;
 
-Texture g_Pixel;
 Texture g_Bob;
 Texture g_Bobby;
 Texture g_Blaster;
@@ -65,13 +64,12 @@ void AppStart()
 
     // Textures
     // g_ColorAtlas.Create(1024, g_PixelsPerUnit);
-    g_Pixel =   Renderer::GetTextureRegistry().Add("res\\textures\\White.png");
     g_Bob =     Renderer::GetTextureRegistry().Add("res\\textures\\Bob.png", "res\\textures\\Bob_Emission.png");
     g_Bobby =   Renderer::GetTextureRegistry().Add("res\\textures\\Bobby.png");
     g_Blaster = Renderer::GetTextureRegistry().Add("res\\textures\\Blaster.png");
 
     // Particle System
-    g_ParticleSystem.CreateFromTexture(g_Bobby);
+    g_ParticleSystem.CreateFromTexture(g_Bob);
     ParticleSystemSettings defaultSettings = ParticleSystemSettings();
     defaultSettings.VelocityMultiplier = 10.0f;
     defaultSettings.GravityMultiplier = 0.05f;
@@ -82,8 +80,6 @@ void AppStart()
     g_BloomRenderer.Init(g_Width, g_Height);
     g_Tonemapper.Init(g_Width, g_Height);
     g_Framebuffer = Framebuffer(g_Width, g_Height, true);
-    
-    Renderer::SetPixelTexture(g_Pixel);
 }
 
 void AppUpdate(float ts)
@@ -170,6 +166,7 @@ void AppUpdate(float ts)
         ImGui::SliderFloat("Velocity Randomness", &settings.VelocityRandomness, 0.0f, 1.0f);
         ImGui::DragFloat2("Start Velocity", &settings.StartVelocity.x, 0.1f);
         ImGui::DragFloat("Velocity Multiplier", &settings.VelocityMultiplier, 0.1f);
+        ImGui::DragFloat("Emission Multiplier", &settings.EmissionMultiplier, 0.1f);
         ImGui::Checkbox("Pixel Perfect", &settings.PixelPerfect);
 
         g_ParticleSystem.SetSettings(settings);

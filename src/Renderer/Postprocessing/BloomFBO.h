@@ -13,10 +13,12 @@ public:
 	BloomFBO() = default;
 	~BloomFBO() {}
 
-	bool Init(uint32_t windowWidth, uint32_t windowHeight, uint32_t mipChainLength);
+	bool Init(int windowWidth, int windowHeight, int mipChainLength);
 	void Destroy();
 	void Bind();
 	inline const std::vector<BloomMip>& MipChain() const { return m_MipChain; }
+
+	void Resize(int width, int height);
 private:
 	uint32_t m_FBO = 0;
 	std::vector<BloomMip> m_MipChain;

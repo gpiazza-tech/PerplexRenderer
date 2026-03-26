@@ -4,13 +4,16 @@ struct Texture
 {
 	// The index of the atlas stored in the AtlasGroups vector in AssetRegistry.
 	// Used to determine what texture unit index to sample from in the shader
-	uint32_t AtlasTexture;
+	int TextureUnit;
+	// The renderer ids of the color and emission texture atlases
+	int ColorAtlas;
+	int EmissionAtlas;
 
 	// The position and width in pixels relative to its atlas
-	uint32_t PixelX;
-	uint32_t PixelY;
-	uint32_t PixelWidth;
-	uint32_t PixelHeight;
+	int PixelX;
+	int PixelY;
+	int PixelWidth;
+	int PixelHeight;
 
 	// Determines what size quad to draw based on the pixel dimensions and the pixels per unit
 	// For example, if the texture is 16x32 and the pixels per unit is 8, then

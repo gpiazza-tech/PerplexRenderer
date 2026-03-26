@@ -22,13 +22,11 @@ public:
     static void Init(uint32_t pixelsPerUnit);
     static void Shutdown();
 
-    static void SetPixelTexture(const Texture& texture);
-
     static void BeginBatch(glm::mat4 projection);
     static void EndBatch();
     static void Flush();
 
-    static void DrawPixel(const glm::vec2& position, const glm::vec4& color = glm::vec4(1.0f), bool pixelPerfect = true);
+    static void DrawPixel(const glm::vec2& position, const glm::vec4& color = glm::vec4(1.0f), float emission = 0.0f, bool pixelPerfect = true);
     static void DrawQuad(const glm::vec2& position, const Texture& texture);
     static void DrawQuad(const glm::vec2& position, const Texture& texture, float emission);
     static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float emission, const Texture& texture, bool pixelPerfect);

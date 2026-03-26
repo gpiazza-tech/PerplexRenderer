@@ -3,7 +3,6 @@
 
 #include "Renderer.h"
 #include "Texture.h"
-#include "Util.h"
 
 void ParticleSystem::Create(size_t particleCount)
 {
@@ -26,29 +25,44 @@ void ParticleSystem::CreateFromTexture(const Texture& texture)
 {
     m_StartParticles.reserve(texture.PixelWidth * texture.PixelHeight);
 
-    uint8_t* channels = (uint8_t*)malloc(texture.PixelWidth * texture.PixelHeight * 4);
-    glGetTextureSubImage(texture.AtlasTexture, 0,
+    // Color
+    uint8_t* colorChannels = (uint8_t*)malloc(texture.PixelWidth * texture.PixelHeight * 4);
+    glGetTextureSubImage(texture.ColorAtlas, 0,
         texture.PixelX, texture.PixelY, 0, 
         texture.PixelWidth, texture.PixelHeight, 1, 
         GL_RGBA, GL_UNSIGNED_BYTE, 
         texture.PixelWidth * texture.PixelHeight * 4, 
-        channels);
+        colorChannels);
+
+    // Emission
+    uint8_t* emitChannels = (uint8_t*)malloc(texture.PixelWidth * texture.PixelHeight * 4);
+    glGetTextureSubImage(texture.EmissionAtlas, 0,
+        texture.PixelX, texture.PixelY, 0,
+        texture.PixelWidth, texture.PixelHeight, 1,
+        GL_RGBA, GL_UNSIGNED_BYTE,
+        texture.PixelWidth * texture.PixelHeight * 4,
+        emitChannels);
 
     float pixelsPerUnit = 16.0f; 
     m_Center = glm::vec2((float)texture.PixelWidth / pixelsPerUnit / 2.0f, (float)texture.PixelHeight / pixelsPerUnit / 2.0f);
 
-    ASSERT(channels != nullptr);
+    ASSERT(colorChannels != nullptr);
 
     glm::vec2 positionOffset = {  };
     for (size_t i = 0; i < texture.PixelWidth * texture.PixelHeight * 4; i += 4)
     {
-        uint8_t a = channels[i + 3];
-        if (a == 0)
+        float aColor = colorChannels[i + 3] / (float)255;
+        if (aColor == 0.0f)
             continue;
 
-        uint8_t r = channels[i];
-        uint8_t g = channels[i + 1];
-        uint8_t b = channels[i + 2];
+        float rColor = colorChannels[i + 0] / (float)255;
+        float gColor = colorChannels[i + 1] / (float)255;
+        float bColor = colorChannels[i + 2] / (float)255;
+
+        float rEmit = emitChannels[i + 0] / (float)255;
+        float gEmit = emitChannels[i + 1] / (float)255;
+        float bEmit = emitChannels[i + 2] / (float)255;
+        float aEmit = emitChannels[i + 3] / (float)255;
         
         int pixelIndex = (int)i / 4;
         int pixelX = pixelIndex % texture.PixelWidth;
@@ -56,8 +70,9 @@ void ParticleSystem::CreateFromTexture(const Texture& texture)
 
         // Particle
         Particle particle = Particle();
-        particle.Color = glm::vec4(r / (float)255, g / (float)255, b / (float)255, a / (float)255);
+        particle.Color = glm::vec4(rColor, gColor, bColor, aColor);
         particle.Position = glm::vec2(pixelX / pixelsPerUnit, pixelY / pixelsPerUnit);
+        particle.Emission = rEmit; // only red channel contributes to emission
 
         // Particle Velocity
         particle.Velocity = glm::vec2(particle.Position - m_Center) + m_Settings.StartVelocity;
@@ -70,6 +85,9 @@ void ParticleSystem::CreateFromTexture(const Texture& texture)
     }
 
     m_Particles = m_StartParticles;
+
+    free(colorChannels);
+    free(emitChannels);
 }
 
 void ParticleSystem::Reset()
@@ -100,6 +118,6 @@ void ParticleSystem::Render(const glm::vec2& position)
 {
     for (auto& particle : m_Particles)
     {
-        Renderer::DrawPixel(particle.Position + position, particle.Color, m_Settings.PixelPerfect);
+        Renderer::DrawPixel(particle.Position + position, particle.Color, particle.Emission * m_Settings.EmissionMultiplier, m_Settings.PixelPerfect);
     }
 }

@@ -5,6 +5,7 @@ struct Particle
 	glm::vec2 Position = { 0.0f, 0.0f };
 	glm::vec2 Velocity = { 0.0f, 0.0f };
 	glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float Emission = 0.0f;
 };
 
 struct ParticleSystemSettings
@@ -17,6 +18,8 @@ struct ParticleSystemSettings
 	glm::vec2 StartVelocity = { 0.0f, 0.0f };
 	float VelocityMultiplier = 1.0f;
 	float VelocityRandomness = 0.1f; // range: 0.0f to 1.0f
+
+	float EmissionMultiplier = 1.0f;
 
 	bool PixelPerfect = true;
 };

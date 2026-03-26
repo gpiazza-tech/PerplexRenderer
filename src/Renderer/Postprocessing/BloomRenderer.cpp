@@ -183,4 +183,6 @@ void BloomRenderer::Resize(uint32_t width, uint32_t height)
 
 	m_SrcViewportSizeFloat.x = (float)width;
 	m_SrcViewportSizeFloat.y = (float)height;
+
+	m_FBO.Resize(width, height);
 }
