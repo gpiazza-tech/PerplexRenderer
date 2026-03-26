@@ -1,62 +1,73 @@
 #include <pch.h>
 #include "BloomFBO.h"
 
-bool BloomFBO::Init(int windowWidth, int windowHeight, int mipChainLength)
+#include <Renderer/TextureBuffer.h>
+
+#include <GL/glew.h>
+#include <fwd.hpp>
+#include <cstdint>
+#include <iostream>
+#include <ostream>
+
+namespace pxr
 {
-	glGenFramebuffers(1, &m_FBO);
-	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-
-	glm::vec2 mipSize((float)windowWidth, (float)windowHeight);
-	glm::ivec2 mipIntSize(windowWidth, windowHeight);
-
-	m_MipChain.reserve(mipChainLength);
-	for (int i = 0; i < mipChainLength; i++)
+	bool BloomFBO::Init(int windowWidth, int windowHeight, int mipChainLength)
 	{
-		TextureBuffer mip;
-		mip.Create(mipIntSize.x, mipIntSize.y, TextureBufferType::HDR);
-		m_MipChain.emplace_back(mip);
+		glGenFramebuffers(1, &m_FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
-		// setup next mip
-		mipSize *= 0.5f;
-		mipIntSize /= 2;
-	}
+		glm::vec2 mipSize((float)windowWidth, (float)windowHeight);
+		glm::ivec2 mipIntSize(windowWidth, windowHeight);
 
-	// attach first mip texture to color attachment 0
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_MipChain[0].GetID(), 0);
+		m_MipChain.reserve(mipChainLength);
+		for (int i = 0; i < mipChainLength; i++)
+		{
+			TextureBuffer mip;
+			mip.Create(mipIntSize.x, mipIntSize.y, TextureBufferType::HDR);
+			m_MipChain.emplace_back(mip);
 
-	// define color attachment 0 as the output of fragment shaders
-	uint32_t attachments[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, attachments);
+			// setup next mip
+			mipSize *= 0.5f;
+			mipIntSize /= 2;
+		}
 
-	// check if complete
-	int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (status != GL_FRAMEBUFFER_COMPLETE)
-	{
-		std::cout << "bloom FBO error, status: " << status << std::endl;
+		// attach first mip texture to color attachment 0
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_MipChain[0].GetID(), 0);
+
+		// define color attachment 0 as the output of fragment shaders
+		uint32_t attachments[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, attachments);
+
+		// check if complete
+		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (status != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cout << "bloom FBO error, status: " << status << std::endl;
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			return false;
+		}
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		return false;
+		return true;
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	return true;
-}
+	void BloomFBO::Destroy()
+	{
+		for (auto& mip : m_MipChain)
+			mip.Destroy();
 
-void BloomFBO::Destroy()
-{
-	for (auto& mip : m_MipChain)
-		mip.Destroy();
+		glDeleteFramebuffers(1, &m_FBO);
+		m_FBO = 0;
+	}
 
-	glDeleteFramebuffers(1, &m_FBO);
-	m_FBO = 0;
-}
+	void BloomFBO::Bind()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+	}
 
-void BloomFBO::Bind()
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-}
-
-void BloomFBO::Resize(int width, int height)
-{
-	for (auto& mip : m_MipChain)
-		mip.Resize(width, height);
+	void BloomFBO::Resize(int width, int height)
+	{
+		for (auto& mip : m_MipChain)
+			mip.Resize(width, height);
+	}
 }

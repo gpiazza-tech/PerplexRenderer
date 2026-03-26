@@ -3,15 +3,9 @@
 
 #include "Util.h"
 
-#include "Renderer/Renderer.h"
-#include "Renderer/ParticleSystem.h"
-#include "Renderer/Framebuffer.h"
-#include "Renderer/Texture.h"
-#include "Renderer/TextureAtlas.h"
-#include "Renderer/TextureRegistry.h"
-#include "Renderer/Postprocessing/BloomRenderer.h"
-#include "Renderer/Postprocessing/Tonemapper.h"
+#include <pxr/pxr.h>
 
+#include <fwd.hpp>
 #include <glm.hpp>
 
 #include <cstdint>
@@ -23,20 +17,20 @@ uint32_t g_Width = 1920;
 uint32_t g_Height = 1080;
 uint32_t g_PixelsPerUnit = 16;
 
-Texture g_Bob;
-Texture g_Bobby;
-Texture g_Blaster;
+pxr::Texture g_Bob;
+pxr::Texture g_Bobby;
+pxr::Texture g_Blaster;
 
 // TextureAtlas g_ColorAtlas;
 // TextureAtlas g_EmmissionAtlas;
 // TextureAtlas g_NormalAtlas;
 
-ParticleSystem g_ParticleSystem;
+pxr::ParticleSystem g_ParticleSystem;
 
-BloomRenderer g_BloomRenderer;
-Tonemapper g_Tonemapper;
+pxr::BloomRenderer g_BloomRenderer;
+pxr::Tonemapper g_Tonemapper;
 
-Framebuffer g_Framebuffer;
+pxr::Framebuffer g_Framebuffer;
 
 glm::mat4 g_Model = glm::mat4(1.0f);
 glm::mat4 g_View = glm::mat4(1.0f);
@@ -47,8 +41,8 @@ float g_CameraZoom = 2.0f;
 static void UpdateProjection()
 {
     float ratio = std::min(2.0 / (float)g_Width, 1.5 / (float)g_Height);
-    float semiWidth = RoundToNearestFraction((float)g_Width * ratio * g_CameraZoom, g_PixelsPerUnit);
-    float semiHeight = RoundToNearestFraction((float)g_Height * ratio * g_CameraZoom, g_PixelsPerUnit);
+    float semiWidth = pxr::RoundToNearestFraction((float)g_Width * ratio * g_CameraZoom, g_PixelsPerUnit);
+    float semiHeight = pxr::RoundToNearestFraction((float)g_Height * ratio * g_CameraZoom, g_PixelsPerUnit);
 
     g_Proj = glm::ortho(-semiWidth, semiWidth, -semiHeight, semiHeight, -1.0f, 1.0f);
 }
@@ -57,20 +51,20 @@ void AppStart()
 {
     // Debugging
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(GLDebugMessageCallback, nullptr);
+    glDebugMessageCallback(pxr::GLDebugMessageCallback, nullptr);
     glViewport(0, 0, g_Width, g_Height);
 
-    Renderer::Init(g_PixelsPerUnit);
+    pxr::Renderer::Init(g_PixelsPerUnit);
 
     // Textures
     // g_ColorAtlas.Create(1024, g_PixelsPerUnit);
-    g_Bob =     Renderer::GetTextureRegistry().Add("res\\textures\\Bob.png", "res\\textures\\Bob_Emission.png");
-    g_Bobby =   Renderer::GetTextureRegistry().Add("res\\textures\\Bobby.png");
-    g_Blaster = Renderer::GetTextureRegistry().Add("res\\textures\\Blaster.png");
+    g_Bob =     pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Bob.png", "res\\textures\\Bob_Emission.png");
+    g_Bobby =   pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Bobby.png");
+    g_Blaster = pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Blaster.png");
 
     // Particle System
     g_ParticleSystem.CreateFromTexture(g_Bob);
-    ParticleSystemSettings defaultSettings = ParticleSystemSettings();
+    pxr::ParticleSystemSettings defaultSettings = pxr::ParticleSystemSettings();
     defaultSettings.VelocityMultiplier = 10.0f;
     defaultSettings.GravityMultiplier = 0.05f;
     defaultSettings.StartVelocity = { 0.0f, 0.2f };
@@ -96,7 +90,7 @@ void AppUpdate(float ts)
     g_Framebuffer.Bind();
 
     // Render Scene
-    Renderer::BeginBatch(g_Proj);
+    pxr::Renderer::BeginBatch(g_Proj);
     
     // Particles
     static glm::vec2 particleSystemPosition = { 0.0f, 0.0f };
@@ -107,10 +101,10 @@ void AppUpdate(float ts)
 
     // Quads
     static float bobEmission = 1.0f;
-    Renderer::DrawQuad(bobPosition, g_Bob, bobEmission);
+    pxr::Renderer::DrawQuad(bobPosition, g_Bob, bobEmission);
 
-    Renderer::EndBatch();
-    Renderer::Flush();
+    pxr::Renderer::EndBatch();
+    pxr::Renderer::Flush();
 
     // Postprocessing
     static bool bloom = true;
@@ -151,7 +145,7 @@ void AppUpdate(float ts)
         ImGui::DragFloat3("Particle System", &particleSystemPosition.x, 0.01f);
 
         // Particle GUI
-        ParticleSystemSettings settings = g_ParticleSystem.GetSettings();
+        pxr::ParticleSystemSettings settings = g_ParticleSystem.GetSettings();
 
         ImGui::DragFloat("Speed", &settings.Speed, 0.01f);
         ImGui::DragFloat("Gravity Multiplier", &settings.GravityMultiplier, 0.01f);
@@ -194,7 +188,7 @@ void AppUpdate(float ts)
 
 void AppStop()
 {
-    Renderer::Shutdown();
+    pxr::Renderer::Shutdown();
 }
 
 void OnWindowResize(int width, int height)

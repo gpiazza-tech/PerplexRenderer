@@ -5,27 +5,30 @@
 #include <vector>
 #include <filesystem>
 
-struct Texture;
-
-struct AtlasGroup
+namespace pxr
 {
-	TextureAtlas ColorAtlas;
-	TextureAtlas EmissionAtlas;
-};
+	struct Texture;
 
-class TextureRegistry
-{
-public:
-	TextureRegistry();
-	~TextureRegistry() { }
+	struct AtlasGroup
+	{
+		TextureAtlas ColorAtlas;
+		TextureAtlas EmissionAtlas;
+	};
 
-	void Init();
+	class TextureRegistry
+	{
+	public:
+		TextureRegistry();
+		~TextureRegistry() { }
 
-	Texture Add(const std::filesystem::path& color);
-	Texture Add(const std::filesystem::path& color, const std::filesystem::path& emission);
+		void Init();
 
-	void BindToTextureUnits();
-private:
-	// Usually only one atlas group will be needed, but if it ever runs out of room then another AtlasGroup will be added
-	std::vector<AtlasGroup> m_AtlasGroups;
-};
+		Texture Add(const std::filesystem::path& color);
+		Texture Add(const std::filesystem::path& color, const std::filesystem::path& emission);
+
+		void BindToTextureUnits();
+	private:
+		// Usually only one atlas group will be needed, but if it ever runs out of room then another AtlasGroup will be added
+		std::vector<AtlasGroup> m_AtlasGroups;
+	};
+}

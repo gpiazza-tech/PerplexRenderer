@@ -3,12 +3,17 @@
 
 #include "ScreenQuad.h"
 
-void RenderCommands::DrawScreen()
+#include <GL/glew.h>
+
+namespace pxr
 {
-    glDisable(GL_DEPTH_TEST);
+    void RenderCommands::DrawScreen()
+    {
+        glDisable(GL_DEPTH_TEST);
 
-    static ScreenQuad screenQuad;
-    screenQuad.Draw();
+        static ScreenQuad screenQuad;
+        screenQuad.Draw();
 
-    glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
+    }
 }

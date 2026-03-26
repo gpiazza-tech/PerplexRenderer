@@ -112,7 +112,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)GLEW_STATIC;GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\stb_image\include;$(SolutionDir)vendor\glm\include;$(SolutionDir)vendor\imgui\include;$(SolutionDir)\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\stb_image\include;$(SolutionDir)vendor\glm\include;$(SolutionDir)vendor\imgui\include;$(SolutionDir)\src;$(SolutionDir)\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -132,7 +132,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)GLEW_STATIC;GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\stb_image\include;$(SolutionDir)vendor\glm\include;$(SolutionDir)vendor\imgui\include;$(SolutionDir)\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\stb_image\include;$(SolutionDir)vendor\glm\include;$(SolutionDir)vendor\imgui\include;$(SolutionDir)\src;$(SolutionDir)\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
@@ -193,6 +193,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\pxr\pxr.h" />
     <ClInclude Include="src\App.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\Renderer\ParticleSystem.h" />

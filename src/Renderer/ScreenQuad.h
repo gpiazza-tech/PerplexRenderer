@@ -1,12 +1,17 @@
 #pragma once
 
-class ScreenQuad
-{
-public:
-	ScreenQuad();
-	~ScreenQuad();
+#include <cstdint>
 
-	void Draw();
-private:
-	uint32_t m_Vao;
-};
+namespace pxr
+{
+	class ScreenQuad
+	{
+	public:
+		ScreenQuad();
+		~ScreenQuad();
+
+		void Draw();
+	private:
+		uint32_t m_Vao;
+	};
+}

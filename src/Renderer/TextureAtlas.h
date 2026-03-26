@@ -1,30 +1,35 @@
 #pragma once
 
-struct Texture;
+#include <cstdint>
 
-class TextureAtlas
+namespace pxr
 {
-public:
-	TextureAtlas() = default;
-	~TextureAtlas() {};
+	struct Texture;
 
-	Texture AddTexture(const std::filesystem::path& path);
-	Texture AddTextureAt(const std::filesystem::path& path, int xPos, int yPos);
+	class TextureAtlas
+	{
+	public:
+		TextureAtlas() = default;
+		~TextureAtlas() {};
 
-	void Create(uint32_t size, uint32_t pixelsPerUnit);
-	void Destroy();
+		Texture AddTexture(const std::filesystem::path& path);
+		Texture AddTextureAt(const std::filesystem::path& path, int xPos, int yPos);
 
-	uint32_t GetAtlasTexture();
-private:
-	void AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg);
-private:
-	uint32_t m_Texture;
+		void Create(int size, int pixelsPerUnit);
+		void Destroy();
 
-	uint32_t m_MaxSize;
-	uint32_t m_Size;
-	uint32_t m_PixelsPerUnit;
+		uint32_t GetAtlasTexture();
+	private:
+		void AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg);
+	private:
+		uint32_t m_Texture;
 
-	// Keeps track of the offset the next added texture should be drawn at
-	uint32_t m_CurrentX;
-	uint32_t m_CurrentY;
-};
+		int m_MaxSize;
+		int m_Size;
+		int m_PixelsPerUnit;
+
+		// Keeps track of the offset the next added texture should be drawn at
+		int m_CurrentX;
+		int m_CurrentY;
+	};
+}

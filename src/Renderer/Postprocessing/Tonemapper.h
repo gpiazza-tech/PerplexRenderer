@@ -4,26 +4,29 @@
 
 #include <cstdint>
 
-class Shader;
-
-class Tonemapper
+namespace pxr
 {
-public:
-	Tonemapper() = default;
-	~Tonemapper() {}
+	class Shader;
 
-	void Init(int width, int height);
-	void Destroy();
+	class Tonemapper
+	{
+	public:
+		Tonemapper() = default;
+		~Tonemapper() {}
 
-	void RenderTonemap(uint32_t srcTexture);
-	uint32_t TonemappedTexture();
+		void Init(int width, int height);
+		void Destroy();
 
-	void Resize(int width, int height);
-private:
-	Framebuffer m_FBO;
+		void RenderTonemap(uint32_t srcTexture);
+		uint32_t TonemappedTexture();
 
-	int m_Width;
-	int m_Height;
+		void Resize(int width, int height);
+	private:
+		Framebuffer m_FBO;
 
-	Shader* m_TonemapShader;
-};
+		int m_Width;
+		int m_Height;
+
+		Shader* m_TonemapShader;
+	};
+}

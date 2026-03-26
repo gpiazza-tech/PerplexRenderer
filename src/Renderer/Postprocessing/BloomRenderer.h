@@ -3,38 +3,43 @@
 #include "BloomFBO.h"
 #include "../Framebuffer.h"
 
+#include <fwd.hpp>
+
 #include <cstdint>
 
-class Shader;
-struct Texture;
-
-class BloomRenderer
+namespace pxr
 {
-public:
-	BloomRenderer() {}
-	~BloomRenderer() {}
+	class Shader;
+	struct Texture;
 
-	bool Init(uint32_t windowWidth, uint32_t windowHeight);
-	void Destroy();
+	class BloomRenderer
+	{
+	public:
+		BloomRenderer() {}
+		~BloomRenderer() {}
 
-	void RenderBloomTexture(uint32_t srcTexture, float threshold, float filterRadius);
-	uint32_t BloomTexture();
+		bool Init(uint32_t windowWidth, uint32_t windowHeight);
+		void Destroy();
 
-	void Resize(uint32_t width, uint32_t height);
-private:
-	void Prefilter(uint32_t srcTexture, float threshold);
-	void RenderDownsamples(uint32_t srcTexture);
-	void RenderUpsamples(float filterRadius);
-	void Combine(uint32_t srcTexture);
-private:
-	BloomFBO m_FBO;
-	Framebuffer m_PrefilterFBO;
+		void RenderBloomTexture(uint32_t srcTexture, float threshold, float filterRadius);
+		uint32_t BloomTexture();
 
-	glm::ivec2 m_SrcViewportSize;
-	glm::vec2 m_SrcViewportSizeFloat;
+		void Resize(uint32_t width, uint32_t height);
+	private:
+		void Prefilter(uint32_t srcTexture, float threshold);
+		void RenderDownsamples(uint32_t srcTexture);
+		void RenderUpsamples(float filterRadius);
+		void Combine(uint32_t srcTexture);
+	private:
+		BloomFBO m_FBO;
+		Framebuffer m_PrefilterFBO;
 
-	Shader* m_PrefilterShader = nullptr;
-	Shader* m_DownsampleShader = nullptr;
-	Shader* m_UpsampleShader = nullptr;
-	Shader* m_ScreenShader = nullptr;
-};
+		glm::ivec2 m_SrcViewportSize;
+		glm::vec2 m_SrcViewportSizeFloat;
+
+		Shader* m_PrefilterShader = nullptr;
+		Shader* m_DownsampleShader = nullptr;
+		Shader* m_UpsampleShader = nullptr;
+		Shader* m_ScreenShader = nullptr;
+	};
+}

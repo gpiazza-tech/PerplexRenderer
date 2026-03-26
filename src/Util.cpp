@@ -1,31 +1,42 @@
 #include <pch.h>
 #include "Util.h"
 
-std::string g_ProjectPath = "C:\\dev\\PerplexRenderer";
+#include <fwd.hpp>
 
-std::string StringFromFile(const std::filesystem::path& path)
+#include <cmath>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <string>
+
+namespace pxr
 {
-    std::ifstream file(path.string());
-    std::stringstream buffer;
+    std::string g_ProjectPath = "C:\\dev\\PerplexRenderer";
 
-    buffer << file.rdbuf();
-    return buffer.str();
-}
+    std::string StringFromFile(const std::filesystem::path& path)
+    {
+        std::ifstream file(path.string());
+        std::stringstream buffer;
 
-std::filesystem::path RelativePath(const std::filesystem::path& path)
-{
-    return g_ProjectPath / path;
-}
+        buffer << file.rdbuf();
+        return buffer.str();
+    }
 
-float RoundToNearestFraction(float val, float denominator)
-{
-    // if denominator (d) = 16: val * 16, round(val), val / 16
-    double buffer = val * denominator;
-    buffer = round(buffer);
-    return buffer / denominator;
-}
+    std::filesystem::path RelativePath(const std::filesystem::path& path)
+    {
+        return g_ProjectPath / path;
+    }
 
-glm::vec3 MakePixelPerfect(glm::vec3 vec3, int pixelsPerUnit)
-{
-    return glm::vec3(RoundToNearestFraction(vec3.x, pixelsPerUnit), RoundToNearestFraction(vec3.y, pixelsPerUnit), RoundToNearestFraction(vec3.z, pixelsPerUnit));
+    float RoundToNearestFraction(float val, float denominator)
+    {
+        // if denominator (d) = 16: val * 16, round(val), val / 16
+        double buffer = val * denominator;
+        buffer = round(buffer);
+        return buffer / denominator;
+    }
+
+    glm::vec3 MakePixelPerfect(glm::vec3 vec3, int pixelsPerUnit)
+    {
+        return glm::vec3(RoundToNearestFraction(vec3.x, pixelsPerUnit), RoundToNearestFraction(vec3.y, pixelsPerUnit), RoundToNearestFraction(vec3.z, pixelsPerUnit));
+    }
 }

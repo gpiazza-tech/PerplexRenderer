@@ -2,37 +2,42 @@
 
 #include "TextureBuffer.h"
 
-class Shader;
+#include <cstdint>
 
-class Framebuffer
+namespace pxr
 {
-public:
-	Framebuffer() = default;
-	~Framebuffer() {}
+	class Shader;
 
-	void Create(int width, int height, bool hdr = false);
-	void Destroy();
+	class Framebuffer
+	{
+	public:
+		Framebuffer() = default;
+		~Framebuffer() {}
 
-	void Bind();
-	void BindTexture();
+		void Create(int width, int height, bool hdr = false);
+		void Destroy();
 
-	void DrawTexture(uint32_t texture);
-	void DrawToScreen();
-	inline const uint32_t GetTextureID() { return m_ColorTexture.GetID(); }
+		void Bind();
+		void BindTexture();
 
-	inline const int GetWidth() const { return m_Width; }
-	inline const int GetHeight() const { return m_Height; }
+		void DrawTexture(uint32_t texture);
+		void DrawToScreen();
+		inline const uint32_t GetTextureID() { return m_ColorTexture.GetID(); }
 
-	void Resize(int width, int height);
-private:
-	uint32_t m_FBO;
+		inline const int GetWidth() const { return m_Width; }
+		inline const int GetHeight() const { return m_Height; }
 
-	int m_Width;
-	int m_Height;
-	bool m_HDR;
+		void Resize(int width, int height);
+	private:
+		uint32_t m_FBO;
 
-	TextureBuffer m_ColorTexture;
-	TextureBuffer m_DepthStencilTexture;
+		int m_Width;
+		int m_Height;
+		bool m_HDR;
 
-	Shader* m_ScreenShader;
-};
+		TextureBuffer m_ColorTexture;
+		TextureBuffer m_DepthStencilTexture;
+
+		Shader* m_ScreenShader;
+	};
+}
