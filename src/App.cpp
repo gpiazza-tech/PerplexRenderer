@@ -63,11 +63,16 @@ void AppStart()
     g_Blaster = pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Blaster.png");
 
     // Particle System
-    g_ParticleSystem.CreateFromTexture(g_Bob);
+    g_ParticleSystem.CreateEmissive();
     pxr::ParticleSystemSettings defaultSettings = pxr::ParticleSystemSettings();
+    defaultSettings.ParticlesPerSecond = 40;
+    defaultSettings.SpawnBounds = { 10.0f, 1.0f };
     defaultSettings.VelocityMultiplier = 10.0f;
     defaultSettings.GravityMultiplier = 0.05f;
-    defaultSettings.StartVelocity = { 0.0f, 0.2f };
+    defaultSettings.StartVelocity = { -0.2f, -0.5f };
+    defaultSettings.StartColor = { 0.5f, 0.55f, 1.0f, 1.0f };
+    defaultSettings.StartEmission = 0.5f;
+    defaultSettings.PixelPerfect = false;
     g_ParticleSystem.SetSettings(defaultSettings);
 
     // Postprocessing
@@ -93,7 +98,7 @@ void AppUpdate(float ts)
     pxr::Renderer::BeginBatch(g_Proj);
     
     // Particles
-    static glm::vec2 particleSystemPosition = { 0.0f, 0.0f };
+    static glm::vec2 particleSystemPosition = { 0.0f, 4.0f };
     static bool play = false;
     if (play)
         g_ParticleSystem.Update(ts);
@@ -142,18 +147,44 @@ void AppUpdate(float ts)
         ImGui::DragFloat("Zoom", &g_CameraZoom, 0.01f);
         ImGui::DragFloat3("Bob", &bobPosition.x, 0.01f);
         ImGui::DragFloat("Bob Emission", &bobEmission, 0.01f);
-        ImGui::DragFloat3("Particle System", &particleSystemPosition.x, 0.01f);
 
-        // Particle GUI
+        // Postprocessing GUI
+        ImGui::Checkbox("Bloom", &bloom);
+        ImGui::DragFloat("Threshold", &threshold, 0.01f);
+        ImGui::SliderFloat("Filter radius", &filterRadius, 0.0f, 0.01f);
+        ImGui::Checkbox("Tonemap", &tonemap);
+
+        float bloomImageSize = 0.3f;
+        ImGui::Image(g_BloomRenderer.BloomTexture(), ImVec2(g_Width * bloomImageSize, g_Height * bloomImageSize));
+
+        float tonemapImageSize = 0.3f;
+        ImGui::Image(g_Tonemapper.TonemappedTexture(), ImVec2(g_Width * bloomImageSize, g_Height * bloomImageSize));
+
+        ImGui::End();
+    }
+
+    static bool showParticleSystemSettings = true;
+    if (showParticleSystemSettings)
+    {
+        ImGui::Begin("Particle System Settings", &showParticleSystemSettings);
+
         pxr::ParticleSystemSettings settings = g_ParticleSystem.GetSettings();
 
+        ImGui::DragFloat3("Position", &particleSystemPosition.x, 0.01f);
+        ImGui::DragInt("Rate", &settings.ParticlesPerSecond);
+        ImGui::DragFloat("Start Lifetime", &settings.StartLifetime, 0.01f);
+        ImGui::DragFloat2("Bounds", &settings.SpawnBounds.x);
         ImGui::DragFloat("Speed", &settings.Speed, 0.01f);
+
         ImGui::DragFloat("Gravity Multiplier", &settings.GravityMultiplier, 0.01f);
         ImGui::DragFloat("Air Friction", &settings.AirFriction, 0.01f);
         ImGui::SliderFloat("Velocity Randomness", &settings.VelocityRandomness, 0.0f, 1.0f);
         ImGui::DragFloat2("Start Velocity", &settings.StartVelocity.x, 0.1f);
-        ImGui::DragFloat("Velocity Multiplier", &settings.VelocityMultiplier, 0.1f);
-        ImGui::DragFloat("Emission Multiplier", &settings.EmissionMultiplier, 0.1f);
+        ImGui::DragFloat("Velocity Multiplier", &settings.VelocityMultiplier, 0.01f);
+        
+        ImGui::DragFloat4("Color", &settings.StartColor.x, 0.01f, 0.0f, 1.0f);
+        ImGui::DragFloat("Emission", &settings.StartEmission, 0.01f, 0.0f);
+        ImGui::DragFloat("Emission Multiplier", &settings.EmissionMultiplier, 0.01f);
         ImGui::Checkbox("Pixel Perfect", &settings.PixelPerfect);
 
         g_ParticleSystem.SetSettings(settings);
@@ -166,21 +197,6 @@ void AppUpdate(float ts)
             play = true;
         if (ImGui::Button("Stop"))
             play = false;
-
-        // Postprocessing GUI
-        ImGui::Checkbox("Bloom", &bloom);
-        ImGui::DragFloat("Threshold", &threshold, 0.1f);
-        ImGui::SliderFloat("Filter radius", &filterRadius, 0.0f, 0.1f);
-        ImGui::Checkbox("Tonemap", &tonemap);
-
-        float bloomImageSize = 0.3f;
-        ImGui::Image(g_BloomRenderer.BloomTexture(), ImVec2(g_Width * bloomImageSize, g_Height * bloomImageSize));
-
-        float tonemapImageSize = 0.3f;
-        ImGui::Image(g_Tonemapper.TonemappedTexture(), ImVec2(g_Width * bloomImageSize, g_Height * bloomImageSize));
-
-        // float textureAtlasImageSize = 10.0f;
-        // ImGui::Image(g_ColorAtlas.GetAtlasTexture(), ImVec2(g_Width * textureAtlasImageSize, g_Height * textureAtlasImageSize));
 
         ImGui::End();
     }

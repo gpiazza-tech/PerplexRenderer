@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <fwd.hpp>
 
+#include <iostream>
 #include <malloc.h>
 #include <cmath>
 #include <cstdint>
@@ -15,8 +16,10 @@
 
 namespace pxr
 {
-    void ParticleSystem::Create(size_t particleCount)
+    void ParticleSystem::CreateBurst(size_t particleCount)
     {
+        m_Type = ParticleSystemType::Burst;
+
         m_Particles.reserve(particleCount);
         for (size_t i = 0; i < particleCount; i++)
             m_Particles.emplace_back(Particle());
@@ -32,8 +35,10 @@ namespace pxr
         }
     }
 
-    void ParticleSystem::CreateFromTexture(const Texture& texture)
+    void ParticleSystem::CreateBurstFromTexture(const Texture& texture)
     {
+        m_Type = ParticleSystemType::Burst;
+
         m_StartParticles.reserve(texture.PixelWidth * texture.PixelHeight);
 
         // Color
@@ -101,6 +106,11 @@ namespace pxr
         free(emitChannels);
     }
 
+    void ParticleSystem::CreateEmissive()
+    {
+        m_Type = ParticleSystemType::Emissive;
+    }
+
     void ParticleSystem::Reset()
     {
         for (auto& particle : m_StartParticles)
@@ -117,11 +127,17 @@ namespace pxr
 
     void ParticleSystem::Update(float ts)
     {
-        for (auto& particle : m_Particles)
+        switch (m_Type)
         {
-            particle.Position += particle.Velocity * m_Settings.VelocityMultiplier * m_Settings.Speed * ts;
-            particle.Velocity.y -= m_Settings.GravityMultiplier * 9.8f * m_Settings.Speed * ts;
-            particle.Velocity *= 1.0f - m_Settings.AirFriction * m_Settings.Speed * ts;
+        case ParticleSystemType::Emissive:
+            UpdateEmissive(ts);
+            break;
+        case ParticleSystemType::Burst:
+            UpdateBurst(ts);
+            break;
+        default:
+            std::cout << "ParticleSystemType not supported!" << std::endl;
+            break;
         }
     }
 
@@ -130,6 +146,53 @@ namespace pxr
         for (auto& particle : m_Particles)
         {
             Renderer::DrawPixel(particle.Position + position, particle.Color, particle.Emission * m_Settings.EmissionMultiplier, m_Settings.PixelPerfect);
+        }
+    }
+
+    void ParticleSystem::UpdateBurst(float ts)
+    {
+        for (auto& particle : m_Particles)
+        {
+            particle.Position += particle.Velocity * m_Settings.VelocityMultiplier * m_Settings.Speed * ts;
+            particle.Velocity.y -= m_Settings.GravityMultiplier * 9.8f * m_Settings.Speed * ts;
+            particle.Velocity *= 1.0f - m_Settings.AirFriction * m_Settings.Speed * ts;
+        }
+    }
+
+    void ParticleSystem::UpdateEmissive(float ts)
+    {
+        // Update Particles
+        for (size_t i = 0; i < m_Particles.size(); i++)
+        {
+            if (m_Particles[i].Lifetime < 0.0f)
+            {
+                m_Particles.erase(m_Particles.begin() + i);
+                continue;
+            }
+
+            m_Particles[i].Position += m_Particles[i].Velocity * m_Settings.VelocityMultiplier * m_Settings.Speed * ts;
+            m_Particles[i].Velocity.y -= m_Settings.GravityMultiplier * 9.8f * m_Settings.Speed * ts;
+            m_Particles[i].Velocity *= 1.0f - m_Settings.AirFriction * m_Settings.Speed * ts;
+            m_Particles[i].Lifetime -= m_Settings.Speed * ts;
+        }
+
+        // Add Particles
+        m_Timer += ts;
+        if (m_Timer > 1.0f / m_Settings.ParticlesPerSecond)
+        {
+            m_Timer = 0.0f;
+
+            glm::vec2 spawnPos = {
+                ((float)std::rand() / RAND_MAX - 0.5f) * m_Settings.SpawnBounds.x,
+                ((float)std::rand() / RAND_MAX - 0.5f) * m_Settings.SpawnBounds.y
+            };
+            Particle newParticle = Particle();
+            newParticle.Position = spawnPos;
+            newParticle.Velocity = m_Settings.StartVelocity;
+            newParticle.Color = m_Settings.StartColor;
+            newParticle.Emission = m_Settings.StartEmission;
+            newParticle.Lifetime = m_Settings.StartLifetime;
+            m_Particles.emplace_back(newParticle);
         }
     }
 }
