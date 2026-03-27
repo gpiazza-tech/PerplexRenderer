@@ -1,28 +1,15 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
-#include <GL/glew.h>
-
 #include <fwd.hpp>
 
 #include <cstdint>
-#include <filesystem>
 #include <intrin.h>
-#include <string>
 
-namespace pxr
-{
 #define ASSERT(x) if(!(x)) __debugbreak();
 #define BREAK() __debugbreak()
 
-    namespace fs = std::filesystem;
-
-    void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
-        GLenum severity, GLsizei length,
-        const GLchar* msg, const void* data);
-
-    std::string StringFromFile(const std::filesystem::path& path);
-
+namespace pxr
+{
     struct Texture;
     class TextureRegistry;
 

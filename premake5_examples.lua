@@ -7,6 +7,7 @@ workspace "PerplexRenderer"
         "Release",
         "Dist"
     }
+    startproject "PerplexRenderer"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 

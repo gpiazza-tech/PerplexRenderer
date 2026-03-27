@@ -44,9 +44,6 @@ static void UpdateProjection()
 
 void AppStart()
 {
-    // Debugging
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(pxr::GLDebugMessageCallback, nullptr);
     glViewport(0, 0, g_Width, g_Height);
 
     pxr::Renderer::Init(g_PixelsPerUnit);

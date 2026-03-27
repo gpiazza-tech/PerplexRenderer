@@ -1,5 +1,5 @@
 C:\dev\PerplexRenderer\examples\App.cpp;C:\dev\PerplexRenderer\bin-int\Debug-windows-x86_64\PerplexRenderer\App.obj
-C:\dev\PerplexRenderer\examples\EntryPoint.cpp;C:\dev\PerplexRenderer\bin-int\Debug-windows-x86_64\PerplexRenderer\EntryPoint.obj
+C:\dev\PerplexRenderer\examples\Main.cpp;C:\dev\PerplexRenderer\bin-int\Debug-windows-x86_64\PerplexRenderer\Main.obj
 C:\dev\PerplexRenderer\src\particles\ParticleSystem.cpp;C:\dev\PerplexRenderer\bin-int\Debug-windows-x86_64\PerplexRenderer\ParticleSystem.obj
 C:\dev\PerplexRenderer\src\pch.cpp;C:\dev\PerplexRenderer\bin-int\Debug-windows-x86_64\PerplexRenderer\pch.obj
 C:\dev\PerplexRenderer\src\postprocessing\BloomFBO.cpp;C:\dev\PerplexRenderer\bin-int\Debug-windows-x86_64\PerplexRenderer\BloomFBO.obj

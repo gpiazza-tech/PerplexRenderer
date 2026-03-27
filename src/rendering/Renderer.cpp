@@ -7,31 +7,13 @@
 #include <util/Util.h>
 
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <fwd.hpp>
 
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
-#include <ostream>
 
 namespace pxr
 {
-    void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
-        GLenum severity, GLsizei length,
-        const GLchar* msg, const void* data)
-    {
-        if (severity == GL_DEBUG_SEVERITY_HIGH)
-        {
-            std::cout << msg << std::endl;
-            BREAK();
-        }
-        else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
-        {
-            std::cout << msg << std::endl;
-        }
-    }
-
     static const size_t s_MaxQuadCount = 10000;
     static const size_t s_MaxVertexCount = s_MaxQuadCount * 4;
     static const size_t s_MaxIndexCount = s_MaxQuadCount * 6;
