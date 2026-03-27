@@ -1,4 +1,4 @@
 pushd ..\
-call vendor\bin\premake\premake5.exe --file=premake5_examples.lua vs2022
+call vendor\premake\premake5.exe --file=premake5_examples.lua vs2022
 popd
 PAUSE
