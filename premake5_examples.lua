@@ -69,7 +69,8 @@ project "PerplexRenderer"
     defines
     {
         "GLEW_STATIC",
-        "PXR_EXAMPLES"
+        "PXR_EXAMPLES",
+        'PXR_ROOT_DIR="' .. path.getabsolute(".") .. '"'
     }
 
     links
