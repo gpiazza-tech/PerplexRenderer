@@ -78,7 +78,7 @@ void AppStart()
 void AppUpdate(float ts)
 {
     static glm::vec3 cameraPosition = glm::vec3();
-    static glm::vec3 perplexPosition = glm::vec3(-1.0f, 0.0f, 0.0f);
+    static glm::vec3 perplexPosition = glm::vec3(-1.5f, -1.0f, 0.0f);
     static glm::vec3 pixelPosition = glm::vec3();
     static glm::vec3 blasterPosition = glm::vec3();
     g_View = glm::translate(glm::mat4(1.0f), -cameraPosition);
@@ -100,7 +100,7 @@ void AppUpdate(float ts)
 
     // Quads
 
-    static float perplexEmission = 1.0f;
+    static float perplexEmission = 0.6f;
     pxr::Renderer::DrawQuad(perplexPosition, g_PerplexLogo, perplexEmission);
 
     pxr::Renderer::EndBatch();
@@ -140,8 +140,8 @@ void AppUpdate(float ts)
         // Object GUI
         ImGui::DragFloat3("Camera", &cameraPosition.x, 0.01f);
         ImGui::DragFloat("Zoom", &g_CameraZoom, 0.01f);
-        ImGui::DragFloat3("Bob", &perplexPosition.x, 0.01f);
-        ImGui::DragFloat("Perplex Emission", &perplexEmission, 0.01f);
+        ImGui::DragFloat3("Logo Position", &perplexPosition.x, 0.01f);
+        ImGui::DragFloat("Logo Emission", &perplexEmission, 0.01f);
 
         // Postprocessing GUI
         ImGui::Checkbox("Bloom", &bloom);
@@ -207,13 +207,11 @@ void OnWindowResize(int width, int height)
     g_Width = width;
     g_Height = height;
 
-    // Resize buffers
-    g_BloomRenderer.Resize(width, height);
+    // resizing bloom renderer breaks everything for some reason
+    // g_BloomRenderer.Resize(width, height);
     g_Tonemapper.Resize(width, height);
     g_Framebuffer.Resize(width, height);
 
     glViewport(0, 0, g_Width, g_Height);
-
-    // Projection
     UpdateProjection();
 }

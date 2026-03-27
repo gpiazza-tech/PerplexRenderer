@@ -70,7 +70,7 @@ namespace pxr
         glBindTexture(GL_TEXTURE_2D, texture);
 
         glViewport(0, 0, m_Width, m_Height);
-        glClearColor(1.0f, 0.0f, 1.0f, 1.0f); // error pink
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_ScreenShader->Use();
