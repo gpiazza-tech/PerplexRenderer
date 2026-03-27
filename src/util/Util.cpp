@@ -11,7 +11,7 @@
 
 namespace pxr
 {
-    std::string g_ProjectPath = "C:\\dev\\PerplexRenderer";
+    std::string g_ProjectPath = PXR_ROOT_DIR;
 
     std::string StringFromFile(const std::filesystem::path& path)
     {

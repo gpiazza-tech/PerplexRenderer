@@ -51,9 +51,10 @@ project "PerplexRenderer"
         "vendor/glew/lib",
     }
 
-    defines 
+    defines
     {
-        "GLEW_STATIC"
+        "GLEW_STATIC",
+        'PXR_ROOT_DIR="' .. path.getabsolute(".") .. '"'
     }
 
     links
