@@ -2,6 +2,8 @@
 
 PerplexRenderer is a neo pixel art 2D renderer for Windows using OpenGL. I plan on adding support soon for Linux and eventually MacOS with Metal. 
 
+https://github.com/gpiazza-tech/res/screenshots/Logo.png "Rendered Logo"
+
 ## How to build
 
 Windows

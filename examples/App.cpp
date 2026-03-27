@@ -19,6 +19,7 @@ uint32_t g_PixelsPerUnit = 16;
 pxr::Texture g_Bob;
 pxr::Texture g_Bobby;
 pxr::Texture g_Blaster;
+pxr::Texture g_PerplexLogo;
 
 pxr::ParticleSystem g_ParticleSystem;
 
@@ -50,9 +51,10 @@ void AppStart()
 
     // Textures
     // g_ColorAtlas.Create(1024, g_PixelsPerUnit);
-    g_Bob =     pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Bob.png", "res\\textures\\Bob_Emission.png");
-    g_Bobby =   pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Bobby.png");
-    g_Blaster = pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Blaster.png");
+    g_Bob =         pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Bob.png", "res\\textures\\Bob_Emission.png");
+    g_Bobby =       pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Bobby.png");
+    g_Blaster =     pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Blaster.png");
+    g_PerplexLogo = pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Perplex.png", "res\\textures\\Perplex_Emission.png");
 
     // Particle System
     g_ParticleSystem.CreateEmissive();
@@ -76,7 +78,7 @@ void AppStart()
 void AppUpdate(float ts)
 {
     static glm::vec3 cameraPosition = glm::vec3();
-    static glm::vec3 bobPosition = glm::vec3(-1.0f, 0.0f, 0.0f);
+    static glm::vec3 perplexPosition = glm::vec3(-1.0f, 0.0f, 0.0f);
     static glm::vec3 pixelPosition = glm::vec3();
     static glm::vec3 blasterPosition = glm::vec3();
     g_View = glm::translate(glm::mat4(1.0f), -cameraPosition);
@@ -97,8 +99,9 @@ void AppUpdate(float ts)
     g_ParticleSystem.Render(particleSystemPosition);
 
     // Quads
-    static float bobEmission = 1.0f;
-    pxr::Renderer::DrawQuad(bobPosition, g_Bob, bobEmission);
+
+    static float perplexEmission = 1.0f;
+    pxr::Renderer::DrawQuad(perplexPosition, g_PerplexLogo, perplexEmission);
 
     pxr::Renderer::EndBatch();
     pxr::Renderer::Flush();
@@ -137,8 +140,8 @@ void AppUpdate(float ts)
         // Object GUI
         ImGui::DragFloat3("Camera", &cameraPosition.x, 0.01f);
         ImGui::DragFloat("Zoom", &g_CameraZoom, 0.01f);
-        ImGui::DragFloat3("Bob", &bobPosition.x, 0.01f);
-        ImGui::DragFloat("Bob Emission", &bobEmission, 0.01f);
+        ImGui::DragFloat3("Bob", &perplexPosition.x, 0.01f);
+        ImGui::DragFloat("Perplex Emission", &perplexEmission, 0.01f);
 
         // Postprocessing GUI
         ImGui::Checkbox("Bloom", &bloom);

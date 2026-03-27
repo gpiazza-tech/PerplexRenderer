@@ -66,8 +66,8 @@ namespace pxr
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// Cleanup
-		stbi_image_free(rawImage);
-		free(paddedImage);
+		stbi_image_free((void*)rawImage);
+		free((void*)paddedImage);
 
 		// Create Texture to return
 		Texture subTexture;
@@ -112,8 +112,8 @@ namespace pxr
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// Cleanup
-		stbi_image_free(rawImage);
-		free(paddedImage);
+		stbi_image_free((void*)rawImage);
+		free((void*)paddedImage);
 
 		// Create Texture to return
 		Texture subTexture;
@@ -144,6 +144,7 @@ namespace pxr
 		int paddedWidth = width + 2;
 		int paddedHeight = height + 2;
 
+		int targetIndex = 0;
 		for (int32_t i = 0; i < width * height; i++)
 		{
 			// Map the original buffer to the larger buffer:
@@ -158,7 +159,8 @@ namespace pxr
 			// This should be benchmarked against a 
 			// nested for loop approach.
 			//
-			newImg[(i / height * paddedWidth) + i % width + paddedWidth + 1] = img[i];
+			targetIndex = (i / width * paddedWidth) + i % width + paddedWidth + 1;
+			newImg[targetIndex] = img[i];
 		}
 
 		for (int32_t i = 0; i < width; i++)
@@ -189,8 +191,8 @@ namespace pxr
 			//			|  *  | 	|  *  |
 			//			------- 	-------
 			//
-			newImg[paddedWidth + i % paddedHeight * paddedWidth] = img[i % height * width];
-			newImg[2 * paddedWidth + i % paddedHeight * paddedWidth - 1] = img[width + i % height * width - 1];
+			newImg[paddedWidth + i * paddedWidth] = img[i * width];
+			newImg[2 * paddedWidth + i * paddedWidth - 1] = img[width + i * width - 1];
 		}
 
 		// Corners
