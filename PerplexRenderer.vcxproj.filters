@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="examples">
+      <UniqueIdentifier>{84D830B1-70A5-8BBC-99BE-796485EAC04A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\particles">
+      <UniqueIdentifier>{63ACE30A-CF6C-5F41-98A7-A8BE0427A41D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\postprocessing">
+      <UniqueIdentifier>{BF0643F9-ABEA-034F-144B-FEA1004EEED0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\rendering">
+      <UniqueIdentifier>{DA30684B-46F1-E381-0F2C-2DFF7BAB285E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\texture">
+      <UniqueIdentifier>{AD45B3E2-19FB-2BD8-A2EF-25AF0EA422DC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\util">
+      <UniqueIdentifier>{BA5238CF-A61F-93DA-CF38-8182BB64C868}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor">
+      <UniqueIdentifier>{B3738122-9F15-ACF8-88D0-BF4C74113349}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\imgui">
+      <UniqueIdentifier>{5D3BD0F0-499E-5F95-F223-984BDE652B18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\imgui\include">
+      <UniqueIdentifier>{D06F9DBA-BCFE-2684-651D-3B7F518B372A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\imgui\include\backends">
+      <UniqueIdentifier>{FAB355C6-66CC-3CF0-2F79-CC899B50D189}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\stb_image">
+      <UniqueIdentifier>{0DA0BA59-F998-D9AB-22CB-BE300E23B9B7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\stb_image\include">
+      <UniqueIdentifier>{8084391F-6CA9-889F-95F4-6D2F817887BD}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="examples\App.h">
+      <Filter>examples</Filter>
+    </ClInclude>
+    <ClInclude Include="src\particles\ParticleSystem.h">
+      <Filter>src\particles</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pch.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\postprocessing\BloomFBO.h">
+      <Filter>src\postprocessing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\postprocessing\BloomRenderer.h">
+      <Filter>src\postprocessing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\postprocessing\Tonemapper.h">
+      <Filter>src\postprocessing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering\Framebuffer.h">
+      <Filter>src\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering\Renderer.h">
+      <Filter>src\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering\Shader.h">
+      <Filter>src\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering\TextureBuffer.h">
+      <Filter>src\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="src\texture\Texture.h">
+      <Filter>src\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\texture\TextureAtlas.h">
+      <Filter>src\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\texture\TextureRegistry.h">
+      <Filter>src\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\RenderCommands.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\ScreenQuad.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util\Util.h">
+      <Filter>src\util</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\stb_image\include\stb_image.h">
+      <Filter>vendor\stb_image\include</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\Example.h" />
+    <ClInclude Include="examples\ExampleLogo.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="examples\App.cpp">
+      <Filter>examples</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\Main.cpp">
+      <Filter>examples</Filter>
+    </ClCompile>
+    <ClCompile Include="src\particles\ParticleSystem.cpp">
+      <Filter>src\particles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pch.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\postprocessing\BloomFBO.cpp">
+      <Filter>src\postprocessing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\postprocessing\BloomRenderer.cpp">
+      <Filter>src\postprocessing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\postprocessing\Tonemapper.cpp">
+      <Filter>src\postprocessing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rendering\Framebuffer.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rendering\Renderer.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rendering\Shader.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rendering\TextureBuffer.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="src\texture\TextureAtlas.cpp">
+      <Filter>src\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="src\texture\TextureRegistry.cpp">
+      <Filter>src\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\RenderCommands.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\ScreenQuad.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util\Util.cpp">
+      <Filter>src\util</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\include\backends\imgui_impl_glfw.cpp">
+      <Filter>vendor\imgui\include\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\include\backends\imgui_impl_opengl3.cpp">
+      <Filter>vendor\imgui\include\backends</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

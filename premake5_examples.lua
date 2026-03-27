@@ -23,7 +23,7 @@ group "Dependencies"
 group ""
 
 project "PerplexRenderer"
-    location "PerplexRenderer"
+    location "."
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"

@@ -16,7 +16,7 @@ IncludeDir["glm"] = "vendor/glm/include"
 IncludeDir["glew"] = "vendor/glew/include"
 
 project "PerplexRenderer"
-    location "PerplexRenderer"
+    location "."
     kind "StaticLib"
     language "C++"
     cppdialect "C++20"
