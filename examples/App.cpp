@@ -5,6 +5,7 @@
 
 #include <fwd.hpp>
 #include <glm.hpp>
+#include <GL/glew.h>
 
 #include <cstdint>
 #include <algorithm>

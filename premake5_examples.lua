@@ -13,11 +13,17 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["stb_image"] = "vendor/stb_image/include"
 IncludeDir["glm"] = "vendor/glm/include"
+IncludeDir["imgui"] = "vendor/imgui/include"
+IncludeDir["glfw"] = "vendor/glfw/include"
 IncludeDir["glew"] = "vendor/glew/include"
+
+group "Dependencies"
+    include "vendor/imgui"
+group ""
 
 project "PerplexRenderer"
     location "PerplexRenderer"
-    kind "StaticLib"
+    kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"
     staticruntime "on"
@@ -33,31 +39,42 @@ project "PerplexRenderer"
     {
         "src/**.h",
         "src/**.cpp",
+        "examples/**.h",
+        "examples/**.cpp",
         "vendor/stb_image/**.h",
         "vendor/stb_image/**.cpp",
+        "vendor/imgui/include/backends/imgui_impl_glfw.cpp",
+        "vendor/imgui/include/backends/imgui_impl_opengl3.cpp"
     }
 
     includedirs
     {
         "src",
         "include",
+        "%{IncludeDir.glfw}",
         "%{IncludeDir.glew}",
+        "%{IncludeDir.imgui}",
         "%{IncludeDir.glm}",
         "%{IncludeDir.stb_image}",
     }
 
     libdirs
     {
+        "vendor/glfw/lib",
         "vendor/glew/lib",
+        "vendor/imgui/bin",
     }
 
-    defines 
+    defines
     {
-        "GLEW_STATIC"
+        "GLEW_STATIC",
+        "PXR_EXAMPLES"
     }
 
     links
     {
+        "ImGui.lib",
+        "glfw3_mt.lib",
         "glew32s.lib",
         "opengl32.lib"
     }
@@ -67,9 +84,16 @@ project "PerplexRenderer"
         "/utf-8"
     }
 
+    filter "files:vendor/imgui/include/backends/**.cpp"
+        flags {"NoPCH"}
+
     filter "system:windows"
         systemversion "latest"
-        defines "PXR_PLATFORM_WINDOWS"
+
+        defines
+        {
+            "PXR_PLATFORM_WINDOWS"
+        }
     
     filter "configurations:Debug"
         defines "PXR_DEBUG"

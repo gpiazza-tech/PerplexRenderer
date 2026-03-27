@@ -15,13 +15,16 @@
 #include <ctime>
 
 // Third party
-#include <gl/glew.h>
-#include <GLFW/glfw3.h>
-
 #include <glm.hpp>
 #include <ext/matrix_transform.hpp>
 #include <ext/matrix_clip_space.hpp>
 
+#include <gl/glew.h>
+
+#ifdef PXR_EXAMPLES
+#include <GLFW/glfw3.h>
+
 #include <imgui.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_glfw.h>
+#endif
