@@ -1,13 +1,14 @@
 #pragma once
 
 #include "TextureAtlas.h"
+#include "Texture.h"
 
 #include <vector>
 #include <filesystem>
 
 namespace pxr
 {
-	struct Texture;
+	class Renderer;
 
 	struct AtlasGroup
 	{
@@ -21,14 +22,18 @@ namespace pxr
 		TextureRegistry();
 		~TextureRegistry() { }
 
-		void Init();
+		void Create(int size, int pixelsPerUnit);
+		void Destroy();
 
 		Texture Add(const std::filesystem::path& color);
 		Texture Add(const std::filesystem::path& color, const std::filesystem::path& emission);
 
-		void BindToTextureUnits();
+		std::vector<AtlasGroup>& GetAtlasGroups() { return m_AtlasGroups; }
 	private:
 		// Usually only one atlas group will be needed, but if it ever runs out of room then another AtlasGroup will be added
 		std::vector<AtlasGroup> m_AtlasGroups;
+		Texture m_WhiteTexture;
+
+		friend Renderer;
 	};
 }

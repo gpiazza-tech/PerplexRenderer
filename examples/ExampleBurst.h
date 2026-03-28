@@ -9,16 +9,18 @@ public:
 
 	void Enter() override
 	{
-		m_Bob = pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Bob.png", "res\\textures\\Bob_Emission.png");
+		m_TextureRegistry.Create(1024, 16);
+		m_Bob = m_TextureRegistry.Add("res\\textures\\Bob.png", "res\\textures\\Bob_Emission.png");
 		m_ParticleSystem.CreateBurstFromTexture(m_Bob);
 
 		m_ParticleSettings.GravityMultiplier = 0.05f;
 		m_ParticleSettings.VelocityMultiplier = 10.0f;
 	}
-
+	 
 	void Update(float ts) override
 	{
 		// Render
+		pxr::Renderer::UseTextureRegistry(m_TextureRegistry);
 		pxr::Renderer::BeginBatch(m_Proj);
 
 		static glm::vec3 bobPosition = glm::vec3(-1.0f, 0.6f, 0.0f);
@@ -77,9 +79,10 @@ public:
 
 	void Exit() override
 	{
-
+		m_TextureRegistry.Destroy();
 	}
 private:
+	pxr::TextureRegistry m_TextureRegistry;
 	pxr::Texture m_Bob;
 
 	pxr::ParticleSystemSettings m_ParticleSettings;

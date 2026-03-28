@@ -16,10 +16,18 @@ namespace pxr
 	{
 	}
 
-	void TextureRegistry::Init()
+	void TextureRegistry::Create(int size, int pixelsPerUnit)
 	{
-		m_AtlasGroups[0].ColorAtlas.Create(1024, 16);
-		m_AtlasGroups[0].EmissionAtlas.Create(1024, 16);
+		m_AtlasGroups[0].ColorAtlas.Create(size, pixelsPerUnit);
+		m_AtlasGroups[0].EmissionAtlas.Create(size, pixelsPerUnit);
+
+		m_WhiteTexture = Add("res\\textures\\White.png", "res\\textures\\White.png");
+	}
+
+	void TextureRegistry::Destroy()
+	{
+		m_AtlasGroups[0].ColorAtlas.Destroy();
+		m_AtlasGroups[0].EmissionAtlas.Destroy();
 	}
 
 	Texture TextureRegistry::Add(const fs::path& color)
@@ -49,17 +57,5 @@ namespace pxr
 		}
 
 		return colorTexture;
-	}
-
-	void TextureRegistry::BindToTextureUnits()
-	{
-		int i = 0;
-		for (size_t i = 0; i < m_AtlasGroups.size(); i++)
-		{
-			glBindTextureUnit(i + 0, m_AtlasGroups[i].ColorAtlas.GetAtlasTexture());
-			glBindTextureUnit(i + 1, m_AtlasGroups[i].EmissionAtlas.GetAtlasTexture());
-
-			i += 2;
-		}
 	}
 }

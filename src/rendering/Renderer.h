@@ -28,6 +28,6 @@ namespace pxr
         static void DrawQuad(const glm::vec2& position, const Texture& texture, float emission);
         static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float emission, const Texture& texture, bool pixelPerfect);
 
-        static TextureRegistry& GetTextureRegistry();
+        static void UseTextureRegistry(const TextureRegistry& registry);
     };
 }
