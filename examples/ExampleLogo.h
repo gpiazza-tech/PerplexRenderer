@@ -15,14 +15,14 @@ public:
 	void Update(float ts) override
 	{
 		// Render
-        pxr::Renderer::BeginBatch(m_Proj);
+		pxr::Renderer::BeginBatch(m_Proj);
 
 		static glm::vec3 perplexPosition = glm::vec3(-1.5f, -1.0f, 0.0f);
-        static float perplexEmission = 0.6f;
-        pxr::Renderer::DrawQuad(perplexPosition, m_Logo, perplexEmission);
+		static float perplexEmission = 0.6f;
+		pxr::Renderer::DrawQuad(perplexPosition, m_Logo, perplexEmission);
 
-        pxr::Renderer::EndBatch();
-        pxr::Renderer::Flush();
+		pxr::Renderer::EndBatch();
+		pxr::Renderer::Flush();
 
 		// ImGui
 		static bool showWindow = true;
