@@ -44,8 +44,7 @@ namespace pxr
 
         glm::mat4 Projection;
 
-        Texture PixelTexture;
-        TextureRegistry TextureRegistry;
+        Texture WhiteTexture;
     };
 
     static RendererData s_Data;
@@ -108,9 +107,6 @@ namespace pxr
         s_Data.SpriteShader.EndUse();
 
         s_Data.PixelsPerUnit = pixelsPerUnit;
-
-        s_Data.TextureRegistry.Init();
-        s_Data.PixelTexture = s_Data.TextureRegistry.Add("res\\textures\\White.png", "res\\textures\\White.png");
     }
 
     void Renderer::Shutdown()
@@ -138,8 +134,6 @@ namespace pxr
         glm::mat4 viewProj = projection * glm::mat4(1.0f);
         s_Data.SpriteShader.Use();
         s_Data.SpriteShader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
-
-        s_Data.TextureRegistry.BindToTextureUnits();
     }
 
     void Renderer::EndBatch()
@@ -162,7 +156,7 @@ namespace pxr
 
     void Renderer::DrawPixel(const glm::vec2& position, const glm::vec4& color, float emission, bool pixelPerfect)
     {
-        DrawQuad(position, glm::vec2(1.0f), color, emission, s_Data.PixelTexture, pixelPerfect);
+        DrawQuad(position, glm::vec2(1.0f), color, emission, s_Data.WhiteTexture, pixelPerfect);
     }
 
     void Renderer::DrawQuad(const glm::vec2& position, const Texture& texture)
@@ -218,8 +212,17 @@ namespace pxr
         s_Data.IndexCount += 6;
     }
 
-    TextureRegistry& Renderer::GetTextureRegistry()
+    void Renderer::UseTextureRegistry(const TextureRegistry& registry)
     {
-        return s_Data.TextureRegistry;
+        s_Data.WhiteTexture = registry.m_WhiteTexture;
+
+        int i = 0;
+        for (size_t i = 0; i < registry.m_AtlasGroups.size(); i++)
+        {
+            glBindTextureUnit(i + 0, registry.m_AtlasGroups[i].ColorAtlas.GetAtlasTexture());
+            glBindTextureUnit(i + 1, registry.m_AtlasGroups[i].EmissionAtlas.GetAtlasTexture());
+
+            i += 2;
+        }
     }
 }

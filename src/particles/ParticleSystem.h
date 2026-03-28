@@ -31,7 +31,13 @@ namespace pxr
 
 	struct ParticleSystemSettings
 	{
-		int ParticlesPerSecond = 10; // in seconds
+		union 
+		{
+			int ParticlesPerSecond;		// ParticleSystemType::Emissive
+			int ParticleCount;			// ParticleSystemType::Burst
+			int ParticlesPerPixel;		// ParticleSystemType::Burst from texture
+		};
+
 		float StartLifetime = 1.0f; // in seconds
 		glm::vec2 SpawnBounds = { 1.0f, 1.0f };
 

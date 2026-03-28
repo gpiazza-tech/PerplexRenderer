@@ -32,16 +32,15 @@ namespace pxr
 		}
 
 		m_PixelsPerUnit = pixelsPerUnit;
-
-		m_CurrentX = 0;
-		m_CurrentY = 0;
-
 		m_Texture.Create(size, size, TextureBufferType::LDR, TextureBufferFilterMode::Nearest);
+		m_Shelves.reserve(10);
 	}
 
 	void TextureAtlas::Destroy()
 	{
 		m_Texture.Destroy();
+		m_Shelves.clear();
+		m_NextShelf = 0;
 	}
 
 	Texture TextureAtlas::AddTexture(const std::filesystem::path& path)
@@ -60,9 +59,27 @@ namespace pxr
 
 		AddPadding(width, height, rawImage, paddedImage);
 
+		// determine position
+		int shelfIndex = GetShelfIndex(paddedHeight);
+		for (int i = (int)m_Shelves.size(); i <= shelfIndex; i++)
+			// start at the shelf size and continue adding until we reach the desired index
+		{
+			m_Shelves.emplace_back(Shelf(-1, m_PixelsPerUnit * i + m_PixelsPerUnit + 2, 0));
+		}
+		Shelf& shelf = m_Shelves[shelfIndex];
+		if (shelf.Y == -1 || shelf.NextTextureX + paddedWidth >= m_Size) 
+			// if shelf does not exist or runs out of room
+		{
+			shelf = Shelf(m_NextShelf, shelf.Height, 0);
+			m_NextShelf += shelf.Height + 1;
+		}
+		int x = shelf.NextTextureX;
+		int y = shelf.Y;
+		shelf.NextTextureX += paddedWidth;
+
 		// Push padded image to GPU
 		glBindTexture(GL_TEXTURE_2D, m_Texture.GetID());
-		glTexSubImage2D(GL_TEXTURE_2D, 0, m_CurrentX, m_CurrentY, paddedWidth, paddedHeight, GL_RGBA, GL_UNSIGNED_BYTE, paddedImage);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, paddedWidth, paddedHeight, GL_RGBA, GL_UNSIGNED_BYTE, paddedImage);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// Cleanup
@@ -72,20 +89,18 @@ namespace pxr
 		// Create Texture to return
 		Texture subTexture;
 
-		subTexture.PixelX = m_CurrentX + 1;
-		subTexture.PixelY = m_CurrentY + 1;
+		subTexture.PixelX = x + 1;
+		subTexture.PixelY = y + 1;
 		subTexture.PixelWidth = width;
 		subTexture.PixelHeight = height;
 
 		subTexture.ScaleFactorX = width / (float)m_PixelsPerUnit;
 		subTexture.ScaleFactorY = height / (float)m_PixelsPerUnit;
 
-		subTexture.Xmin = (m_CurrentX + 1) / (float)m_Size;
-		subTexture.Ymin = (m_CurrentY + 1) / (float)m_Size;
-		subTexture.Xmax = (m_CurrentX + width + 1) / (float)m_Size;
-		subTexture.Ymax = (m_CurrentY + height + 1) / (float)m_Size;
-
-		m_CurrentX += paddedWidth;
+		subTexture.Xmin = (x + 1) / (float)m_Size;
+		subTexture.Ymin = (y + 1) / (float)m_Size;
+		subTexture.Xmax = (x + width + 1) / (float)m_Size;
+		subTexture.Ymax = (y + height + 1) / (float)m_Size;
 
 		return subTexture;
 	}
@@ -134,7 +149,7 @@ namespace pxr
 		return subTexture;
 	}
 
-	uint32_t TextureAtlas::GetAtlasTexture()
+	uint32_t TextureAtlas::GetAtlasTexture() const
 	{
 		return m_Texture.GetID();
 	}
@@ -200,5 +215,15 @@ namespace pxr
 		newImg[paddedWidth - 1] = img[width - 1];
 		newImg[paddedWidth * paddedHeight - 1] = img[width * height - 1];
 		newImg[paddedWidth * paddedHeight - paddedWidth] = img[width * height - width];
+	}
+
+	int TextureAtlas::GetShelfIndex(int textureHeight)
+	{
+		// If p equals m_PixelsPerUnit and i is the index of the vector, then m_Shelves[i] holds the y position for the shelf with a range of (pi+3) to p(i+1)+2
+		// Figuring out which index should be returned based on the height is as simple as solving for i for the min value of the range:
+		// minHeight = pi+3 -> i = (minHeight - 3) / p
+		// integer division will handle the rest:
+		 
+		return (textureHeight - 3) / m_PixelsPerUnit;
 	}
 }

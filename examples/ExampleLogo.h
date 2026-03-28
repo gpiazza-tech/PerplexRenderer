@@ -9,12 +9,14 @@ public:
 
 	void Enter() override
 	{
-		m_Logo = pxr::Renderer::GetTextureRegistry().Add("res\\textures\\Perplex.png", "res\\textures\\Perplex_Emission.png");
+		m_TextureRegistry.Create(1024, 16);
+		m_Logo = m_TextureRegistry.Add("res\\textures\\Perplex.png", "res\\textures\\Perplex_Emission.png");
 	}
 
 	void Update(float ts) override
 	{
 		// Render
+		pxr::Renderer::UseTextureRegistry(m_TextureRegistry);
 		pxr::Renderer::BeginBatch(m_Proj);
 
 		static glm::vec3 perplexPosition = glm::vec3(-1.5f, -1.0f, 0.0f);
@@ -33,6 +35,9 @@ public:
 			ImGui::DragFloat3("Position", &perplexPosition.x, 0.01f);
 			ImGui::DragFloat("Emission", &perplexEmission, 0.01f);
 
+			ImGui::Image(m_TextureRegistry.GetAtlasGroups()[0].ColorAtlas.GetAtlasTexture(), { 1080, 1080 });
+			ImGui::Image(m_TextureRegistry.GetAtlasGroups()[0].EmissionAtlas.GetAtlasTexture(), { 1080, 1080 });
+
 			ImGui::End();
 		}
 
@@ -41,8 +46,9 @@ public:
 
 	void Exit() override
 	{
-
+		m_TextureRegistry.Destroy();
 	}
 private:
+	pxr::TextureRegistry m_TextureRegistry;
 	pxr::Texture m_Logo;
 };
