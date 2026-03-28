@@ -77,30 +77,11 @@ namespace pxr
 		int y = shelf.Y;
 		shelf.NextTextureX += paddedWidth;
 
-		// Push padded image to GPU
-		glBindTexture(GL_TEXTURE_2D, m_Texture.GetID());
-		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, paddedWidth, paddedHeight, GL_RGBA, GL_UNSIGNED_BYTE, paddedImage);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		Texture subTexture = AllocateBuffer(x, y, paddedWidth, paddedHeight, paddedImage);
 
 		// Cleanup
 		stbi_image_free((void*)rawImage);
 		free((void*)paddedImage);
-
-		// Create Texture to return
-		Texture subTexture;
-
-		subTexture.PixelX = x + 1;
-		subTexture.PixelY = y + 1;
-		subTexture.PixelWidth = width;
-		subTexture.PixelHeight = height;
-
-		subTexture.ScaleFactorX = width / (float)m_PixelsPerUnit;
-		subTexture.ScaleFactorY = height / (float)m_PixelsPerUnit;
-
-		subTexture.Xmin = (x + 1) / (float)m_Size;
-		subTexture.Ymin = (y + 1) / (float)m_Size;
-		subTexture.Xmax = (x + width + 1) / (float)m_Size;
-		subTexture.Ymax = (y + height + 1) / (float)m_Size;
 
 		return subTexture;
 	}
@@ -120,31 +101,11 @@ namespace pxr
 			std::cerr << "TextureAtlas::AddTexture: malloc failed!" << std::endl;
 
 		AddPadding(width, height, rawImage, paddedImage);
-
-		// Push padded image to GPU
-		glBindTexture(GL_TEXTURE_2D, m_Texture.GetID());
-		glTexSubImage2D(GL_TEXTURE_2D, 0, xPos - 1, yPos - 1, paddedWidth, paddedHeight, GL_RGBA, GL_UNSIGNED_BYTE, paddedImage);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		Texture subTexture = AllocateBuffer(xPos - 1, yPos - 1, paddedWidth, paddedHeight, paddedImage);
 
 		// Cleanup
 		stbi_image_free((void*)rawImage);
 		free((void*)paddedImage);
-
-		// Create Texture to return
-		Texture subTexture;
-
-		subTexture.PixelX = xPos;
-		subTexture.PixelY = yPos;
-		subTexture.PixelWidth = width;
-		subTexture.PixelHeight = height;
-
-		subTexture.ScaleFactorX = width / (float)m_PixelsPerUnit;
-		subTexture.ScaleFactorY = height / (float)m_PixelsPerUnit;
-
-		subTexture.Xmin = (xPos) / (float)m_Size;
-		subTexture.Ymin = (yPos) / (float)m_Size;
-		subTexture.Xmax = (xPos + width) / (float)m_Size;
-		subTexture.Ymax = (yPos + height) / (float)m_Size;
 
 		return subTexture;
 	}
@@ -217,7 +178,7 @@ namespace pxr
 		newImg[paddedWidth * paddedHeight - paddedWidth] = img[width * height - width];
 	}
 
-	int TextureAtlas::GetShelfIndex(int textureHeight)
+	int TextureAtlas::GetShelfIndex(int textureHeight) const
 	{
 		// If p equals m_PixelsPerUnit and i is the index of the vector, then m_Shelves[i] holds the y position for the shelf with a range of (pi+3) to p(i+1)+2
 		// Figuring out which index should be returned based on the height is as simple as solving for i for the min value of the range:
@@ -225,5 +186,34 @@ namespace pxr
 		// integer division will handle the rest:
 		 
 		return (textureHeight - 3) / m_PixelsPerUnit;
+	}
+
+	Texture TextureAtlas::AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes)
+	{
+		// Push padded image to GPU
+		glBindTexture(GL_TEXTURE_2D, m_Texture.GetID());
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		// Create Texture to return
+		Texture texture;
+
+		int visibleWidth = width - 2;
+		int visibleHeight = height - 2;
+
+		texture.PixelX = x + 1;
+		texture.PixelY = y + 1;
+		texture.PixelWidth = visibleWidth;
+		texture.PixelHeight = visibleHeight;
+
+		texture.ScaleFactorX = visibleWidth / (float)m_PixelsPerUnit;
+		texture.ScaleFactorY = visibleHeight / (float)m_PixelsPerUnit;
+
+		texture.Xmin = (x + 1) / (float)m_Size;
+		texture.Ymin = (y + 1) / (float)m_Size;
+		texture.Xmax = (x + 1 + visibleWidth) / (float)m_Size;
+		texture.Ymax = (y + 1 + visibleHeight) / (float)m_Size;
+
+		return texture;
 	}
 }

@@ -52,7 +52,8 @@ namespace pxr
 		uint32_t GetAtlasTexture() const;
 	private:
 		void AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg);
-		int GetShelfIndex(int textureHeight);
+		Texture AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes);
+		int GetShelfIndex(int textureHeight) const;
 	private:
 		TextureBuffer m_Texture;
 
