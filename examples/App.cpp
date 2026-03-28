@@ -12,6 +12,7 @@
 
 #include "Example.h"
 #include "ExampleLogo.h"
+#include "ExampleBurst.h"
 
 namespace fs = std::filesystem;
 
@@ -24,7 +25,6 @@ pxr::Tonemapper g_Tonemapper;
 
 pxr::Framebuffer g_Framebuffer;
 
-glm::mat4 g_Model = glm::mat4(1.0f);
 glm::mat4 g_View = glm::mat4(1.0f);
 glm::mat4 g_Proj = glm::mat4(1.0f);
 
@@ -37,6 +37,7 @@ static void PushExamples()
 {
     // Add any examples here
     g_Examples.emplace_back(new ExampleLogo());
+    g_Examples.emplace_back(new ExampleBurst());
 }
 
 void AppStart()
