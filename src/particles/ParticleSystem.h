@@ -68,6 +68,7 @@ namespace pxr
 		void CreateEmissive();
 		void CreateBurst(size_t particleCount);
 		void CreateBurstFromTexture(const Texture& texture);
+		void Destroy();
 
 		void Reset();
 

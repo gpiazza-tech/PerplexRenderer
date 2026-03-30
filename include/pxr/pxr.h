@@ -14,5 +14,6 @@
 
 #include <postprocessing/BloomRenderer.h>
 #include <postprocessing/Tonemapper.h>
+#include <postprocessing/Pixelator.h>
 
 #include <particles/ParticleSystem.h>

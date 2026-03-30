@@ -12,7 +12,7 @@
 
 #include "Example.h"
 #include "ExampleLogo.h"
-#include "ExampleBurst.h"
+#include "ExampleTextureBurst.h"
 
 namespace fs = std::filesystem;
 
@@ -22,6 +22,7 @@ uint32_t g_PixelsPerUnit = 16;
 
 pxr::BloomRenderer g_BloomRenderer;
 pxr::Tonemapper g_Tonemapper;
+pxr::Pixelator g_Pixelator;
 
 pxr::Framebuffer g_Framebuffer;
 
@@ -37,7 +38,7 @@ static void PushExamples()
 {
     // Add any examples here
     g_Examples.emplace_back(new ExampleLogo());
-    g_Examples.emplace_back(new ExampleBurst());
+    g_Examples.emplace_back(new ExampleTextureBurst());
 }
 
 void AppStart()
@@ -55,6 +56,7 @@ void AppStart()
     g_BloomRenderer.Init(g_Width, g_Height);
     g_Tonemapper.Init(g_Width, g_Height);
     g_Framebuffer.Create(g_Width, g_Height, true);
+    g_Pixelator.Init(g_Width, g_Height);
 }
 
 void AppUpdate(float ts)
@@ -81,6 +83,13 @@ void AppUpdate(float ts)
         g_Framebuffer.DrawTexture(g_Tonemapper.TonemappedTexture());
     }
 
+    static bool pixelate = true;
+    if (pixelate)
+    {
+        g_Pixelator.RenderPixelator(g_Framebuffer.GetTextureID());
+        g_Framebuffer.DrawTexture(g_Pixelator.PixelatedTexture());
+    }
+
     g_Framebuffer.DrawToScreen();
 
     // ImGui
@@ -100,6 +109,7 @@ void AppUpdate(float ts)
         ImGui::DragFloat("Threshold", &threshold, 0.01f);
         ImGui::SliderFloat("Filter radius", &filterRadius, 0.0f, 0.01f);
         ImGui::Checkbox("Tonemap", &tonemap);
+        ImGui::Checkbox("Pixelate", &pixelate);
 
         ImGui::Text("Examples");
         for (auto& example : g_Examples)
@@ -119,8 +129,10 @@ void AppUpdate(float ts)
 void AppStop()
 {
     g_ActiveExample->Exit();
-
     pxr::Renderer::Shutdown();
+
+    for (Example* example : g_Examples)
+        delete example;
 }
 
 void OnWindowResize(int width, int height)
@@ -132,6 +144,7 @@ void OnWindowResize(int width, int height)
     // g_BloomRenderer.Resize(width, height);
     g_Tonemapper.Resize(width, height);
     g_Framebuffer.Resize(width, height);
+    g_Pixelator.Resize(width, height);
 
     glViewport(0, 0, g_Width, g_Height);
 
