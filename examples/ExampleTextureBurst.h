@@ -2,7 +2,7 @@
 
 #include "Example.h"
 
-class ExampleBurst : public Example
+class ExampleTextureBurst : public Example
 {
 public:
 	const char* Name() override { return "Burst"; }
@@ -10,11 +10,13 @@ public:
 	void Enter() override
 	{
 		m_TextureRegistry.Create(1024, 16);
-		m_Bob = m_TextureRegistry.Add("res\\textures\\Bob.png", "res\\textures\\Bob_Emission.png");
+		m_Bob = m_TextureRegistry.Add("res\\textures\\Kablooey.png", "res\\textures\\Kablooey_Emission.png");
 		m_ParticleSystem.CreateBurstFromTexture(m_Bob);
 
+		m_ParticleSettings.ParticlesPerPixel = 1;
 		m_ParticleSettings.GravityMultiplier = 0.05f;
 		m_ParticleSettings.VelocityMultiplier = 10.0f;
+		m_ParticleSettings.EmissionMultiplier = 0.7f;
 	}
 	 
 	void Update(float ts) override
@@ -23,7 +25,7 @@ public:
 		pxr::Renderer::UseTextureRegistry(m_TextureRegistry);
 		pxr::Renderer::BeginBatch(m_Proj);
 
-		static glm::vec3 bobPosition = glm::vec3(-1.0f, 0.6f, 0.0f);
+		static glm::vec3 bobPosition = glm::vec3(-3.5f, 0.6f, 0.0f);
 		static float bobEmission = 0.6f;
 
 		static bool play = false;
@@ -40,6 +42,7 @@ public:
 		{
 			ImGui::Begin("Burst", &showWindow);
 
+			ImGui::DragFloat("Camera Zoom", &m_CameraZoom, 0.01f);
 			ImGui::DragFloat3("Position", &bobPosition.x, 0.01f);
 			ImGui::DragFloat("Emission", &bobEmission, 0.01f);
 
@@ -55,8 +58,9 @@ public:
 			}
 
 			ImGui::Dummy({ 0, 10 });
-			ImGui::Text("Settings");
+			ImGui::Text("Particle Settings");
 			ImGui::DragFloat("Speed", &m_ParticleSettings.Speed, 0.01f);
+			ImGui::DragInt("Particles Per Pixel", &m_ParticleSettings.ParticlesPerPixel);
 			ImGui::Dummy({ 0, 5 });
 			ImGui::DragFloat("Gravity Multiplier", &m_ParticleSettings.GravityMultiplier, 0.01f);
 			ImGui::DragFloat("Air Friction", &m_ParticleSettings.AirFriction, 0.01f);
@@ -71,6 +75,11 @@ public:
 
 			m_ParticleSystem.SetSettings(m_ParticleSettings);
 
+			ImGui::Dummy({ 0, 30 });
+			ImGui::Text("Texture Preview");
+			ImGui::Image(m_TextureRegistry.GetAtlasGroups()[0].ColorAtlas.GetAtlasTexture(), { 1080, 1080 });
+			ImGui::Image(m_TextureRegistry.GetAtlasGroups()[0].EmissionAtlas.GetAtlasTexture(), { 1080, 1080 });
+
 			ImGui::End();
 		}
 
@@ -80,6 +89,7 @@ public:
 	void Exit() override
 	{
 		m_TextureRegistry.Destroy();
+		m_ParticleSystem.Destroy();
 	}
 private:
 	pxr::TextureRegistry m_TextureRegistry;

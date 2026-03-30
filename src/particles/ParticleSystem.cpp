@@ -82,7 +82,7 @@ namespace pxr
 
             int pixelIndex = (int)i / 4;
             int pixelX = pixelIndex % texture.PixelWidth;
-            int pixelY = pixelIndex / texture.PixelHeight;
+            int pixelY = pixelIndex / texture.PixelWidth;
 
             // Particle
             Particle particle = Particle();
@@ -181,18 +181,25 @@ namespace pxr
         if (m_Timer > 1.0f / m_Settings.ParticlesPerSecond)
         {
             m_Timer = 0.0f;
-
-            glm::vec2 spawnPos = {
+            Particle newParticle = Particle();
+            newParticle.Position = {
                 ((float)std::rand() / RAND_MAX - 0.5f) * m_Settings.SpawnBounds.x,
                 ((float)std::rand() / RAND_MAX - 0.5f) * m_Settings.SpawnBounds.y
             };
-            Particle newParticle = Particle();
-            newParticle.Position = spawnPos;
             newParticle.Velocity = m_Settings.StartVelocity;
             newParticle.Color = m_Settings.StartColor;
             newParticle.Emission = m_Settings.StartEmission;
             newParticle.Lifetime = m_Settings.StartLifetime;
             m_Particles.emplace_back(newParticle);
         }
+    }
+
+    void ParticleSystem::Destroy()
+    {
+        m_Timer = 0.0f;
+        m_Settings = ParticleSystemSettings();
+        m_Particles.clear();
+        m_StartParticles.clear();
+        m_Type = ParticleSystemType::None;
     }
 }

@@ -35,6 +35,9 @@ public:
 			ImGui::DragFloat3("Position", &perplexPosition.x, 0.01f);
 			ImGui::DragFloat("Emission", &perplexEmission, 0.01f);
 
+			ImGui::LabelText("Pixel Width", std::format("{}", m_Width / m_CameraZoom / m_PixelsPerUnit * 2).c_str());
+			ImGui::LabelText("Pixel Height", std::format("{}", m_Height / m_CameraZoom / m_PixelsPerUnit * 2).c_str());
+
 			ImGui::Image(m_TextureRegistry.GetAtlasGroups()[0].ColorAtlas.GetAtlasTexture(), { 1080, 1080 });
 			ImGui::Image(m_TextureRegistry.GetAtlasGroups()[0].EmissionAtlas.GetAtlasTexture(), { 1080, 1080 });
 
