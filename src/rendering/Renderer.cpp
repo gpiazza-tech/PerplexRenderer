@@ -95,7 +95,7 @@ namespace pxr
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
         // Shader
-        s_Data.SpriteShader = Shader("res\\shaders\\SpriteVertex.glsl", "res\\shaders\\SpriteFragment.glsl");
+        s_Data.SpriteShader.Create("res\\shaders\\SpriteVertex.glsl", "res\\shaders\\SpriteFragment.glsl");
         s_Data.SpriteShader.Use();
 
         int samplers[32];

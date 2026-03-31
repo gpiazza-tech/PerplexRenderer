@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rendering/Framebuffer.h>
+#include <rendering/Shader.h>
 
 #include <cstdint>
 
@@ -27,6 +28,6 @@ namespace pxr
 		int m_Width;
 		int m_Height;
 
-		Shader* m_TonemapShader;
+		Shader m_TonemapShader;
 	};
 }

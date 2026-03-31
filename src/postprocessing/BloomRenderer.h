@@ -2,6 +2,7 @@
 
 #include "BloomFBO.h"
 #include <rendering/Framebuffer.h>
+#include <rendering/Shader.h>
 
 #include <fwd.hpp>
 
@@ -37,9 +38,9 @@ namespace pxr
 		glm::ivec2 m_SrcViewportSize;
 		glm::vec2 m_SrcViewportSizeFloat;
 
-		Shader* m_PrefilterShader = nullptr;
-		Shader* m_DownsampleShader = nullptr;
-		Shader* m_UpsampleShader = nullptr;
-		Shader* m_ScreenShader = nullptr;
+		Shader m_PrefilterShader;
+		Shader m_DownsampleShader;
+		Shader m_UpsampleShader;
+		Shader m_ScreenShader;
 	};
 }
