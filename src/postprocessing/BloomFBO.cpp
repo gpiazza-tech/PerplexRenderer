@@ -55,9 +55,9 @@ namespace pxr
 	{
 		for (auto& mip : m_MipChain)
 			mip.Destroy();
-
+		m_MipChain.clear();
+		
 		glDeleteFramebuffers(1, &m_FBO);
-		m_FBO = 0;
 	}
 
 	void BloomFBO::Bind()

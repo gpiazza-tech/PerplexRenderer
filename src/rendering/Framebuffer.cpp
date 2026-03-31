@@ -38,18 +38,18 @@ namespace pxr
             std::cout << "Error: Framebuffer is not complete" << std::endl;
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        m_ScreenShader = new Shader("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\ScreenFragment.glsl");
+        m_ScreenShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\ScreenFragment.glsl");
     }
 
     void Framebuffer::Destroy()
     {
-        /*
-        delete m_ScreenShader;
+        m_ScreenShader.Destroy();
 
-        glDeleteRenderbuffers(1, &m_RBO);
-        glDeleteTextures(1, &m_Texture);
+        m_ColorTexture.Destroy();
+        m_DepthStencilTexture.Destroy();
+
         glDeleteFramebuffers(1, &m_FBO);
-        */
+        
     }
 
     void Framebuffer::Bind()
@@ -73,10 +73,10 @@ namespace pxr
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_ScreenShader->Use();
-        m_ScreenShader->SetUniformInt("u_Texture", 0);
+        m_ScreenShader.Use();
+        m_ScreenShader.SetUniformInt("u_Texture", 0);
         RenderCommands::DrawScreen();
-        m_ScreenShader->EndUse();
+        m_ScreenShader.EndUse();
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -93,10 +93,10 @@ namespace pxr
         glClearColor(1.0f, 0.0f, 1.0f, 1.0f); // error pink
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_ScreenShader->Use();
-        m_ScreenShader->SetUniformInt("u_Texture", 0);
+        m_ScreenShader.Use();
+        m_ScreenShader.SetUniformInt("u_Texture", 0);
         RenderCommands::DrawScreen();
-        m_ScreenShader->EndUse();
+        m_ScreenShader.EndUse();
 
         glBindTexture(GL_TEXTURE_2D, 0);
     }

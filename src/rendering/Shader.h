@@ -6,8 +6,10 @@ namespace pxr
 	{
 	public:
 		Shader() = default;
-		Shader(const std::filesystem::path& vertexSrc, const std::filesystem::path& fragmentSrc);
-		~Shader();
+		~Shader() {}
+
+		void Create(const std::filesystem::path& vertexSrc, const std::filesystem::path& fragmentSrc);
+		void Destroy();
 
 		void Use();
 		void EndUse();

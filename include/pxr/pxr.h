@@ -4,6 +4,7 @@
 #include <rendering/Framebuffer.h>
 #include <rendering/Shader.h>
 #include <rendering/TextureBuffer.h>
+#include <rendering/Camera.h>
 
 #include <texture/TextureRegistry.h>
 #include <texture/Texture.h>

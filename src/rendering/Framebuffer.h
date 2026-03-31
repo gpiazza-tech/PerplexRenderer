@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TextureBuffer.h"
+#include "Shader.h"
 
 #include <cstdint>
 
@@ -38,6 +39,6 @@ namespace pxr
 		TextureBuffer m_ColorTexture;
 		TextureBuffer m_DepthStencilTexture;
 
-		Shader* m_ScreenShader;
+		Shader m_ScreenShader;
 	};
 }
