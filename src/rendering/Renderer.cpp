@@ -216,13 +216,13 @@ namespace pxr
     {
         s_Data.WhiteTexture = registry.m_WhiteTexture;
 
-        int i = 0;
-        for (size_t i = 0; i < registry.m_AtlasGroups.size(); i++)
-        {
-            glBindTextureUnit(i + 0, registry.m_AtlasGroups[i].ColorAtlas.GetAtlasTexture());
-            glBindTextureUnit(i + 1, registry.m_AtlasGroups[i].EmissionAtlas.GetAtlasTexture());
+        ASSERT(registry.m_AtlasGroups.size() * 2 <= s_MaxTextures);
 
-            i += 2;
+        for (size_t atlasIndex = 0; atlasIndex < registry.m_AtlasGroups.size(); atlasIndex++)
+        {
+            const uint32_t baseUnit = static_cast<uint32_t>(atlasIndex) * 2;
+            glBindTextureUnit(baseUnit, registry.m_AtlasGroups[atlasIndex].ColorAtlas.GetAtlasTexture());
+            glBindTextureUnit(baseUnit + 1, registry.m_AtlasGroups[atlasIndex].EmissionAtlas.GetAtlasTexture());
         }
     }
 }
