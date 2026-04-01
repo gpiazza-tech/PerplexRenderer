@@ -111,8 +111,8 @@ public:
 	void Resize(int width, int height) override
 	{
 		m_Camera.Resize({ width, height });
-		// resizing bloom renderer breaks everything for some reason
-		// m_BloomRenderer.Resize(width, height);
+		
+		m_BloomRenderer.Resize(width, height);
 		m_Tonemapper.Resize(width, height);
 		m_Framebuffer.Resize(width, height);
 		m_Pixelator.Resize(width, height);

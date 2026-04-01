@@ -7,9 +7,7 @@ namespace pxr
 	class RenderCommands
 	{
 	public:
-		/// <summary>
-		/// Draws a fullscreen quad
-		/// </summary>
 		static void DrawScreen();
+		static void ResizeViewport(int width, int height);
 	};
 }

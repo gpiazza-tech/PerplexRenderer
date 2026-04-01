@@ -67,7 +67,14 @@ namespace pxr
 
 	void BloomFBO::Resize(int width, int height)
 	{
-		for (auto& mip : m_MipChain)
-			mip.Resize(width, height);
+		glm::ivec2 mipIntSize(width, height);
+
+		for (size_t i = 0; i < m_MipChain.size(); i++)
+		{
+			m_MipChain[i].Resize(mipIntSize.x, mipIntSize.y);
+
+			// setup next mip
+			mipIntSize /= 2;
+		}
 	}
 }

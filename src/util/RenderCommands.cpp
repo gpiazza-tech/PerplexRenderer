@@ -16,4 +16,9 @@ namespace pxr
 
         glEnable(GL_DEPTH_TEST);
     }
+
+    void RenderCommands::ResizeViewport(int width, int height)
+    {
+        glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+    }
 }

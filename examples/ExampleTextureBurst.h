@@ -87,6 +87,11 @@ public:
 			ImGui::LabelText("Timestep", timeStr.c_str());
 			ImGui::LabelText("FPS", fpsStr.c_str());
 
+			ImGui::Text("Camera");
+			static float camZoom = m_Camera.GetZoom();
+			ImGui::DragFloat("Zoom", &camZoom, 0.01f);
+			m_Camera.SetZoom(camZoom);
+
 			ImGui::Text("Particle System");
 			if (play && ImGui::Button("Stop"))
 				play = false;
@@ -144,8 +149,7 @@ public:
 	{
 		m_Camera.Resize({ width, height });
 
-		// resizing bloom renderer breaks everything for some reason
-		// m_BloomRenderer.Resize(width, height);
+		m_BloomRenderer.Resize(width, height);
 		m_Tonemapper.Resize(width, height);
 		m_Framebuffer.Resize(width, height);
 		m_Pixelator.Resize(width, height);
