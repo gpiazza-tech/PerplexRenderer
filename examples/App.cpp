@@ -76,7 +76,7 @@ void AppStop()
 
 void OnWindowResize(int width, int height)
 {
-    glViewport(0, 0, width, height);
+    pxr::RenderCommands::ResizeViewport(width, height);
 
     g_ActiveExample->Resize(width, height);
 
