@@ -4,6 +4,8 @@
 #include <util/Util.h>
 
 #include <glm.hpp>
+#include <fwd.hpp>
+
 #include <algorithm>
 #include <iostream>
 
@@ -11,23 +13,20 @@ namespace pxr
 {
 	void Camera::CalculateViewProjection()
 	{
-		enum class ScallingMode { None = 0, Width, Height, Min, Max };
-		static ScallingMode mode = ScallingMode::Min;
-
 		float ratio = 0;
 
-		switch (mode)
+		switch (m_ScalingMode)
 		{
-		case ScallingMode::Width:
+		case ScalingMode::Width:
 			ratio = 1.0f / m_Resolution.x;
 			break;
-		case ScallingMode::Height:
+		case ScalingMode::Height:
 			ratio = 1.0f / m_Resolution.y;
 			break;
-		case ScallingMode::Min:
+		case ScalingMode::SmallerSide:
 			ratio = std::max(1.0f / (float)m_Resolution.x, 1.0f / (float)m_Resolution.y);
 			break;
-		case ScallingMode::Max:
+		case ScalingMode::LargerSide:
 			ratio = std::min(1.0f / (float)m_Resolution.x, 1.0f / (float)m_Resolution.y);
 			break;
 		default:
@@ -48,7 +47,13 @@ namespace pxr
 		CalculateViewProjection();
 	}
 
-	void Camera::Resize(glm::vec2 resolution)
+	void Camera::SetScalingMode(ScalingMode scalingMode)
+	{
+		m_ScalingMode = scalingMode;
+		CalculateViewProjection();
+	}
+
+	void Camera::Resize(const glm::vec2& resolution)
 	{
 		m_Resolution = resolution;
 		CalculateViewProjection();

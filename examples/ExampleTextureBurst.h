@@ -91,6 +91,10 @@ public:
 			static float camZoom = m_Camera.GetZoom();
 			ImGui::DragFloat("Zoom", &camZoom, 0.01f);
 			m_Camera.SetZoom(camZoom);
+			static const char* scalingModeNames[]{ "Width", "Height", "Larger Side", "Smaller Side" };
+			static int scalingMode = 0;
+			if (ImGui::Combo("Scaling Mode", &scalingMode, scalingModeNames, IM_ARRAYSIZE(scalingModeNames)))
+				m_Camera.SetScalingMode((pxr::ScalingMode)(scalingMode + 1));
 
 			ImGui::Text("Particle System");
 			if (play && ImGui::Button("Stop"))
