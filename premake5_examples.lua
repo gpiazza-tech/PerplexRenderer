@@ -29,6 +29,7 @@ project "PerplexRenderer"
     cppdialect "C++20"
     staticruntime "on"
     toolset "msc-v145"
+    dependson { "ImGui" }
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
