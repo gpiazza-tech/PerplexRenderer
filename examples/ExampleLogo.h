@@ -17,7 +17,7 @@ public:
 
 	void Enter() override
 	{
-		m_TextureRegistry.Create(1024, 16);
+		m_TextureRegistry.Create(128, 16);
 		m_Logo = m_TextureRegistry.Add("res\\textures\\Perplex.png", "res\\textures\\Perplex_Emission.png");
 
 		m_Framebuffer.Create(m_Width, m_Height, true);
@@ -32,7 +32,7 @@ public:
 		m_Framebuffer.Bind();
 
 		// Render
-		pxr::Renderer::UseTextureRegistry(m_TextureRegistry);
+		m_TextureRegistry.Bind();
 		pxr::Renderer::BeginBatch(m_Camera.GetProjection());
 
 		static glm::vec3 perplexPosition = glm::vec3(-1.5f, -1.0f, 0.0f);

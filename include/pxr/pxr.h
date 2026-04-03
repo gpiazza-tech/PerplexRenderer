@@ -11,10 +11,13 @@
 
 #include <util/ScreenQuad.h>
 #include <util/RenderCommands.h>
-#include <util/Util.h>
+#include <util/Util.h> 
 
 #include <postprocessing/BloomRenderer.h>
 #include <postprocessing/Tonemapper.h>
 #include <postprocessing/Pixelator.h>
 
-#include <particles/ParticleSystem.h>
+#include <particles/Particle.h>
+#include <particles/ParticleSystemSettings.h>
+#include <particles/SpriteParticleSystem.h>
+#include <particles/BurstParticleSystem.h>

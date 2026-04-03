@@ -110,11 +110,6 @@ namespace pxr
 		return subTexture;
 	}
 
-	uint32_t TextureAtlas::GetAtlasTexture() const
-	{
-		return m_Texture.GetID();
-	}
-
 	void TextureAtlas::AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg)
 	{
 		int paddedWidth = width + 2;

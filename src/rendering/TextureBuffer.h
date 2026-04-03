@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fwd.hpp>
+
 #include <cstdint>
 
 namespace pxr
@@ -34,6 +36,8 @@ namespace pxr
 		inline int GetWidth() const { return m_Width; }
 		inline int GetHeight() const { return m_Height; }
 		inline uint32_t GetID() const { return m_RendererID; }
+
+		glm::u8vec4* FetchPixels(int x, int y, int width, int height);
 
 		void Bind();
 		void BindUnit(int unit);

@@ -4,15 +4,13 @@
 #include <pxr/pxr.h>
 
 #include <imgui.h>
-#include <fwd.hpp>
 
-#include <cstdint>
-#include <format>
 #include <string>
 #include <vector>
 
 #include "Example.h"
 #include "ExampleLogo.h"
+#include "ExampleBurst.h"
 #include "ExampleTextureBurst.h"
 
 int g_Width = 1920;
@@ -26,6 +24,7 @@ static void PushExamples()
 {
     // Add any examples here
     g_Examples.emplace_back(new ExampleLogo(g_Width, g_Height, g_PixelsPerUnit));
+    g_Examples.emplace_back(new ExampleBurst(g_Width, g_Height, g_PixelsPerUnit));
     g_Examples.emplace_back(new ExampleTextureBurst(g_Width, g_Height, g_PixelsPerUnit));
 }
 

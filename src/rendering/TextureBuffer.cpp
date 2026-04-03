@@ -2,6 +2,7 @@
 #include "TextureBuffer.h"
 
 #include <gl/glew.h>
+#include <fwd.hpp>
 
 #include <iostream>
 
@@ -44,6 +45,17 @@ namespace pxr
     void TextureBuffer::Destroy()
     {
         glDeleteTextures(1, &m_RendererID);
+    }
+
+    glm::u8vec4* TextureBuffer::FetchPixels(int x, int y, int width, int height)
+    {
+        if (m_Type != TextureBufferType::LDR)
+            std::cout << "TextureBuffer::FetchChannels only supported on LDR Textures!" << std::endl;
+
+        glm::u8vec4* pixels = new glm::u8vec4[width * height];
+        glGetTextureSubImage(m_RendererID, 0, x, y, 0, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, width * height * 4, pixels);
+
+        return pixels;
     }
 
     void TextureBuffer::Bind()

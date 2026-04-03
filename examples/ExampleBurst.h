@@ -2,28 +2,28 @@
 
 #include "Example.h"
 
-class ExampleTextureBurst : public Example
+class ExampleBurst : public Example
 {
 public:
-	ExampleTextureBurst(int width, int height, int pixelsPerUnit)
+	ExampleBurst(int width, int height, int pixelsPerUnit)
 		: m_Width(width), m_Height(height), m_PixelsPerUnit(pixelsPerUnit), 
-		m_Camera({ width, height }, pixelsPerUnit, 6.0f), 
+		m_Camera({ width, height }, pixelsPerUnit, 6.0f),
 		m_ParticleSettings(new pxr::ParticleSystemSettings()), m_ParticleSystem(m_ParticleSettings)
 	{
 	}
 
-	const char* Name() override { return "Texture Burst"; }
+	const char* Name() override { return "Burst"; }
 
 	void Enter() override
 	{
-		m_TextureRegistry.Create(128, 16);
-		m_Kablooey = m_TextureRegistry.Add("res\\textures\\Kablooey.png", "res\\textures\\Kablooey_Emission.png");
+		m_TextureRegistry.Create(3, 16);
 
+		m_ParticleSettings->ParticleCount = 20;
 		m_ParticleSettings->GravityMultiplier = 0.05f;
 		m_ParticleSettings->VelocityMultiplier = 10.0f;
-		m_ParticleSettings->EmissionMultiplier = 0.7f;
-		m_ParticleSettings->ParticlesPerPixel = 1;
-		m_ParticleSystem.Create(m_Kablooey);
+		m_ParticleSettings->VelocityRandomness = 1.0f;
+		m_ParticleSettings->StartEmission = 0.6f;
+		m_ParticleSystem.Create();
 
 		m_Framebuffer.Create(m_Width, m_Height, true);
 
@@ -31,7 +31,7 @@ public:
 		m_Tonemapper.Init(m_Width, m_Height);
 		m_Pixelator.Init(m_Width, m_Height);
 	}
-	 
+
 	void Update(float ts) override
 	{
 		m_Framebuffer.Bind();
@@ -40,11 +40,10 @@ public:
 		m_TextureRegistry.Bind();
 		pxr::Renderer::BeginBatch(m_Camera.GetProjection());
 
-		static glm::vec3 bobPosition = glm::vec3(-3.5f, 0.6f, 0.0f);
-		static float bobEmission = 0.6f;
+		static glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		m_ParticleSystem.Update(ts);
-		m_ParticleSystem.Render(bobPosition);
+		m_ParticleSystem.Render(position);
 
 		pxr::Renderer::EndBatch();
 		pxr::Renderer::Flush();
@@ -101,6 +100,7 @@ public:
 				m_ParticleSystem.Pause();
 			else if (!m_ParticleSystem.Playing() && ImGui::Button("Play"))
 				m_ParticleSystem.Resume();
+
 			if (ImGui::Button("Reset"))
 			{
 				m_ParticleSystem.Pause();
@@ -162,10 +162,9 @@ private:
 	pxr::Camera m_Camera;
 
 	pxr::TextureRegistry m_TextureRegistry;
-	pxr::Texture m_Kablooey;
 
 	std::shared_ptr<pxr::ParticleSystemSettings> m_ParticleSettings;
-	pxr::SpriteParticleSystem m_ParticleSystem;
+	pxr::BurstParticleSystem m_ParticleSystem;
 
 	pxr::Framebuffer m_Framebuffer;
 

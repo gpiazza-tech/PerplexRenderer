@@ -49,7 +49,7 @@ namespace pxr
 		void Create(int size, int pixelsPerUnit);
 		void Destroy();
 
-		uint32_t GetAtlasTexture() const;
+		TextureBuffer& GetTexture() { return m_Texture; }
 	private:
 		void AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg);
 		Texture AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes);

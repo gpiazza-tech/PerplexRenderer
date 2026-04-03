@@ -63,7 +63,6 @@ project "PerplexRenderer"
     {
         "vendor/glfw/lib",
         "vendor/glew/lib",
-        "vendor/imgui/bin",
     }
 
     defines
@@ -75,7 +74,7 @@ project "PerplexRenderer"
 
     links
     {
-        "ImGui.lib",
+        "imgui",
         "glfw3_mt.lib",
         "glew32s.lib",
         "opengl32.lib"
