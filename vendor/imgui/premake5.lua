@@ -1,12 +1,12 @@
-project "ImGui"
+project "imgui"
 	kind "StaticLib"
 	language "C++"
 	cppdialect "C++17"
     staticruntime "on"
 	toolset "msc-v145"
 
-	targetdir ("bin")
-	objdir ("bin-int")
+    targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
 
 	files
 	{

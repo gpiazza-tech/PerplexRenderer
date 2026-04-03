@@ -2,6 +2,8 @@
 
 namespace pxr
 {
+	class TextureRegistry;
+
 	struct Texture
 	{
 		// The index of the atlas stored in the AtlasGroups vector in AssetRegistry.
@@ -29,5 +31,7 @@ namespace pxr
 		float Ymin;
 		float Xmax;
 		float Ymax;
+
+		TextureRegistry* TextureRegistry;
 	};
 }

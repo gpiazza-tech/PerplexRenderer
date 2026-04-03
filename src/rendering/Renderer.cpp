@@ -154,6 +154,11 @@ namespace pxr
         s_Data.IndexCount = 0;
     }
 
+    void Renderer::SetPixelSprite(const Texture& sprite)
+    {
+        s_Data.WhiteTexture = sprite;
+    }
+
     void Renderer::DrawPixel(const glm::vec2& position, const glm::vec4& color, float emission, bool pixelPerfect)
     {
         DrawQuad(position, glm::vec2(1.0f), color, emission, s_Data.WhiteTexture, pixelPerfect);
@@ -210,19 +215,5 @@ namespace pxr
         s_Data.QuadBufferPtr++;
 
         s_Data.IndexCount += 6;
-    }
-
-    void Renderer::UseTextureRegistry(const TextureRegistry& registry)
-    {
-        s_Data.WhiteTexture = registry.m_WhiteTexture;
-
-        ASSERT(registry.m_AtlasGroups.size() * 2 <= s_MaxTextures);
-
-        for (size_t atlasIndex = 0; atlasIndex < registry.m_AtlasGroups.size(); atlasIndex++)
-        {
-            const uint32_t baseUnit = static_cast<uint32_t>(atlasIndex) * 2;
-            glBindTextureUnit(baseUnit, registry.m_AtlasGroups[atlasIndex].ColorAtlas.GetAtlasTexture());
-            glBindTextureUnit(baseUnit + 1, registry.m_AtlasGroups[atlasIndex].EmissionAtlas.GetAtlasTexture());
-        }
     }
 }
