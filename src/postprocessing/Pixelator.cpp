@@ -1,10 +1,12 @@
 #include <pch.h>;
 #include "Pixelator.h"
 
-#include <rendering/Shader.h>
-#include <util/RenderCommands.h>
+#include <backends/Shader.h>
+#include <backends/RenderCommands.h>
 
 #include <fwd.hpp>
+
+// TODO: move glew functions
 #include <GL/glew.h>
 
 #include <cstdint>

@@ -1,12 +1,14 @@
 #include <pch.h>
 #include "Renderer.h"
 
-#include "Shader.h"
+#include <backends/Shader.h>
 #include <texture/Texture.h>
 #include <texture/TextureRegistry.h>
 #include <util/Util.h>
 
+// TODO: move glew functions
 #include <GL/glew.h>
+
 #include <fwd.hpp>
 
 #include <cstddef>

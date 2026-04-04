@@ -1,7 +1,7 @@
 #include <pch.h>
-#include "BloomFBO.h"
+#include <backends/BloomFBO.h>
 
-#include <rendering/TextureBuffer.h>
+#include <backends/TextureBuffer.h>
 
 #include <GL/glew.h>
 #include <fwd.hpp>

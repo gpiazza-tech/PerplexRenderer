@@ -1,7 +1,7 @@
 #include <pch.h>
-#include "Shader.h"
+#include <backends/Shader.h>
 
-#include "Renderer.h"
+#include <rendering/Renderer.h>
 #include <util/Util.h>
 
 #include <GL/glew.h>

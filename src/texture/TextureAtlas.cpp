@@ -2,12 +2,14 @@
 #include "TextureAtlas.h"
 
 #include "Texture.h"
-#include <rendering/TextureBuffer.h>
+#include <backends/TextureBuffer.h>
 #include <util/Util.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include <gl/glew.h>
+
+// TODO: move glew functions
+#include <GL/glew.h>
 
 #include <cstdint>
 #include <malloc.h>

@@ -1,7 +1,7 @@
 #include <pch.h>
-#include "TextureBuffer.h"
+#include <backends/TextureBuffer.h>
 
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <fwd.hpp>
 
 #include <iostream>

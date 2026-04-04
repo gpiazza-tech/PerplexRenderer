@@ -1,9 +1,10 @@
 #include <pch.h>
 #include "Tonemapper.h"
 
-#include <util/RenderCommands.h>
-#include <rendering/Shader.h>
+#include <backends/RenderCommands.h>
+#include <backends/Shader.h>
 
+// TODO: move glew functions
 #include <GL/glew.h>
 
 #include <cstdint>

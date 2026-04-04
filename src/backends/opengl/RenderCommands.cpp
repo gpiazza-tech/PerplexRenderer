@@ -1,7 +1,7 @@
 #include <pch.h>
-#include "RenderCommands.h"
+#include <backends/RenderCommands.h>
 
-#include "ScreenQuad.h"
+#include <backends/ScreenQuad.h>
 
 #include <GL/glew.h>
 
