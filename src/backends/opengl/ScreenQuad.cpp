@@ -1,7 +1,7 @@
 #include <pch.h>
-#include "ScreenQuad.h"
+#include <backends/ScreenQuad.h>
 
-#include <gl/glew.h>
+#include <GL/glew.h>
 
 #include <cstdint>
 

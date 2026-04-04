@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rendering/TextureBuffer.h>
+#include "TextureBuffer.h"
 
 #include <vector>
 #include <cstdint>

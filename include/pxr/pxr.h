@@ -1,16 +1,17 @@
 #pragma once
 
 #include <rendering/Renderer.h>
-#include <rendering/Framebuffer.h>
-#include <rendering/Shader.h>
-#include <rendering/TextureBuffer.h>
 #include <rendering/Camera.h>
 
-#include <texture/TextureRegistry.h>
-#include <texture/Texture.h>
+#include <backends/Framebuffer.h>
+#include <backends/Shader.h>
+#include <backends/TextureBuffer.h>
+#include <backends/ScreenQuad.h>
+#include <backends/RenderCommands.h>
 
-#include <util/ScreenQuad.h>
-#include <util/RenderCommands.h>
+#include <texture/Texture.h>
+#include <texture/TextureRegistry.h>
+
 #include <util/Util.h> 
 
 #include <postprocessing/BloomRenderer.h>

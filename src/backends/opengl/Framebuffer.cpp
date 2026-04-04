@@ -1,9 +1,9 @@
 #include <pch.h>
-#include "Framebuffer.h"
+#include <backends/Framebuffer.h>
 
-#include "TextureBuffer.h"
-#include "Shader.h"
-#include <util/RenderCommands.h>
+#include <backends/TextureBuffer.h>
+#include <backends/Shader.h>
+#include <backends/RenderCommands.h>
 
 #include <GL/glew.h>
 

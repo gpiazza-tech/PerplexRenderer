@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rendering/Framebuffer.h>
-#include <rendering/Shader.h>
+#include <backends/Framebuffer.h>
+#include <backends/Shader.h>
 
 #include <fwd.hpp>
 
