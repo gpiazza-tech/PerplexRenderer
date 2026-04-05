@@ -1,6 +1,10 @@
 #include <pch.h>
 #include <backends/VertexArray.h>
 
+#include <util/Type.h>
+#include <backends/VertexBuffer.h>
+#include <backends/IndexBuffer.h>
+
 #include <GL/glew.h>
 
 #include <vector>
@@ -34,20 +38,31 @@ namespace pxr
 		glDeleteVertexArrays(1, &m_RendererID);
 	}
 
-	void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
+	void VertexArray::AttachBuffers(const VertexBuffer& vbo, const IndexBuffer& ibo)
 	{
 		Bind();
-		vb.Bind();
-		const auto& elements = layout.GetElements();
+		vbo.Bind();
+		ibo.Bind();
+		const auto& elements = vbo.GetLayoutElements();
 		uint32_t offset = 0;
+		uint32_t stride = 0;
+
+		for (size_t i = 0; i < elements.size(); i++)
+		{
+			stride += elements[i].Count * SizeOf(elements[i].Type);
+		}
+
 		for (size_t i = 0; i < elements.size(); i++)
 		{
 			const auto& element = elements[i];
 			glEnableVertexAttribArray((GLuint)i);
-			glVertexAttribPointer((GLuint)i, element.Count, PxrToGlType(element.Type), 
-				element.Normalized ? GL_TRUE : GL_FALSE, layout.GetStride(), (const void*)offset);
+			glVertexAttribPointer((GLuint)i, element.Count, PxrToGlType(element.Type),
+				element.Normalized ? GL_TRUE : GL_FALSE, stride, (const void*)offset);
 			offset += element.Count * SizeOf(element.Type);
 		}
+		Unbind();
+		vbo.Unbind();
+		ibo.Unbind();
 	}
 
 	void VertexArray::Bind() const
