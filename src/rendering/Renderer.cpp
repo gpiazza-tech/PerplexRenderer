@@ -2,17 +2,17 @@
 #include "Renderer.h"
 
 #include <backends/Shader.h>
+#include <backends/VertexArray.h>
+#include <backends/VertexBuffer.h>
+#include <backends/RenderCommands.h>
 #include <texture/Texture.h>
-#include <texture/TextureRegistry.h>
 #include <util/Util.h>
-
-// TODO: move glew functions
-#include <GL/glew.h>
 
 #include <fwd.hpp>
 
-#include <cstddef>
 #include <cstdint>
+#include <memory>
+#include <backends/IndexBuffer.h>
 
 namespace pxr
 {
@@ -32,9 +32,8 @@ namespace pxr
 
     struct RendererData
     {
-        uint32_t QuadVAO = 0;
-        uint32_t QuadVBO = 0;
-        uint32_t QuadIBO = 0;
+        std::shared_ptr<VertexArray> QuadVAO = nullptr;
+        std::shared_ptr<VertexBuffer> QuadVBO = nullptr;
 
         uint32_t IndexCount = 0;
 
@@ -54,29 +53,20 @@ namespace pxr
     void Renderer::Init(uint32_t pixelsPerUnit)
     {
         s_Data.QuadBuffer = new Vertex[s_MaxVertexCount];
+        s_Data.PixelsPerUnit = pixelsPerUnit;
 
-        glCreateVertexArrays(1, &s_Data.QuadVAO);
-        glBindVertexArray(s_Data.QuadVAO);
+        // Vertex Buffer
+        s_Data.QuadVBO = std::make_shared<VertexBuffer>(nullptr, s_MaxVertexCount * sizeof(Vertex), true);
+        s_Data.QuadVBO->SetLayout(
+            {
+                { Type::Float, 3, false }, // Position
+                { Type::Float, 4, false }, // Color
+                { Type::Float, 2, false }, // Texture Coords
+                { Type::Float, 1, false }, // Texture Index
+                { Type::Float, 1, false }, // Emission
+            });
 
-        glCreateBuffers(1, &s_Data.QuadVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, s_Data.QuadVBO);
-        glBufferData(GL_ARRAY_BUFFER, s_MaxVertexCount * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
-
-        glEnableVertexArrayAttrib(s_Data.QuadVAO, 0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, Position));
-
-        glEnableVertexArrayAttrib(s_Data.QuadVAO, 1);
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, Color));
-
-        glEnableVertexArrayAttrib(s_Data.QuadVAO, 2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, TexCoord));
-
-        glEnableVertexArrayAttrib(s_Data.QuadVAO, 3);
-        glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, TexIndex));
-
-        glEnableVertexArrayAttrib(s_Data.QuadVAO, 4);
-        glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, Emission));
-
+        // Index Buffer
         uint32_t indices[s_MaxIndexCount];
         uint32_t offset = 0;
         for (size_t i = 0; i < s_MaxIndexCount; i += 6)
@@ -92,9 +82,11 @@ namespace pxr
             offset += 4;
         }
 
-        glCreateBuffers(1, &s_Data.QuadIBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_Data.QuadIBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        IndexBuffer ibo(indices, s_MaxIndexCount);
+
+        // Vertex Array
+        s_Data.QuadVAO = std::make_shared<VertexArray>();
+        s_Data.QuadVAO->AttachBuffers(*s_Data.QuadVBO, ibo);
 
         // Shader
         s_Data.SpriteShader.Create("res\\shaders\\SpriteVertex.glsl", "res\\shaders\\SpriteFragment.glsl");
@@ -107,28 +99,18 @@ namespace pxr
         s_Data.SpriteShader.SetUniformMat4("u_Transform", (float*)&transform);
         s_Data.SpriteShader.SetUniformIntArray("u_Textures", 32, samplers);
         s_Data.SpriteShader.EndUse();
-
-        s_Data.PixelsPerUnit = pixelsPerUnit;
     }
 
     void Renderer::Shutdown()
     {
-        glDeleteVertexArrays(1, &s_Data.QuadVAO);
-        glDeleteBuffers(1, &s_Data.QuadVBO);
-        glDeleteBuffers(1, &s_Data.QuadIBO);
-
         delete[] s_Data.QuadBuffer;
     }
 
     void Renderer::BeginBatch(glm::mat4 projection)
     {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glBlendEquation(GL_FUNC_ADD);
-
-        glClearColor(0.01f, 0.04f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_DEPTH_TEST);
+        RenderCommands::EnableAlphaBlending();
+        RenderCommands::Clear({ 0.01f, 0.04f, 0.1f, 1.0f });
+        RenderCommands::EnableDepthTest();
 
         s_Data.QuadBufferPtr = s_Data.QuadBuffer;
 
@@ -140,17 +122,15 @@ namespace pxr
 
     void Renderer::EndBatch()
     {
-        GLsizeiptr size = (uint8_t*)s_Data.QuadBufferPtr - (uint8_t*)s_Data.QuadBuffer;
-        glBindBuffer(GL_ARRAY_BUFFER, s_Data.QuadVBO);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, size, s_Data.QuadBuffer);
+        uint32_t size = (uint8_t*)s_Data.QuadBufferPtr - (uint8_t*)s_Data.QuadBuffer;
+
+        s_Data.QuadVBO->PushData(s_Data.QuadBuffer, size);
     }
 
     void Renderer::Flush()
     {
         s_Data.SpriteShader.Use();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_Data.QuadIBO);
-        glBindVertexArray(s_Data.QuadVAO);
-        glDrawElements(GL_TRIANGLES, s_Data.IndexCount, GL_UNSIGNED_INT, nullptr);
+        RenderCommands::DrawTriangles(*s_Data.QuadVAO, s_Data.IndexCount);
         s_Data.SpriteShader.EndUse();
 
         s_Data.IndexCount = 0;

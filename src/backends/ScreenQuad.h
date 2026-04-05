@@ -1,5 +1,8 @@
 #pragma once
 
+#include <backends/VertexArray.h>
+#include <backends/IndexBuffer.h>
+
 #include <cstdint>
 
 namespace pxr
@@ -8,10 +11,10 @@ namespace pxr
 	{
 	public:
 		ScreenQuad();
-		~ScreenQuad();
 
-		void Draw();
+		void Draw() const;
 	private:
-		uint32_t m_Vao;
+		VertexArray m_VAO;
+		uint32_t m_Vao = 0;
 	};
 }

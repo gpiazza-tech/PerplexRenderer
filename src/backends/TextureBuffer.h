@@ -5,7 +5,7 @@
 #include <cstdint>
 
 namespace pxr
-{
+{ 
 	enum class TextureBufferFilterMode
 	{
 		None = 0,
