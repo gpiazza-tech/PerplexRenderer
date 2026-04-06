@@ -13,12 +13,19 @@ namespace pxr
     struct Texture;
     class TextureRegistry;
 
+    struct RenderStats
+    {
+        uint32_t Quads = 0;
+        uint32_t DrawCalls = 0;
+    };
+
     class Renderer
     {
     public:
         static void Init(uint32_t pixelsPerUnit);
         static void Shutdown();
 
+        static void BeginFrame();
         static void BeginBatch(glm::mat4 projection);
         static void EndBatch();
         static void Flush();
@@ -29,5 +36,7 @@ namespace pxr
         static void DrawQuad(const glm::vec2& position, const Texture& texture);
         static void DrawQuad(const glm::vec2& position, const Texture& texture, float emission);
         static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float emission, const Texture& texture, bool pixelPerfect);
+
+        static const RenderStats& GetStats();
     };
 }

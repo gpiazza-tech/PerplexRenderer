@@ -30,6 +30,8 @@ namespace pxr
         float Emission;
     };
 
+    static RenderStats s_Stats;
+
     struct RendererData
     {
         std::shared_ptr<VertexArray> QuadVAO = nullptr;
@@ -106,12 +108,18 @@ namespace pxr
         delete[] s_Data.QuadBuffer;
     }
 
-    void Renderer::BeginBatch(glm::mat4 projection)
+    void Renderer::BeginFrame()
     {
         RenderCommands::EnableAlphaBlending();
         RenderCommands::Clear({ 0.01f, 0.04f, 0.1f, 1.0f });
         RenderCommands::EnableDepthTest();
 
+        s_Stats.Quads = 0;
+        s_Stats.DrawCalls = 0;
+    }
+
+    void Renderer::BeginBatch(glm::mat4 projection)
+    {
         s_Data.QuadBufferPtr = s_Data.QuadBuffer;
 
         s_Data.Projection = projection;
@@ -134,6 +142,8 @@ namespace pxr
         s_Data.SpriteShader.EndUse();
 
         s_Data.IndexCount = 0;
+
+        s_Stats.DrawCalls++;
     }
 
     void Renderer::SetPixelSprite(const Texture& sprite)
@@ -197,5 +207,12 @@ namespace pxr
         s_Data.QuadBufferPtr++;
 
         s_Data.IndexCount += 6;
+
+        s_Stats.Quads++;
+    }
+
+    const RenderStats& Renderer::GetStats()
+    {
+        return s_Stats;
     }
 }

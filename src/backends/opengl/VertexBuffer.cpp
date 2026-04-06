@@ -23,6 +23,7 @@ namespace pxr
 	{
 		Bind();
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+		Unbind();
 	}
 
 	void VertexBuffer::Bind() const

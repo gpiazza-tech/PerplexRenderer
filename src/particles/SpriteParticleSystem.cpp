@@ -14,6 +14,7 @@ namespace pxr
 {
 	void SpriteParticleSystem::Create(const Texture& sprite)
 	{
+        m_SpriteParticles.clear();
         m_SpriteParticles.reserve(sprite.PixelWidth * sprite.PixelHeight);
 
         glm::u8vec4* colorPixels = sprite.TextureRegistry->FetchColorPixels(sprite);

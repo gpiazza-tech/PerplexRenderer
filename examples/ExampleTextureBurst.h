@@ -38,6 +38,7 @@ public:
 
 		// Render
 		m_TextureRegistry.Bind();
+		pxr::Renderer::BeginFrame();
 		pxr::Renderer::BeginBatch(m_Camera.GetProjection());
 
 		static glm::vec3 bobPosition = glm::vec3(-3.5f, 0.6f, 0.0f);
@@ -86,6 +87,11 @@ public:
 			std::string fpsStr = std::format("{}", 1.0f / ts);
 			ImGui::LabelText("Timestep", timeStr.c_str());
 			ImGui::LabelText("FPS", fpsStr.c_str());
+			const pxr::RenderStats& stats = pxr::Renderer::GetStats();
+			std::string quadsStr = std::format("{}", stats.Quads);
+			std::string drawCallsStr = std::format("{}", stats.DrawCalls);
+			ImGui::LabelText("Quads", quadsStr.c_str());
+			ImGui::LabelText("Draw Calls", drawCallsStr.c_str());
 
 			ImGui::Text("Camera");
 			static float camZoom = m_Camera.GetZoom();
