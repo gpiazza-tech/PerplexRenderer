@@ -10,6 +10,7 @@
 #include <backends/RenderCommands.h>
 
 #include <texture/Texture.h>
+#include <texture/TextureAtlas.h>
 #include <texture/TextureRegistry.h>
 
 #include <util/Util.h> 
