@@ -15,11 +15,13 @@ IncludeDir = {}
 IncludeDir["stb_image"] = "vendor/stb_image/include"
 IncludeDir["glm"] = "vendor/glm/include"
 IncludeDir["imgui"] = "vendor/imgui/include"
+IncludeDir["spdlog"] = "vendor/spdlog/include"
 IncludeDir["glfw"] = "vendor/glfw/include"
 IncludeDir["glew"] = "vendor/glew/include"
 
 group "Dependencies"
     include "vendor/imgui"
+    include "vendor/spdlog"
 group ""
 
 project "PerplexRenderer"
@@ -55,6 +57,7 @@ project "PerplexRenderer"
         "%{IncludeDir.glfw}",
         "%{IncludeDir.glew}",
         "%{IncludeDir.imgui}",
+        "%{IncludeDir.spdlog}",
         "%{IncludeDir.glm}",
         "%{IncludeDir.stb_image}",
     }
@@ -75,6 +78,7 @@ project "PerplexRenderer"
     links
     {
         "imgui",
+        "spdlog",
         "glfw3_mt.lib",
         "glew32s.lib",
         "opengl32.lib"

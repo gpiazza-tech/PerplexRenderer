@@ -12,8 +12,14 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
 IncludeDir["stb_image"] = "vendor/stb_image/include"
+IncludeDir["spdlog"] = "vendor/spdlog/include"
 IncludeDir["glm"] = "vendor/glm/include"
 IncludeDir["glew"] = "vendor/glew/include"
+
+group "Dependencies"
+    include "vendor/spdlog"
+group ""
+
 
 project "PerplexRenderer"
     location "."
@@ -41,6 +47,7 @@ project "PerplexRenderer"
     {
         "src",
         "include",
+        "%{IncludeDir.spdlog}",
         "%{IncludeDir.glew}",
         "%{IncludeDir.glm}",
         "%{IncludeDir.stb_image}",
@@ -59,6 +66,7 @@ project "PerplexRenderer"
 
     links
     {
+        "spdlog",
         "glew32s.lib",
         "opengl32.lib"
     }
