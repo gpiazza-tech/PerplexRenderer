@@ -1,13 +1,15 @@
 #pragma once
 
+#include "Sprite.h"
 #include <backends/TextureBuffer.h>
 
 #include <cstdint>
 #include <vector>
+#include <filesystem>
 
 namespace pxr
 {
-	// This class uses a shelf-based rect packing algorithm to sort textures of
+	// This class uses a shelf-based rect packing algorithm to sort sprites of
 	// different sizes into the atlas. This is easily the most complicated file in this
 	// project, so I've included a short explanation of how the algorithm works here:
 	// 
@@ -24,8 +26,6 @@ namespace pxr
 	// If a shelf becomes full, it will be assigned to m_NextShelf, and m_NextShelf will increase by that shelf's height.
 	// Unused shelves are assigned a default y value of -1
 
-	struct Texture;
-
 	struct Shelf
 	{
 		Shelf(int y, int height, int nextTextureX)
@@ -37,14 +37,14 @@ namespace pxr
 		int NextTextureX = 0;
 	};
 
-	class TextureAtlas
+	class SpriteAtlas
 	{
 	public:
-		TextureAtlas() = default;
-		~TextureAtlas() {};
+		SpriteAtlas() = default;
+		~SpriteAtlas() {};
 
-		Texture AddTexture(const std::filesystem::path& path);
-		Texture AddTextureAt(const std::filesystem::path& path, int xPos, int yPos);
+		Sprite AddTexture(const std::filesystem::path& path);
+		Sprite AddTextureAt(const std::filesystem::path& path, int xPos, int yPos);
 
 		void Create(int size, int pixelsPerUnit);
 		void Destroy();
@@ -52,7 +52,7 @@ namespace pxr
 		TextureBuffer* GetTexture() { return m_Texture; }
 	private:
 		void AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg);
-		Texture AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes);
+		Sprite AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes);
 		int GetShelfIndex(int textureHeight) const;
 	private:
 		TextureBuffer* m_Texture;

@@ -2,9 +2,9 @@
 
 namespace pxr
 {
-	class TextureRegistry;
+	class SpriteRegistry;
 
-	struct Texture
+	struct Sprite
 	{
 		// The index of the atlas stored in the AtlasGroups vector in AssetRegistry.
 		// Used to determine what texture unit index to sample from in the shader
@@ -32,6 +32,6 @@ namespace pxr
 		float Xmax;
 		float Ymax;
 
-		TextureRegistry* TextureRegistry;
+		SpriteRegistry* SpriteRegistry;
 	};
 }

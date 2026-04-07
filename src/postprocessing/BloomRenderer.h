@@ -11,7 +11,7 @@
 namespace pxr
 {
 	class Shader;
-	struct Texture;
+	struct Sprite;
 
 	class BloomRenderer
 	{

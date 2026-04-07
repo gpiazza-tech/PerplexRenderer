@@ -2,7 +2,7 @@
 
 #include "Particle.h"
 #include "ParticleSystemSettings.h"
-#include <texture/Texture.h>
+#include <sprite/Sprite.h>
 
 #include <fwd.hpp>
 #include <glm.hpp>
@@ -21,7 +21,7 @@ namespace pxr
 		{ }
 		~SpriteParticleSystem() {}
 
-		void Create(const Texture& sprite);
+		void Create(const Sprite& sprite);
 
 		void Play()
 		{

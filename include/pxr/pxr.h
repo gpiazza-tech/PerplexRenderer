@@ -9,9 +9,9 @@
 #include <backends/ScreenQuad.h>
 #include <backends/RenderCommands.h>
 
-#include <texture/Texture.h>
-#include <texture/TextureAtlas.h>
-#include <texture/TextureRegistry.h>
+#include <sprite/Sprite.h>
+#include <sprite/SpriteAtlas.h>
+#include <sprite/SpriteRegistry.h>
 
 #include <util/Util.h> 
 

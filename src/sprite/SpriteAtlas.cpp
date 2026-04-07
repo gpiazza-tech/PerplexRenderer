@@ -1,7 +1,7 @@
 #include <pch.h>
-#include "TextureAtlas.h"
+#include "SpriteAtlas.h"
 
-#include "Texture.h"
+#include "Sprite.h"
 #include <backends/TextureBuffer.h>
 #include <util/Util.h>
 
@@ -19,7 +19,7 @@
 
 namespace pxr
 {
-	void TextureAtlas::Create(int size, int pixelsPerUnit)
+	void SpriteAtlas::Create(int size, int pixelsPerUnit)
 	{
 		stbi_set_flip_vertically_on_load(true);
 
@@ -38,14 +38,14 @@ namespace pxr
 		m_Shelves.reserve(10);
 	}
 
-	void TextureAtlas::Destroy()
+	void SpriteAtlas::Destroy()
 	{
 		delete m_Texture;
 		m_Shelves.clear();
 		m_NextShelf = 0;
 	}
 
-	Texture TextureAtlas::AddTexture(const std::filesystem::path& path)
+	Sprite SpriteAtlas::AddTexture(const std::filesystem::path& path)
 	{
 		int width, height, channels;
 		std::filesystem::path absolutePath = RelativePath(path);
@@ -79,7 +79,7 @@ namespace pxr
 		int y = shelf.Y;
 		shelf.NextTextureX += paddedWidth;
 
-		Texture subTexture = AllocateBuffer(x, y, paddedWidth, paddedHeight, paddedImage);
+		Sprite subTexture = AllocateBuffer(x, y, paddedWidth, paddedHeight, paddedImage);
 
 		// Cleanup
 		stbi_image_free((void*)rawImage);
@@ -88,7 +88,7 @@ namespace pxr
 		return subTexture;
 	}
 
-	Texture TextureAtlas::AddTextureAt(const std::filesystem::path& path, int xPos, int yPos)
+	Sprite SpriteAtlas::AddTextureAt(const std::filesystem::path& path, int xPos, int yPos)
 	{
 		int32_t width, height, channels;
 		std::filesystem::path absolutePath = RelativePath(path);
@@ -103,16 +103,16 @@ namespace pxr
 			std::cerr << "TextureAtlas::AddTexture: malloc failed!" << std::endl;
 
 		AddPadding(width, height, rawImage, paddedImage);
-		Texture subTexture = AllocateBuffer(xPos - 1, yPos - 1, paddedWidth, paddedHeight, paddedImage);
+		Sprite sprite = AllocateBuffer(xPos - 1, yPos - 1, paddedWidth, paddedHeight, paddedImage);
 
 		// Cleanup
 		stbi_image_free((void*)rawImage);
 		free((void*)paddedImage);
 
-		return subTexture;
+		return sprite;
 	}
 
-	void TextureAtlas::AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg)
+	void SpriteAtlas::AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg)
 	{
 		int paddedWidth = width + 2;
 		int paddedHeight = height + 2;
@@ -175,7 +175,7 @@ namespace pxr
 		newImg[paddedWidth * paddedHeight - paddedWidth] = img[width * height - width];
 	}
 
-	int TextureAtlas::GetShelfIndex(int textureHeight) const
+	int SpriteAtlas::GetShelfIndex(int textureHeight) const
 	{
 		// If p equals m_PixelsPerUnit and i is the index of the vector, then m_Shelves[i] holds the y position for the shelf with a range of (pi+3) to p(i+1)+2
 		// Figuring out which index should be returned based on the height is as simple as solving for i for the min value of the range:
@@ -185,32 +185,32 @@ namespace pxr
 		return (textureHeight - 3) / m_PixelsPerUnit;
 	}
 
-	Texture TextureAtlas::AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes)
+	Sprite SpriteAtlas::AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes)
 	{
 		// Push padded image to GPU
 		glBindTexture(GL_TEXTURE_2D, m_Texture->GetID());
 		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		// Create Texture to return
-		Texture texture;
+		// Create Sprite to return
+		Sprite sprite;
 
 		int visibleWidth = width - 2;
 		int visibleHeight = height - 2;
 
-		texture.PixelX = x + 1;
-		texture.PixelY = y + 1;
-		texture.PixelWidth = visibleWidth;
-		texture.PixelHeight = visibleHeight;
+		sprite.PixelX = x + 1;
+		sprite.PixelY = y + 1;
+		sprite.PixelWidth = visibleWidth;
+		sprite.PixelHeight = visibleHeight;
 
-		texture.ScaleFactorX = visibleWidth / (float)m_PixelsPerUnit;
-		texture.ScaleFactorY = visibleHeight / (float)m_PixelsPerUnit;
+		sprite.ScaleFactorX = visibleWidth / (float)m_PixelsPerUnit;
+		sprite.ScaleFactorY = visibleHeight / (float)m_PixelsPerUnit;
 
-		texture.Xmin = (x + 1) / (float)m_Size;
-		texture.Ymin = (y + 1) / (float)m_Size;
-		texture.Xmax = (x + 1 + visibleWidth) / (float)m_Size;
-		texture.Ymax = (y + 1 + visibleHeight) / (float)m_Size;
+		sprite.Xmin = (x + 1) / (float)m_Size;
+		sprite.Ymin = (y + 1) / (float)m_Size;
+		sprite.Xmax = (x + 1 + visibleWidth) / (float)m_Size;
+		sprite.Ymax = (y + 1 + visibleHeight) / (float)m_Size;
 
-		return texture;
+		return sprite;
 	}
 }

@@ -2,8 +2,8 @@
 #include "SpriteParticleSystem.h"
 
 #include "Particle.h"
-#include <texture/Texture.h>
-#include <texture/TextureRegistry.h>
+#include <sprite/Sprite.h>
+#include <sprite/SpriteRegistry.h>
 #include <rendering/Renderer.h>
 
 #include <fwd.hpp>
@@ -12,13 +12,13 @@
 
 namespace pxr
 {
-	void SpriteParticleSystem::Create(const Texture& sprite)
+	void SpriteParticleSystem::Create(const Sprite& sprite)
 	{
         m_SpriteParticles.clear();
         m_SpriteParticles.reserve(sprite.PixelWidth * sprite.PixelHeight);
 
-        glm::u8vec4* colorPixels = sprite.TextureRegistry->FetchColorPixels(sprite);
-        glm::u8vec4* emissionPixels = sprite.TextureRegistry->FetchEmissionPixels(sprite);
+        glm::u8vec4* colorPixels = sprite.SpriteRegistry->FetchColorPixels(sprite);
+        glm::u8vec4* emissionPixels = sprite.SpriteRegistry->FetchEmissionPixels(sprite);
 
         float pixelsPerUnit = 16.0f;
         m_Center = glm::vec2((float)sprite.PixelWidth / pixelsPerUnit / 2.0f, (float)sprite.PixelHeight / pixelsPerUnit / 2.0f);

@@ -5,7 +5,7 @@
 #include <backends/VertexArray.h>
 #include <backends/VertexBuffer.h>
 #include <backends/RenderCommands.h>
-#include <texture/Texture.h>
+#include <sprite/Sprite.h>
 #include <util/Util.h>
 
 #include <fwd.hpp>
@@ -47,7 +47,7 @@ namespace pxr
 
         glm::mat4 Projection;
 
-        Texture WhiteTexture;
+        Sprite WhiteTexture;
     };
 
     static RendererData s_Data;
@@ -146,7 +146,7 @@ namespace pxr
         s_Stats.DrawCalls++;
     }
 
-    void Renderer::SetPixelSprite(const Texture& sprite)
+    void Renderer::SetPixelSprite(const Sprite& sprite)
     {
         s_Data.WhiteTexture = sprite;
     }
@@ -156,17 +156,17 @@ namespace pxr
         DrawQuad(position, glm::vec2(1.0f), color, emission, s_Data.WhiteTexture, pixelPerfect);
     }
 
-    void Renderer::DrawQuad(const glm::vec2& position, const Texture& texture)
+    void Renderer::DrawQuad(const glm::vec2& position, const Sprite& sprite)
     {
-        DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), 1.0f, texture, true);
+        DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), 1.0f, sprite, true);
     }
 
-    void Renderer::DrawQuad(const glm::vec2& position, const Texture& texture, float emission)
+    void Renderer::DrawQuad(const glm::vec2& position, const Sprite& sprite, float emission)
     {
-        DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), emission, texture, true);
+        DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), emission, sprite, true);
     }
 
-    void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float emission, const Texture& texture, bool pixelPerfect)
+    void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float emission, const Sprite& sprite, bool pixelPerfect)
     {
         if (s_Data.IndexCount >= s_MaxIndexCount)
         {
@@ -175,33 +175,33 @@ namespace pxr
             BeginBatch(s_Data.Projection);
         }
 
-        glm::vec2 scaledSize = { size.x * texture.ScaleFactorX, size.y * texture.ScaleFactorY };
+        glm::vec2 scaledSize = { size.x * sprite.ScaleFactorX, size.y * sprite.ScaleFactorY };
         glm::vec2 renderPosition = pixelPerfect ? MakePixelPerfect({ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit) : position;
 
         s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y, 0.0f };
         s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->TexCoord = { texture.Xmin, texture.Ymin };
+        s_Data.QuadBufferPtr->TexCoord = { sprite.Xmin, sprite.Ymin };
         s_Data.QuadBufferPtr->TexIndex = 0;
         s_Data.QuadBufferPtr->Emission = emission;
         s_Data.QuadBufferPtr++;
 
         s_Data.QuadBufferPtr->Position = { renderPosition.x + scaledSize.x, renderPosition.y, 0.0f };
         s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->TexCoord = { texture.Xmax, texture.Ymin };
+        s_Data.QuadBufferPtr->TexCoord = { sprite.Xmax, sprite.Ymin };
         s_Data.QuadBufferPtr->TexIndex = 0;
         s_Data.QuadBufferPtr->Emission = emission;
         s_Data.QuadBufferPtr++;
 
         s_Data.QuadBufferPtr->Position = { renderPosition.x + scaledSize.x, renderPosition.y + scaledSize.y, 0.0f };
         s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->TexCoord = { texture.Xmax, texture.Ymax };
+        s_Data.QuadBufferPtr->TexCoord = { sprite.Xmax, sprite.Ymax };
         s_Data.QuadBufferPtr->TexIndex = 0;
         s_Data.QuadBufferPtr->Emission = emission;
         s_Data.QuadBufferPtr++;
 
         s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y + scaledSize.y, 0.0f };
         s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->TexCoord = { texture.Xmin, texture.Ymax };
+        s_Data.QuadBufferPtr->TexCoord = { sprite.Xmin, sprite.Ymax };
         s_Data.QuadBufferPtr->TexIndex = 0;
         s_Data.QuadBufferPtr->Emission = emission;
         s_Data.QuadBufferPtr++;
