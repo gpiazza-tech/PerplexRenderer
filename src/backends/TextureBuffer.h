@@ -24,14 +24,8 @@ namespace pxr
 	class TextureBuffer
 	{
 	public:
-		TextureBuffer()
-			: m_RendererID(0), m_Width(-1), m_Height(-1), m_Type(TextureBufferType::None)
-		{
-		}
-		~TextureBuffer() {}
-
-		void Create(int width, int height, TextureBufferType type, TextureBufferFilterMode filterMode);
-		void Destroy();
+		TextureBuffer(int width, int height, TextureBufferType type, TextureBufferFilterMode filterMode);
+		~TextureBuffer();
 
 		inline int GetWidth() const { return m_Width; }
 		inline int GetHeight() const { return m_Height; }

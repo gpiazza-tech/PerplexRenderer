@@ -23,7 +23,7 @@ namespace pxr
 
 		void DrawTexture(uint32_t texture);
 		void DrawToScreen();
-		inline const uint32_t GetTextureID() { return m_ColorTexture.GetID(); }
+		inline const uint32_t GetTextureID() { return m_ColorTexture->GetID(); }
 
 		inline const int GetWidth() const { return m_Width; }
 		inline const int GetHeight() const { return m_Height; }
@@ -36,8 +36,8 @@ namespace pxr
 		int m_Height;
 		bool m_HDR;
 
-		TextureBuffer m_ColorTexture;
-		TextureBuffer m_DepthStencilTexture;
+		TextureBuffer* m_ColorTexture;
+		TextureBuffer* m_DepthStencilTexture;
 
 		Shader m_ScreenShader;
 	};

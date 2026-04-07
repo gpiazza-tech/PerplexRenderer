@@ -34,13 +34,13 @@ namespace pxr
 		}
 
 		m_PixelsPerUnit = pixelsPerUnit;
-		m_Texture.Create(size, size, TextureBufferType::LDR, TextureBufferFilterMode::Nearest);
+		m_Texture = new TextureBuffer(size, size, TextureBufferType::LDR, TextureBufferFilterMode::Nearest);
 		m_Shelves.reserve(10);
 	}
 
 	void TextureAtlas::Destroy()
 	{
-		m_Texture.Destroy();
+		delete m_Texture;
 		m_Shelves.clear();
 		m_NextShelf = 0;
 	}
@@ -188,7 +188,7 @@ namespace pxr
 	Texture TextureAtlas::AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes)
 	{
 		// Push padded image to GPU
-		glBindTexture(GL_TEXTURE_2D, m_Texture.GetID());
+		glBindTexture(GL_TEXTURE_2D, m_Texture->GetID());
 		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
 		glBindTexture(GL_TEXTURE_2D, 0);
 

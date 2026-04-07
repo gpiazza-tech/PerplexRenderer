@@ -22,9 +22,7 @@ namespace pxr
 		m_MipChain.reserve(mipChainLength);
 		for (int i = 0; i < mipChainLength; i++)
 		{
-			TextureBuffer mip;
-			mip.Create(mipIntSize.x, mipIntSize.y, TextureBufferType::HDR, TextureBufferFilterMode::Linear);
-			m_MipChain.emplace_back(mip);
+			m_MipChain.emplace_back(mipIntSize.x, mipIntSize.y, TextureBufferType::HDR, TextureBufferFilterMode::Linear);
 
 			// setup next mip
 			mipSize *= 0.5f;
@@ -53,10 +51,7 @@ namespace pxr
 
 	void BloomFBO::Destroy()
 	{
-		for (auto& mip : m_MipChain)
-			mip.Destroy();
 		m_MipChain.clear();
-		
 		glDeleteFramebuffers(1, &m_FBO);
 	}
 

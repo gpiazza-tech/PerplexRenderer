@@ -35,8 +35,8 @@ namespace pxr
 	Texture TextureRegistry::Add(const fs::path& color)
 	{
 		Texture colorTexture = m_AtlasGroups[0].ColorAtlas.AddTexture(color);
-		colorTexture.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetTexture().GetID();
-		colorTexture.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetTexture().GetID();
+		colorTexture.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetTexture()->GetID();
+		colorTexture.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetTexture()->GetID();
 
 		colorTexture.TextureRegistry = this;
 		return colorTexture;
@@ -45,12 +45,12 @@ namespace pxr
 	Texture TextureRegistry::Add(const fs::path& color, const fs::path& emission)
 	{
 		Texture colorTexture = m_AtlasGroups[0].ColorAtlas.AddTexture(color);
-		colorTexture.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetTexture().GetID();
-		colorTexture.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetTexture().GetID();
+		colorTexture.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetTexture()->GetID();
+		colorTexture.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetTexture()->GetID();
 
 		Texture emissionTexture = m_AtlasGroups[0].EmissionAtlas.AddTextureAt(emission, colorTexture.PixelX, colorTexture.PixelY);
-		emissionTexture.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetTexture().GetID();
-		emissionTexture.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetTexture().GetID();
+		emissionTexture.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetTexture()->GetID();
+		emissionTexture.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetTexture()->GetID();
 
 		if (colorTexture.PixelWidth != emissionTexture.PixelWidth || colorTexture.PixelHeight != emissionTexture.PixelHeight)
 		{
@@ -69,8 +69,8 @@ namespace pxr
 		{
 			uint32_t baseUnit = (uint32_t)atlasIndex * 2;
 
-			m_AtlasGroups[atlasIndex].ColorAtlas.GetTexture().BindUnit(baseUnit);
-			m_AtlasGroups[atlasIndex].EmissionAtlas.GetTexture().BindUnit(baseUnit + 1);
+			m_AtlasGroups[atlasIndex].ColorAtlas.GetTexture()->BindUnit(baseUnit);
+			m_AtlasGroups[atlasIndex].EmissionAtlas.GetTexture()->BindUnit(baseUnit + 1);
 		}
 
 		Renderer::SetPixelSprite(m_WhiteTexture);
@@ -78,13 +78,13 @@ namespace pxr
 
 	glm::u8vec4* TextureRegistry::FetchColorPixels(const Texture& texture)
 	{
-		return m_AtlasGroups[0].ColorAtlas.GetTexture().FetchPixels
+		return m_AtlasGroups[0].ColorAtlas.GetTexture()->FetchPixels
 			(texture.PixelX, texture.PixelY, texture.PixelWidth, texture.PixelHeight);
 	}
 
 	glm::u8vec4* TextureRegistry::FetchEmissionPixels(const Texture& texture)
 	{
-		return m_AtlasGroups[0].EmissionAtlas.GetTexture().FetchPixels
+		return m_AtlasGroups[0].EmissionAtlas.GetTexture()->FetchPixels
 			(texture.PixelX, texture.PixelY, texture.PixelWidth, texture.PixelHeight);
 	}
 }

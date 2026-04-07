@@ -8,7 +8,7 @@
 
 namespace pxr
 {
-    void TextureBuffer::Create(int width, int height, TextureBufferType type, TextureBufferFilterMode filterMode)
+    TextureBuffer::TextureBuffer(int width, int height, TextureBufferType type, TextureBufferFilterMode filterMode)
     {
         m_Width = width;
         m_Height = height;
@@ -42,7 +42,7 @@ namespace pxr
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void TextureBuffer::Destroy()
+    TextureBuffer::~TextureBuffer()
     {
         glDeleteTextures(1, &m_RendererID);
     }

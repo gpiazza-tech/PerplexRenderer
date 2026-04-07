@@ -26,12 +26,12 @@ namespace pxr
 
         // Color
         TextureBufferType colorTextureType = hdr ? TextureBufferType::HDR : TextureBufferType::LDR;
-        m_ColorTexture.Create(width, height, colorTextureType, TextureBufferFilterMode::Linear);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTexture.GetID(), 0);
+        m_ColorTexture = new TextureBuffer(width, height, colorTextureType, TextureBufferFilterMode::Linear);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTexture->GetID(), 0);
 
         // Stencil and Depth
-        m_DepthStencilTexture.Create(width, height, TextureBufferType::DepthStencil, TextureBufferFilterMode::Linear);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthStencilTexture.GetID(), 0);
+        m_DepthStencilTexture = new TextureBuffer(width, height, TextureBufferType::DepthStencil, TextureBufferFilterMode::Linear);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthStencilTexture->GetID(), 0);
 
         // Assert
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -45,8 +45,8 @@ namespace pxr
     {
         m_ScreenShader.Destroy();
 
-        m_ColorTexture.Destroy();
-        m_DepthStencilTexture.Destroy();
+        delete m_ColorTexture;
+        delete m_DepthStencilTexture;
 
         glDeleteFramebuffers(1, &m_FBO);
         
@@ -59,7 +59,7 @@ namespace pxr
 
     void Framebuffer::BindTexture()
     {
-        glBindTexture(GL_TEXTURE_2D, m_ColorTexture.GetID());
+        glBindTexture(GL_TEXTURE_2D, m_ColorTexture->GetID());
     }
 
     void Framebuffer::DrawTexture(uint32_t texture)
@@ -87,7 +87,7 @@ namespace pxr
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_ColorTexture.GetID());
+        glBindTexture(GL_TEXTURE_2D, m_ColorTexture->GetID());
 
         glViewport(0, 0, m_Width, m_Height);
         glClearColor(1.0f, 0.0f, 1.0f, 1.0f); // error pink
@@ -106,7 +106,7 @@ namespace pxr
         m_Width = width;
         m_Height = height;
 
-        m_ColorTexture.Resize(width, height);
-        m_DepthStencilTexture.Resize(width, height);
+        m_ColorTexture->Resize(width, height);
+        m_DepthStencilTexture->Resize(width, height);
     }
 }

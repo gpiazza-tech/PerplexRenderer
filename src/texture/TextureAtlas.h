@@ -49,13 +49,13 @@ namespace pxr
 		void Create(int size, int pixelsPerUnit);
 		void Destroy();
 
-		TextureBuffer& GetTexture() { return m_Texture; }
+		TextureBuffer* GetTexture() { return m_Texture; }
 	private:
 		void AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg);
 		Texture AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes);
 		int GetShelfIndex(int textureHeight) const;
 	private:
-		TextureBuffer m_Texture;
+		TextureBuffer* m_Texture;
 
 		int m_MaxSize;
 		int m_Size;
