@@ -24,8 +24,7 @@ project "glfw"
 
 	includedirs
 	{
-		"include",
-		"include/GLFW"
+		"include"
 	}
 
 	filter "system:windows"

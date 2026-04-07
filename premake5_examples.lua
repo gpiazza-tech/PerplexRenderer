@@ -23,6 +23,7 @@ group "Dependencies"
     include "vendor/imgui"
     include "vendor/spdlog"
     include "vendor/glfw"
+    include "vendor/glew"
 group ""
 
 project "PerplexRenderer"
@@ -63,11 +64,6 @@ project "PerplexRenderer"
         "%{IncludeDir.stb_image}",
     }
 
-    libdirs
-    {
-        "vendor/glew/lib",
-    }
-
     defines
     {
         "GLEW_STATIC",
@@ -80,7 +76,7 @@ project "PerplexRenderer"
         "imgui",
         "spdlog",
         "glfw",
-        "glew32s.lib",
+        "glew",
         "opengl32.lib"
     }
 
