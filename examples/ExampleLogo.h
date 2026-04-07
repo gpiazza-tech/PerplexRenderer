@@ -15,14 +15,12 @@ public:
 
 	void Enter() override
 	{
-		m_SpriteRegistry.Create(128, 16);
-		m_Logo = m_SpriteRegistry.Add("res\\textures\\Perplex.png", "res\\textures\\Perplex_Emission.png");
+		m_Logo = pxr::SpriteRegistry::Add("res\\textures\\Perplex.png", "res\\textures\\Perplex_Emission.png");
 	}
 
 	void Update(float ts) override
 	{
 		// Render
-		m_SpriteRegistry.Bind();
 		pxr::Renderer::BeginFrame();
 		pxr::Renderer::BeginBatch(m_Camera->GetProjection());
 
@@ -48,7 +46,7 @@ public:
 
 	void Exit() override
 	{
-		m_SpriteRegistry.Destroy();
+		
 	}
 
 	void Resize(int width, int height) override
@@ -62,6 +60,5 @@ private:
 	int m_PixelsPerUnit;
 	const pxr::Camera* m_Camera;
 
-	pxr::SpriteRegistry m_SpriteRegistry;
 	pxr::Sprite m_Logo;
 };

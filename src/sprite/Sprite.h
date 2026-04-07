@@ -31,7 +31,5 @@ namespace pxr
 		float Ymin;
 		float Xmax;
 		float Ymax;
-
-		SpriteRegistry* SpriteRegistry;
 	};
 }

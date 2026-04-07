@@ -6,6 +6,7 @@
 #include <backends/VertexBuffer.h>
 #include <backends/RenderCommands.h>
 #include <sprite/Sprite.h>
+#include <sprite/SpriteRegistry.h>
 #include <util/Util.h>
 
 #include <fwd.hpp>
@@ -46,8 +47,6 @@ namespace pxr
         uint32_t PixelsPerUnit;
 
         glm::mat4 Projection;
-
-        Sprite WhiteTexture;
     };
 
     static RendererData s_Data;
@@ -101,6 +100,8 @@ namespace pxr
         s_Data.SpriteShader.SetUniformMat4("u_Transform", (float*)&transform);
         s_Data.SpriteShader.SetUniformIntArray("u_Textures", 32, samplers);
         s_Data.SpriteShader.EndUse();
+
+        SpriteRegistry::Init(pixelsPerUnit);
     }
 
     void Renderer::Shutdown()
@@ -126,6 +127,8 @@ namespace pxr
         glm::mat4 viewProj = projection * glm::mat4(1.0f);
         s_Data.SpriteShader.Use();
         s_Data.SpriteShader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
+
+        SpriteRegistry::Bind();
     }
 
     void Renderer::EndBatch()
@@ -146,14 +149,9 @@ namespace pxr
         s_Stats.DrawCalls++;
     }
 
-    void Renderer::SetPixelSprite(const Sprite& sprite)
-    {
-        s_Data.WhiteTexture = sprite;
-    }
-
     void Renderer::DrawPixel(const glm::vec2& position, const glm::vec4& color, float emission, bool pixelPerfect)
     {
-        DrawQuad(position, glm::vec2(1.0f), color, emission, s_Data.WhiteTexture, pixelPerfect);
+        DrawQuad(position, glm::vec2(1.0f), color, emission, SpriteRegistry::GetPixelSprite(), pixelPerfect);
     }
 
     void Renderer::DrawQuad(const glm::vec2& position, const Sprite& sprite)

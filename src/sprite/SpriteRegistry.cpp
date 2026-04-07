@@ -2,89 +2,95 @@
 #include "SpriteRegistry.h"
 
 #include "Sprite.h"
-#include <rendering/Renderer.h>
+#include <util/Log.h>
 
 #include <vector>
 #include <filesystem>
-#include <iostream>
 #include <cstdint>
 
 namespace fs = std::filesystem;
 
 namespace pxr
 {
-	SpriteRegistry::SpriteRegistry()
-		: m_AtlasGroups(std::vector<AtlasGroup>(1))
+	static std::vector<AtlasGroup> s_AtlasGroups;
+	static Sprite s_PixelSprite;
+
+	static int s_AtlasSize = 1024;
+
+	void SpriteRegistry::Init(int pixelsPerUnit)
 	{
+		s_AtlasGroups.emplace_back();
+
+		s_AtlasGroups[0].ColorAtlas.Create(s_AtlasSize, pixelsPerUnit);
+		s_AtlasGroups[0].EmissionAtlas.Create(s_AtlasSize, pixelsPerUnit);
+
+		s_PixelSprite = Add("res\\textures\\White.png", "res\\textures\\White.png");
 	}
 
-	void SpriteRegistry::Create(int size, int pixelsPerUnit)
+	void SpriteRegistry::Shutdown()
 	{
-		m_AtlasGroups[0].ColorAtlas.Create(size, pixelsPerUnit);
-		m_AtlasGroups[0].EmissionAtlas.Create(size, pixelsPerUnit);
-
-		m_PixelSprite = Add("res\\textures\\White.png", "res\\textures\\White.png");
+		for (auto& atlasGroup : s_AtlasGroups)
+		{
+			atlasGroup.ColorAtlas.Destroy();
+			atlasGroup.EmissionAtlas.Destroy();
+		}
 	}
 
-	void SpriteRegistry::Destroy()
+	Sprite SpriteRegistry::Add(const std::filesystem::path& color)
 	{
-		m_AtlasGroups[0].ColorAtlas.Destroy();
-		m_AtlasGroups[0].EmissionAtlas.Destroy();
-	}
+		Sprite colorSprite = s_AtlasGroups[0].ColorAtlas.AddTexture(color);
+		colorSprite.ColorAtlas = s_AtlasGroups[0].ColorAtlas.GetTexture()->GetID();
+		colorSprite.EmissionAtlas = s_AtlasGroups[0].EmissionAtlas.GetTexture()->GetID();
 
-	Sprite SpriteRegistry::Add(const fs::path& color)
-	{
-		Sprite colorSprite = m_AtlasGroups[0].ColorAtlas.AddTexture(color);
-		colorSprite.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetTexture()->GetID();
-		colorSprite.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetTexture()->GetID();
-
-		colorSprite.SpriteRegistry = this;
 		return colorSprite;
 	}
 
-	Sprite SpriteRegistry::Add(const fs::path& color, const fs::path& emission)
+	Sprite SpriteRegistry::Add(const std::filesystem::path& color, const std::filesystem::path& emission)
 	{
-		Sprite colorSprite = m_AtlasGroups[0].ColorAtlas.AddTexture(color);
-		colorSprite.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetTexture()->GetID();
-		colorSprite.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetTexture()->GetID();
+		Sprite colorSprite = s_AtlasGroups[0].ColorAtlas.AddTexture(color);
+		colorSprite.ColorAtlas = s_AtlasGroups[0].ColorAtlas.GetTexture()->GetID();
+		colorSprite.EmissionAtlas = s_AtlasGroups[0].EmissionAtlas.GetTexture()->GetID();
 
-		Sprite emissionSprite = m_AtlasGroups[0].EmissionAtlas.AddTextureAt(emission, colorSprite.PixelX, colorSprite.PixelY);
-		emissionSprite.ColorAtlas = m_AtlasGroups[0].ColorAtlas.GetTexture()->GetID();
-		emissionSprite.EmissionAtlas = m_AtlasGroups[0].EmissionAtlas.GetTexture()->GetID();
+		Sprite emissionSprite = s_AtlasGroups[0].EmissionAtlas.AddTextureAt(emission, colorSprite.PixelX, colorSprite.PixelY);
+		emissionSprite.ColorAtlas = s_AtlasGroups[0].ColorAtlas.GetTexture()->GetID();
+		emissionSprite.EmissionAtlas = s_AtlasGroups[0].EmissionAtlas.GetTexture()->GetID();
 
-		if (colorSprite.PixelWidth != emissionSprite.PixelWidth || colorSprite.PixelHeight != emissionSprite.PixelHeight)
-		{
-			// TODO: Validate the emission texture size BEFORE adding it to emission atlas
-			std::cout << "Emission sprite size does not match color sprite size!" << "\n"
-				<< "Color: " << color << " | Emission: " << emission;
-		}
+		PXR_ASSERT(colorSprite.PixelWidth == emissionSprite.PixelWidth && colorSprite.PixelHeight == emissionSprite.PixelHeight,
+			"Emission sprite size does not match color sprite size!\nColor: {1}\nEmission: {2}", color.string(), emission.string());
 
-		colorSprite.SpriteRegistry = this;
 		return colorSprite;
 	}
 
 	void SpriteRegistry::Bind()
 	{
-		for (size_t atlasIndex = 0; atlasIndex < m_AtlasGroups.size(); atlasIndex++)
+		for (size_t atlasIndex = 0; atlasIndex < s_AtlasGroups.size(); atlasIndex++)
 		{
 			uint32_t baseUnit = (uint32_t)atlasIndex * 2;
 
-			m_AtlasGroups[atlasIndex].ColorAtlas.GetTexture()->BindUnit(baseUnit);
-			m_AtlasGroups[atlasIndex].EmissionAtlas.GetTexture()->BindUnit(baseUnit + 1);
+			s_AtlasGroups[atlasIndex].ColorAtlas.GetTexture()->BindUnit(baseUnit);
+			s_AtlasGroups[atlasIndex].EmissionAtlas.GetTexture()->BindUnit(baseUnit + 1);
 		}
+	}
 
-		Renderer::SetPixelSprite(m_PixelSprite);
+	std::vector<AtlasGroup>& SpriteRegistry::GetAtlasGroups()
+	{
+		return s_AtlasGroups;
+	}
+
+	const Sprite& SpriteRegistry::GetPixelSprite()
+	{
+		return s_PixelSprite;
 	}
 
 	glm::u8vec4* SpriteRegistry::FetchColorPixels(const Sprite& sprite)
 	{
-		return m_AtlasGroups[0].ColorAtlas.GetTexture()->FetchPixels
-			(sprite.PixelX, sprite.PixelY, sprite.PixelWidth, sprite.PixelHeight);
+		return s_AtlasGroups[0].ColorAtlas.GetTexture()->FetchPixels
+		(sprite.PixelX, sprite.PixelY, sprite.PixelWidth, sprite.PixelHeight);
 	}
 
 	glm::u8vec4* SpriteRegistry::FetchEmissionPixels(const Sprite& sprite)
 	{
-		return m_AtlasGroups[0].EmissionAtlas.GetTexture()->FetchPixels
-			(sprite.PixelX, sprite.PixelY, sprite.PixelWidth, sprite.PixelHeight);
+		return s_AtlasGroups[0].EmissionAtlas.GetTexture()->FetchPixels
+		(sprite.PixelX, sprite.PixelY, sprite.PixelWidth, sprite.PixelHeight);
 	}
 }

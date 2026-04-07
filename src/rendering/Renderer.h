@@ -30,8 +30,6 @@ namespace pxr
         static void EndBatch();
         static void Flush();
 
-        static void SetPixelSprite(const Sprite& sprite);
-
         static void DrawPixel(const glm::vec2& position, const glm::vec4& color = glm::vec4(1.0f), float emission = 0.0f, bool pixelPerfect = true);
         static void DrawQuad(const glm::vec2& position, const Sprite& sprite);
         static void DrawQuad(const glm::vec2& position, const Sprite& sprite, float emission);
