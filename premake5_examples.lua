@@ -22,6 +22,7 @@ IncludeDir["glew"] = "vendor/glew/include"
 group "Dependencies"
     include "vendor/imgui"
     include "vendor/spdlog"
+    include "vendor/glfw"
 group ""
 
 project "PerplexRenderer"
@@ -64,7 +65,6 @@ project "PerplexRenderer"
 
     libdirs
     {
-        "vendor/glfw/lib",
         "vendor/glew/lib",
     }
 
@@ -79,7 +79,7 @@ project "PerplexRenderer"
     {
         "imgui",
         "spdlog",
-        "glfw3_mt.lib",
+        "glfw",
         "glew32s.lib",
         "opengl32.lib"
     }
