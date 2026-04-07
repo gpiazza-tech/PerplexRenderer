@@ -15,12 +15,9 @@ namespace fs = std::filesystem;
 
 namespace pxr
 {
-    void Framebuffer::Create(int width, int height, bool hdr)
+    Framebuffer::Framebuffer(int width, int height, bool hdr)
+        : m_Width(width), m_Height(height), m_HDR(hdr)
     {
-        m_Width = width;
-        m_Height = height;
-        m_HDR = hdr;
-
         glGenFramebuffers(1, &m_FBO);
         glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
 
@@ -41,7 +38,7 @@ namespace pxr
         m_ScreenShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\ScreenFragment.glsl");
     }
 
-    void Framebuffer::Destroy()
+    Framebuffer::~Framebuffer()
     {
         m_ScreenShader.Destroy();
 

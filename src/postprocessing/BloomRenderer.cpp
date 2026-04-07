@@ -32,7 +32,7 @@ namespace pxr
 			return false;
 		}
 
-		m_PrefilterFBO.Create(windowWidth, windowHeight, true);
+		m_PrefilterFBO = new Framebuffer(windowWidth, windowHeight, true);
 
 		// Shaders
 		m_PrefilterShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\PrefilterFragment.glsl");
@@ -62,7 +62,7 @@ namespace pxr
 	void BloomRenderer::Destroy()
 	{
 		m_FBO.Destroy();
-		m_PrefilterFBO.Destroy();
+		delete m_PrefilterFBO;
 
 		m_PrefilterShader.Destroy();
 		m_DownsampleShader.Destroy();
@@ -73,7 +73,7 @@ namespace pxr
 	void BloomRenderer::RenderBloomTexture(uint32_t srcTexture, float threshold, float filterRadius)
 	{
 		Prefilter(srcTexture, threshold);
-		RenderDownsamples(m_PrefilterFBO.GetTextureID());
+		RenderDownsamples(m_PrefilterFBO->GetTextureID());
 		RenderUpsamples(filterRadius);
 		Combine(srcTexture);
 
@@ -95,7 +95,7 @@ namespace pxr
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, srcTexture);
 		// output texture
-		m_PrefilterFBO.Bind();
+		m_PrefilterFBO->Bind();
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -196,7 +196,7 @@ namespace pxr
 		m_SrcViewportSizeFloat.x = (float)width;
 		m_SrcViewportSizeFloat.y = (float)height;
 
-		m_PrefilterFBO.Resize(width, height);
+		m_PrefilterFBO->Resize(width, height);
 		m_FBO.Resize(width, height);
 	}
 }

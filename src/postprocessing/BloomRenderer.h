@@ -33,7 +33,7 @@ namespace pxr
 		void Combine(uint32_t srcTexture);
 	private:
 		BloomFBO m_FBO;
-		Framebuffer m_PrefilterFBO;
+		Framebuffer* m_PrefilterFBO;
 
 		glm::ivec2 m_SrcViewportSize;
 		glm::vec2 m_SrcViewportSizeFloat;

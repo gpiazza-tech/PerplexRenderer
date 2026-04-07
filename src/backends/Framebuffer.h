@@ -12,11 +12,8 @@ namespace pxr
 	class Framebuffer
 	{
 	public:
-		Framebuffer() = default;
-		~Framebuffer() {}
-
-		void Create(int width, int height, bool hdr = false);
-		void Destroy();
+		Framebuffer(int width, int height, bool hdr = false);
+		~Framebuffer();
 
 		void Bind();
 		void BindTexture();

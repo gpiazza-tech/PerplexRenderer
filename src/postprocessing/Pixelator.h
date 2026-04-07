@@ -25,7 +25,7 @@ namespace pxr
 
 		void Resize(int outWidth, int outHeight);
 	private:
-		Framebuffer m_FBO;
+		Framebuffer* m_FBO;
 
 		int m_Width;
 		int m_Height;

@@ -17,18 +17,18 @@ namespace pxr
 		m_Height = height;
 
 		m_TonemapShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\TonemapFragment.glsl");
-		m_FBO.Create(width, height);
+		m_FBO = new Framebuffer(width, height);
 	}
 
 	void Tonemapper::Destroy()
 	{
 		m_TonemapShader.Destroy();
-		m_FBO.Destroy();
+		delete m_FBO;
 	}
 
 	void Tonemapper::RenderTonemap(uint32_t srcTexture)
 	{
-		m_FBO.Bind();
+		m_FBO->Bind();
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, srcTexture);
@@ -46,7 +46,7 @@ namespace pxr
 
 	uint32_t Tonemapper::TonemappedTexture()
 	{
-		return m_FBO.GetTextureID();
+		return m_FBO->GetTextureID();
 	}
 
 	void Tonemapper::Resize(int width, int height)
@@ -54,6 +54,6 @@ namespace pxr
 		m_Width = width;
 		m_Height = height;
 
-		m_FBO.Resize(width, height);
+		m_FBO->Resize(width, height);
 	}
 }

@@ -20,7 +20,7 @@ public:
 		m_TextureRegistry.Create(128, 16);
 		m_Logo = m_TextureRegistry.Add("res\\textures\\Perplex.png", "res\\textures\\Perplex_Emission.png");
 
-		m_Framebuffer.Create(m_Width, m_Height, true);
+		m_Framebuffer = new pxr::Framebuffer(m_Width, m_Height, true);
 
 		m_BloomRenderer.Init(m_Width, m_Height);
 		m_Tonemapper.Init(m_Width, m_Height);
@@ -29,7 +29,7 @@ public:
 
 	void Update(float ts) override
 	{
-		m_Framebuffer.Bind();
+		m_Framebuffer->Bind();
 
 		// Render
 		m_TextureRegistry.Bind();
@@ -49,24 +49,24 @@ public:
 		static float filterRadius = 0.003f;
 		if (bloom)
 		{
-			m_BloomRenderer.RenderBloomTexture(m_Framebuffer.GetTextureID(), threshold, filterRadius);
-			m_Framebuffer.DrawTexture(m_BloomRenderer.BloomTexture());
+			m_BloomRenderer.RenderBloomTexture(m_Framebuffer->GetTextureID(), threshold, filterRadius);
+			m_Framebuffer->DrawTexture(m_BloomRenderer.BloomTexture());
 		}
 
 		static bool tonemap = true;
 		if (tonemap)
 		{
-			m_Tonemapper.RenderTonemap(m_Framebuffer.GetTextureID());
-			m_Framebuffer.DrawTexture(m_Tonemapper.TonemappedTexture());
+			m_Tonemapper.RenderTonemap(m_Framebuffer->GetTextureID());
+			m_Framebuffer->DrawTexture(m_Tonemapper.TonemappedTexture());
 		}
 
 		static bool pixelate = true;
 		if (pixelate)
 		{
-			m_Pixelator.RenderPixelator(m_Framebuffer.GetTextureID(), m_Camera.GetPixelResolution());
-			m_Framebuffer.DrawTexture(m_Pixelator.PixelatedTexture());
+			m_Pixelator.RenderPixelator(m_Framebuffer->GetTextureID(), m_Camera.GetPixelResolution());
+			m_Framebuffer->DrawTexture(m_Pixelator.PixelatedTexture());
 		}
-		m_Framebuffer.DrawToScreen();
+		m_Framebuffer->DrawToScreen();
 
 		// ImGui
 		static bool showWindow = true;
@@ -112,7 +112,7 @@ public:
 	{
 		m_TextureRegistry.Destroy();
 
-		m_Framebuffer.Destroy();
+		delete m_Framebuffer;
 		m_BloomRenderer.Destroy();
 		m_Tonemapper.Destroy();
 		m_Pixelator.Destroy();
@@ -124,7 +124,7 @@ public:
 		
 		m_BloomRenderer.Resize(width, height);
 		m_Tonemapper.Resize(width, height);
-		m_Framebuffer.Resize(width, height);
+		m_Framebuffer->Resize(width, height);
 		m_Pixelator.Resize(width, height);
 
 		m_Width = width;
@@ -139,7 +139,7 @@ private:
 	pxr::TextureRegistry m_TextureRegistry;
 	pxr::Texture m_Logo;
 
-	pxr::Framebuffer m_Framebuffer;
+	pxr::Framebuffer* m_Framebuffer;
 	// Post processing
 	pxr::BloomRenderer m_BloomRenderer;
 	pxr::Tonemapper m_Tonemapper;
