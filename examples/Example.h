@@ -11,6 +11,4 @@ public:
 	virtual void Enter() = 0;
 	virtual void Update(float ts) = 0;
 	virtual void Exit() = 0;
-
-	virtual void Resize(int width, int height) = 0;
 };

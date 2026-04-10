@@ -1,13 +1,14 @@
 #pragma once
 
-#include <pxr/pxr.h>
 #include "Example.h"
+
+#include <pxr/pxr.h>
 
 class ExampleLogo : public Example
 {
 public:
-	ExampleLogo(int width, int height, int pixelsPerUnit, const pxr::Camera* camera)
-		: m_Width(width), m_Height(height), m_PixelsPerUnit(pixelsPerUnit), m_Camera(camera)
+	ExampleLogo(const pxr::Camera* camera)
+		: m_Camera(camera)
 	{
 	}
 
@@ -48,17 +49,8 @@ public:
 	{
 		
 	}
-
-	void Resize(int width, int height) override
-	{
-		m_Width = width;
-		m_Height = height;
-	}
 private:
-	int m_Width;
-	int m_Height;
-	int m_PixelsPerUnit;
-	const pxr::Camera* m_Camera;
-
 	pxr::Sprite m_Logo;
+
+	const pxr::Camera* m_Camera;
 };

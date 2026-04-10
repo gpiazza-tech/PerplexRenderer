@@ -10,8 +10,8 @@
 
 #include "Example.h"
 #include "ExampleLogo.h"
-//#include "ExampleBurst.h"
-//#include "ExampleTextureBurst.h"
+#include "ExampleBurst.h"
+#include "ExampleSpriteBurst.h"
 
 int g_Width = 1920;
 int g_Height = 1080;
@@ -31,9 +31,9 @@ pxr::Camera g_Camera = pxr::Camera(glm::vec2(g_Width, g_Height), g_PixelsPerUnit
 static void PushExamples()
 {
     // Add any examples here
-    g_Examples.emplace_back(new ExampleLogo(g_Width, g_Height, g_PixelsPerUnit, &g_Camera));
-    //g_Examples.emplace_back(new ExampleBurst(g_Width, g_Height, g_PixelsPerUnit));
-    //g_Examples.emplace_back(new ExampleTextureBurst(g_Width, g_Height, g_PixelsPerUnit));
+    g_Examples.emplace_back(new ExampleLogo(&g_Camera));
+    g_Examples.emplace_back(new ExampleBurst(&g_Camera));
+    g_Examples.emplace_back(new ExampleSpriteBurst(&g_Camera));
 }
 
 void AppStart()
@@ -49,7 +49,6 @@ void AppStart()
     PushExamples();
     g_ActiveExample = g_Examples[0];
     g_ActiveExample->Enter();
-    g_ActiveExample->Resize(g_Width, g_Height);
 }
 
 void AppUpdate(float ts)
@@ -98,7 +97,6 @@ void AppUpdate(float ts)
 				g_ActiveExample->Exit();
 				g_ActiveExample = example;
 				g_ActiveExample->Enter();
-				g_ActiveExample->Resize(g_Width, g_Height);
 			}
 		}
 		ImGui::Dummy({ 0.0f, 20.0f });
@@ -150,8 +148,6 @@ void OnWindowResize(int width, int height)
     g_Tonemapper.Resize(width, height);
     g_Framebuffer->Resize(width, height);
     g_Pixelator.Resize(width, height);
-
-    g_ActiveExample->Resize(width, height);
 
     g_Width = width;
     g_Height = height;

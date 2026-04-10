@@ -2,40 +2,40 @@
 
 #include "Example.h"
 
-#include <pxr/pxr.h>
-
-class ExampleBurst : public Example
+class ExampleSpriteBurst : public Example
 {
 public:
-	ExampleBurst(const pxr::Camera* camera)
+	ExampleSpriteBurst(const pxr::Camera* camera)
 		: m_Camera(camera), 
 		m_ParticleSettings(new pxr::ParticleSystemSettings()), 
 		m_ParticleSystem(m_ParticleSettings)
 	{
 	}
 
-	const char* Name() override { return "Burst"; }
+	const char* Name() override { return "Sprite Burst"; }
 
 	void Enter() override
 	{
-		m_ParticleSettings->ParticleCount = 20;
+		m_Kablooey = pxr::SpriteRegistry::Add("res\\textures\\Kablooey.png", "res\\textures\\Kablooey_Emission.png");
+
 		m_ParticleSettings->GravityMultiplier = 0.05f;
 		m_ParticleSettings->VelocityMultiplier = 10.0f;
-		m_ParticleSettings->VelocityRandomness = 1.0f;
-		m_ParticleSettings->StartEmission = 0.6f;
-		m_ParticleSystem.Create();
+		m_ParticleSettings->EmissionMultiplier = 0.7f;
+		m_ParticleSettings->ParticlesPerPixel = 1;
+		m_ParticleSystem.Create(m_Kablooey);
 	}
-
+	 
 	void Update(float ts) override
 	{
 		// Render
 		pxr::Renderer::BeginFrame();
 		pxr::Renderer::BeginBatch(m_Camera->GetProjection());
 
-		static glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+		static glm::vec3 bobPosition = glm::vec3(-3.5f, 0.6f, 0.0f);
+		static float bobEmission = 0.6f;
 
 		m_ParticleSystem.Update(ts);
-		m_ParticleSystem.Render(position);
+		m_ParticleSystem.Render(bobPosition);
 
 		pxr::Renderer::EndBatch();
 		pxr::Renderer::Flush();
@@ -44,14 +44,13 @@ public:
 		static bool showWindow = true;
 		if (showWindow)
 		{
-			ImGui::Begin("Burst", &showWindow);
+			ImGui::Begin("Sprite Burst", &showWindow);
 
 			ImGui::Text("Particle System");
 			if (m_ParticleSystem.Playing() && ImGui::Button("Pause"))
 				m_ParticleSystem.Pause();
 			else if (!m_ParticleSystem.Playing() && ImGui::Button("Play"))
 				m_ParticleSystem.Resume();
-
 			if (ImGui::Button("Reset"))
 			{
 				m_ParticleSystem.Pause();
@@ -78,11 +77,13 @@ public:
 
 	void Exit() override
 	{
-		
+
 	}
 private:
-	std::shared_ptr<pxr::ParticleSystemSettings> m_ParticleSettings;
-	pxr::BurstParticleSystem m_ParticleSystem;
-
 	const pxr::Camera* m_Camera;
+
+	pxr::Sprite m_Kablooey;
+
+	std::shared_ptr<pxr::ParticleSystemSettings> m_ParticleSettings;
+	pxr::SpriteParticleSystem m_ParticleSystem;
 };
