@@ -61,7 +61,8 @@ while (!glfwWindowShouldClose(window))
 }
 ```
 
-Let's also setup a rendering initialization function that runs once before the update loop called Start, so our code can look like this:
+While we're at it, let's also set up a rendering initialization function called Start that runs once before the update loop called Start, 
+so our code now looks like this:
 
 ```c
 pxr::Camera camera(screenSize, 16, 6.0f, pxr::ScalingMode::SmallerSide);
@@ -79,10 +80,11 @@ void Render()
 
 ### Drawing pixels and sprites
 
-We can now do some basic rendering. The steps to drawing anything in PerplexRenderer are
+We can now do some basic rendering. The steps to drawing things in PerplexRenderer are
+
 1. Start the frame
 2. Begin a batch using our camera's projection
-3. Draw the pixel with a specified position
+3. Tell the renderer what we want to draw
 4. End the batch
 5. Flush
 
@@ -132,7 +134,7 @@ void Render()
 
 Rendering a sprite is a similar process, only we need to add the file to the SpriteRegistry before rendering it.
 The path specified in pxr::SpriteRegistry::GetSprite is relative to the root folder of PerplexRenderer.
-The renderer must be initialized before using the SpriteRegistry
+The renderer must be initialized before using the SpriteRegistry:
 
 ```c
 pxr::Camera camera(screenSize, 16, 6.0f, pxr::ScalingMode::SmallerSide);
