@@ -16,13 +16,14 @@ public:
 
 	void Enter() override
 	{
-		m_Kablooey = pxr::SpriteRegistry::Add("res\\textures\\Kablooey.png", "res\\textures\\Kablooey_Emission.png");
+		m_Kablooey = pxr::SpriteRegistry::GetSprite("res\\textures\\Kablooey.png");
+		m_KablooeyEmission = pxr::SpriteRegistry::GetSprite("res\\textures\\Kablooey_Emission.png");
 
 		m_ParticleSettings->GravityMultiplier = 0.05f;
 		m_ParticleSettings->VelocityMultiplier = 10.0f;
 		m_ParticleSettings->EmissionMultiplier = 0.7f;
 		m_ParticleSettings->ParticlesPerPixel = 1;
-		m_ParticleSystem.Create(m_Kablooey);
+		m_ParticleSystem.Create(m_Kablooey, m_KablooeyEmission);
 	}
 	 
 	void Update(float ts) override
@@ -83,6 +84,7 @@ private:
 	const pxr::Camera* m_Camera;
 
 	pxr::Sprite m_Kablooey;
+	pxr::Sprite m_KablooeyEmission;
 
 	std::shared_ptr<pxr::ParticleSystemSettings> m_ParticleSettings;
 	pxr::SpriteParticleSystem m_ParticleSystem;

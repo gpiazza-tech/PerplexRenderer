@@ -72,4 +72,18 @@ namespace pxr
     {
         glDisable(GL_DEPTH_TEST);
     }
+
+    int RenderCommands::GetMaxTextureSize()
+    {
+        int maxTextureSize = 0;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, (int*)&maxTextureSize);
+        return maxTextureSize;
+    }
+
+    int RenderCommands::GetMaxTextureUnits()
+    {
+       int maxTextureUnits = 0;
+       glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+       return maxTextureUnits;
+    }
 }

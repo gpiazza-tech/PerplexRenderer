@@ -16,7 +16,8 @@ public:
 
 	void Enter() override
 	{
-		m_Logo = pxr::SpriteRegistry::Add("res\\textures\\Perplex.png", "res\\textures\\Perplex_Emission.png");
+		m_Logo = pxr::SpriteRegistry::GetSprite("res\\textures\\Perplex.png");
+		m_LogoEmission = pxr::SpriteRegistry::GetSprite("res\\textures\\Perplex_Emission.png");
 	}
 
 	void Update(float ts) override
@@ -27,7 +28,7 @@ public:
 
 		static glm::vec3 perplexPosition = glm::vec3(-1.5f, -1.0f, 0.0f);
 		static float perplexEmission = 0.6f;
-		pxr::Renderer::DrawQuad(perplexPosition, m_Logo, perplexEmission);
+		pxr::Renderer::DrawQuad(perplexPosition, glm::vec2(1.0f), m_Logo, m_LogoEmission, glm::vec4(1.0f), perplexEmission, true);
 
 		pxr::Renderer::EndBatch();
 		pxr::Renderer::Flush();
@@ -51,6 +52,7 @@ public:
 	}
 private:
 	pxr::Sprite m_Logo;
+	pxr::Sprite m_LogoEmission;
 
 	const pxr::Camera* m_Camera;
 };

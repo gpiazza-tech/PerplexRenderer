@@ -1,6 +1,8 @@
 #include <pch.h>
 #include <backends/TextureBuffer.h>
 
+#include <util/Log.h>
+
 #include <GL/glew.h>
 #include <fwd.hpp>
 
@@ -35,7 +37,7 @@ namespace pxr
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glFilterMode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glFilterMode);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         ClearBuffer();
 
@@ -47,15 +49,20 @@ namespace pxr
         glDeleteTextures(1, &m_RendererID);
     }
 
-    glm::u8vec4* TextureBuffer::FetchPixels(int x, int y, int width, int height)
+    void TextureBuffer::GetPixels(int x, int y, int width, int height, glm::u8vec4* pixels)
     {
-        if (m_Type != TextureBufferType::LDR)
-            std::cout << "TextureBuffer::FetchChannels only supported on LDR Textures!" << std::endl;
+        PXR_ASSERT(m_Type == TextureBufferType::LDR, "TextureBuffer::FetchPixels only supported on LDR Textures!");
 
-        glm::u8vec4* pixels = new glm::u8vec4[width * height];
         glGetTextureSubImage(m_RendererID, 0, x, y, 0, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, width * height * 4, pixels);
+    }
 
-        return pixels;
+    void TextureBuffer::SetPixels(int x, int y, int width, int height, glm::u8vec4* pixels)
+    {
+        PXR_ASSERT(m_Type == TextureBufferType::LDR, "TextureBuffer::PushPixels only supported on LDR Textures!");
+
+        glBindTexture(GL_TEXTURE_2D, m_RendererID);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void TextureBuffer::Bind()

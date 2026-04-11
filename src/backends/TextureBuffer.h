@@ -31,7 +31,8 @@ namespace pxr
 		inline int GetHeight() const { return m_Height; }
 		inline uint32_t GetID() const { return m_RendererID; }
 
-		glm::u8vec4* FetchPixels(int x, int y, int width, int height);
+		void GetPixels(int x, int y, int width, int height, glm::u8vec4* pixels);
+		void SetPixels(int x, int y, int width, int height, glm::u8vec4* pixels);
 
 		void Bind();
 		void BindUnit(int unit);

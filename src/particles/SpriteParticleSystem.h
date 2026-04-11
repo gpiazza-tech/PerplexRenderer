@@ -21,7 +21,7 @@ namespace pxr
 		{ }
 		~SpriteParticleSystem() {}
 
-		void Create(const Sprite& sprite);
+		void Create(const Sprite& colorSprite, const Sprite& emissionSprite);
 
 		void Play()
 		{

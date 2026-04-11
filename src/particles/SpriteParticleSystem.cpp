@@ -12,19 +12,21 @@
 
 namespace pxr
 {
-	void SpriteParticleSystem::Create(const Sprite& sprite)
+	void SpriteParticleSystem::Create(const Sprite& colorSprite, const Sprite& emissionSprite)
 	{
         m_SpriteParticles.clear();
-        m_SpriteParticles.reserve(sprite.PixelWidth * sprite.PixelHeight);
+        m_SpriteParticles.reserve(colorSprite.PixelWidth * colorSprite.PixelHeight);
 
-        glm::u8vec4* colorPixels = SpriteRegistry::FetchColorPixels(sprite);
-        glm::u8vec4* emissionPixels = SpriteRegistry::FetchEmissionPixels(sprite);
+        glm::u8vec4* colorPixels = new glm::u8vec4[colorSprite.PixelWidth * colorSprite.PixelHeight];
+        SpriteRegistry::FetchPixels(colorSprite, colorPixels);
+        glm::u8vec4* emissionPixels = new glm::u8vec4[emissionSprite.PixelWidth * emissionSprite.PixelHeight];
+        SpriteRegistry::FetchPixels(emissionSprite, emissionPixels);
 
         float pixelsPerUnit = 16.0f;
-        m_Center = glm::vec2((float)sprite.PixelWidth / pixelsPerUnit / 2.0f, (float)sprite.PixelHeight / pixelsPerUnit / 2.0f);
+        m_Center = glm::vec2((float)colorSprite.PixelWidth / pixelsPerUnit / 2.0f, (float)colorSprite.PixelHeight / pixelsPerUnit / 2.0f);
 
         glm::vec2 positionOffset = {  };
-        for (size_t i = 0; i < sprite.PixelWidth * sprite.PixelHeight; i++)
+        for (size_t i = 0; i < colorSprite.PixelWidth * colorSprite.PixelHeight; i++)
         {
             float aColor = colorPixels[i].a / (float)255;
             if (aColor == 0.0f)
@@ -39,13 +41,13 @@ namespace pxr
             float bEmit = emissionPixels[i].b / (float)255;
             float aEmit = emissionPixels[i].a / (float)255;
 
-            int pixelX = i % sprite.PixelWidth;
-            int pixelY = i / sprite.PixelWidth;
+            int pixelX = i % colorSprite.PixelWidth;
+            int pixelY = i / colorSprite.PixelWidth;
 
             // Particle
             Particle particle = Particle();
             particle.Color = { rColor, gColor, bColor, aColor };
-            particle.Position = { i % sprite.PixelWidth / pixelsPerUnit, i / sprite.PixelWidth / pixelsPerUnit };
+            particle.Position = { i % colorSprite.PixelWidth / pixelsPerUnit, i / colorSprite.PixelWidth / pixelsPerUnit };
             particle.Emission = rEmit; // only red channel contributes to emission
 
             m_SpriteParticles.emplace_back(particle);

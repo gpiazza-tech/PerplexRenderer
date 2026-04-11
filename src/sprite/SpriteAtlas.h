@@ -36,6 +36,19 @@ namespace pxr
 		int Height = -1;
 		int NextTextureX = 0;
 	};
+	
+	enum class AddSpriteStatus
+	{
+		None = 0,
+		Success,
+		Fail
+	};
+
+	struct AddSpriteResult
+	{
+		AddSpriteStatus Status;
+		Sprite Sprite;
+	};
 
 	class SpriteAtlas
 	{
@@ -43,10 +56,9 @@ namespace pxr
 		SpriteAtlas() = default;
 		~SpriteAtlas() {};
 
-		Sprite AddTexture(const std::filesystem::path& path);
-		Sprite AddTextureAt(const std::filesystem::path& path, int xPos, int yPos);
+		AddSpriteResult AddSprite(const std::filesystem::path& path);
 
-		void Create(int size, int pixelsPerUnit);
+		void Create(int width, int height, int pixelsPerUnit, int textureUnit);
 		void Destroy();
 
 		TextureBuffer* GetTexture() { return m_Texture; }
@@ -58,8 +70,11 @@ namespace pxr
 		TextureBuffer* m_Texture;
 
 		int m_MaxSize;
-		int m_Size;
+		int m_Width;
+		int m_Height;
 		int m_PixelsPerUnit;
+
+		int m_TextureUnit;
 
 		std::vector<Shelf> m_Shelves;
 		int m_NextShelf;

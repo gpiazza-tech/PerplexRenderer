@@ -25,10 +25,14 @@ namespace pxr
     struct Vertex
     {
         glm::vec3 Position;
+
         glm::vec4 Color;
-        glm::vec2 TexCoord;
-        float TexIndex;
+        glm::vec2 ColorTexCoord;
+        float ColorTexIndex;
+
         float Emission;
+        glm::vec2 EmissionTexCoord;
+        float EmissionTexIndex;
     };
 
     static RenderStats s_Stats;
@@ -61,10 +65,14 @@ namespace pxr
         s_Data.QuadVBO->SetLayout(
             {
                 { Type::Float, 3, false }, // Position
+
                 { Type::Float, 4, false }, // Color
-                { Type::Float, 2, false }, // Texture Coords
-                { Type::Float, 1, false }, // Texture Index
+                { Type::Float, 2, false }, // Color Texture Coords
+                { Type::Float, 1, false }, // Color Texture Index
+
                 { Type::Float, 1, false }, // Emission
+                { Type::Float, 2, false }, // Emission Texture Coords
+                { Type::Float, 1, false }, // Emission Texture Index
             });
 
         // Index Buffer
@@ -151,20 +159,21 @@ namespace pxr
 
     void Renderer::DrawPixel(const glm::vec2& position, const glm::vec4& color, float emission, bool pixelPerfect)
     {
-        DrawQuad(position, glm::vec2(1.0f), color, emission, SpriteRegistry::GetPixelSprite(), pixelPerfect);
+        const Sprite& pixelSprite = SpriteRegistry::GetPixelSprite();
+        DrawQuad(position, glm::vec2(1.0f), pixelSprite, pixelSprite, color, emission, pixelPerfect);
     }
 
     void Renderer::DrawQuad(const glm::vec2& position, const Sprite& sprite)
     {
-        DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), 1.0f, sprite, true);
+        DrawQuad(position, glm::vec2(1.0f), sprite, sprite, glm::vec4(1.0f), 1.0f, true);
     }
 
     void Renderer::DrawQuad(const glm::vec2& position, const Sprite& sprite, float emission)
     {
-        DrawQuad(position, glm::vec2(1.0f), glm::vec4(1.0f), emission, sprite, true);
+        DrawQuad(position, glm::vec2(1.0f), sprite, sprite, glm::vec4(1.0f), emission, true);
     }
 
-    void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float emission, const Sprite& sprite, bool pixelPerfect)
+    void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect)
     {
         if (s_Data.IndexCount >= s_MaxIndexCount)
         {
@@ -173,35 +182,43 @@ namespace pxr
             BeginBatch(s_Data.Projection);
         }
 
-        glm::vec2 scaledSize = { size.x * sprite.ScaleFactorX, size.y * sprite.ScaleFactorY };
+        glm::vec2 scaledSize = { size.x * colorSprite.ScaleFactorX, size.y * colorSprite.ScaleFactorY };
         glm::vec2 renderPosition = pixelPerfect ? MakePixelPerfect({ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit) : position;
 
         s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y, 0.0f };
         s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->TexCoord = { sprite.Xmin, sprite.Ymin };
-        s_Data.QuadBufferPtr->TexIndex = 0;
+        s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmin, colorSprite.Ymin };
+        s_Data.QuadBufferPtr->ColorTexIndex = colorSprite.TextureUnit;
         s_Data.QuadBufferPtr->Emission = emission;
+        s_Data.QuadBufferPtr->EmissionTexCoord = { emissionSprite.Xmin, emissionSprite.Ymin };
+        s_Data.QuadBufferPtr->EmissionTexIndex = emissionSprite.TextureUnit;
         s_Data.QuadBufferPtr++;
 
         s_Data.QuadBufferPtr->Position = { renderPosition.x + scaledSize.x, renderPosition.y, 0.0f };
         s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->TexCoord = { sprite.Xmax, sprite.Ymin };
-        s_Data.QuadBufferPtr->TexIndex = 0;
+        s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmax, colorSprite.Ymin };
+        s_Data.QuadBufferPtr->ColorTexIndex = colorSprite.TextureUnit;
         s_Data.QuadBufferPtr->Emission = emission;
+        s_Data.QuadBufferPtr->EmissionTexCoord = { emissionSprite.Xmax, emissionSprite.Ymin };
+        s_Data.QuadBufferPtr->EmissionTexIndex = emissionSprite.TextureUnit;
         s_Data.QuadBufferPtr++;
 
         s_Data.QuadBufferPtr->Position = { renderPosition.x + scaledSize.x, renderPosition.y + scaledSize.y, 0.0f };
         s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->TexCoord = { sprite.Xmax, sprite.Ymax };
-        s_Data.QuadBufferPtr->TexIndex = 0;
+        s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmax, colorSprite.Ymax };
+        s_Data.QuadBufferPtr->ColorTexIndex = colorSprite.TextureUnit;
         s_Data.QuadBufferPtr->Emission = emission;
+        s_Data.QuadBufferPtr->EmissionTexCoord = { emissionSprite.Xmax, emissionSprite.Ymax };
+        s_Data.QuadBufferPtr->EmissionTexIndex = emissionSprite.TextureUnit;
         s_Data.QuadBufferPtr++;
 
         s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y + scaledSize.y, 0.0f };
         s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->TexCoord = { sprite.Xmin, sprite.Ymax };
-        s_Data.QuadBufferPtr->TexIndex = 0;
+        s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmin, colorSprite.Ymax };
+        s_Data.QuadBufferPtr->ColorTexIndex = colorSprite.TextureUnit;
         s_Data.QuadBufferPtr->Emission = emission;
+        s_Data.QuadBufferPtr->EmissionTexCoord = { emissionSprite.Xmin, emissionSprite.Ymax };
+        s_Data.QuadBufferPtr->EmissionTexIndex = emissionSprite.TextureUnit;
         s_Data.QuadBufferPtr++;
 
         s_Data.IndexCount += 6;

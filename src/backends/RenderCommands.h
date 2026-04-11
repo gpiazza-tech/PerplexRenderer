@@ -26,5 +26,8 @@ namespace pxr
 
 		static void EnableDepthTest();
 		static void DisableDepthTest();
+
+		static int GetMaxTextureSize();
+		static int GetMaxTextureUnits();
 	};
 }

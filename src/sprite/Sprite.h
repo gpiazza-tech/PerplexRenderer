@@ -2,16 +2,11 @@
 
 namespace pxr
 {
-	class SpriteRegistry;
-
 	struct Sprite
 	{
 		// The index of the atlas stored in the AtlasGroups vector in AssetRegistry.
 		// Used to determine what texture unit index to sample from in the shader
 		int TextureUnit;
-		// The renderer ids of the color and emission texture atlases
-		int ColorAtlas;
-		int EmissionAtlas;
 
 		// The position and width in pixels relative to its atlas
 		int PixelX;

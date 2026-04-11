@@ -3,38 +3,35 @@
 
 #include "Sprite.h"
 #include <backends/TextureBuffer.h>
+#include <backends/RenderCommands.h>
 #include <util/Util.h>
+#include <util/Log.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-// TODO: move glew functions
-#include <GL/glew.h>
-
 #include <cstdint>
-#include <malloc.h>
 #include <filesystem>
-#include <iostream>
-#include <ostream>
 
 namespace pxr
 {
-	void SpriteAtlas::Create(int size, int pixelsPerUnit)
+	void SpriteAtlas::Create(int width, int height, int pixelsPerUnit, int textureUnit)
 	{
 		stbi_set_flip_vertically_on_load(true);
 
-		glGetIntegerv(GL_MAX_TEXTURE_SIZE, (int*)&m_MaxSize);
+		m_MaxSize = RenderCommands::GetMaxTextureSize();
 
-		m_Size = size;
-		if (m_Size > m_MaxSize)
-		{
-			std::cerr << "Failed to create TextureAtlas with size " << m_Size <<
-				" because the max texture size on this system is " << m_MaxSize << std::endl;
-			return;
-		}
+		m_Width = width;
+		m_Height = height;
+
+		m_TextureUnit = textureUnit;
+
+		PXR_ASSERT(m_Width < m_MaxSize && m_Height < m_MaxSize, 
+			"Failed to create TextureAtlas with size ({1}, {2}) because the max texture size on this system is {3}!",
+			m_Width, m_Height, m_MaxSize);
 
 		m_PixelsPerUnit = pixelsPerUnit;
-		m_Texture = new TextureBuffer(size, size, TextureBufferType::LDR, TextureBufferFilterMode::Nearest);
+		m_Texture = new TextureBuffer(width, height, TextureBufferType::LDR, TextureBufferFilterMode::Nearest);
 		m_Shelves.reserve(10);
 	}
 
@@ -45,8 +42,10 @@ namespace pxr
 		m_NextShelf = 0;
 	}
 
-	Sprite SpriteAtlas::AddTexture(const std::filesystem::path& path)
+	AddSpriteResult SpriteAtlas::AddSprite(const std::filesystem::path& path)
 	{
+		AddSpriteResult result;
+
 		int width, height, channels;
 		std::filesystem::path absolutePath = RelativePath(path);
 		uint32_t* rawImage = (uint32_t*)stbi_load(absolutePath.string().c_str(), &width, &height, &channels, 4);
@@ -56,8 +55,7 @@ namespace pxr
 		int paddedHeight = height + 2;
 		uint32_t* paddedImage = (uint32_t*)malloc(paddedWidth * paddedHeight * sizeof(uint32_t));
 
-		if (!paddedImage)
-			std::cerr << "TextureAtlas::AddTexture: malloc failed!" << std::endl;
+		PXR_ASSERT(paddedImage, "TextureAtlas::AddTexture: malloc failed!");
 
 		AddPadding(width, height, rawImage, paddedImage);
 
@@ -69,7 +67,7 @@ namespace pxr
 			m_Shelves.emplace_back(Shelf(-1, m_PixelsPerUnit * i + m_PixelsPerUnit + 2, 0));
 		}
 		Shelf& shelf = m_Shelves[shelfIndex];
-		if (shelf.Y == -1 || shelf.NextTextureX + paddedWidth >= m_Size) 
+		if (shelf.Y == -1 || shelf.NextTextureX + paddedWidth >= m_Width)
 			// if shelf does not exist or runs out of room
 		{
 			shelf = Shelf(m_NextShelf, shelf.Height, 0);
@@ -79,37 +77,23 @@ namespace pxr
 		int y = shelf.Y;
 		shelf.NextTextureX += paddedWidth;
 
+		if (m_NextShelf > m_MaxSize)
+			// Completely out of room, return AddSpriteStatus::Fail
+		{
+			result.Status = AddSpriteStatus::Fail;
+			return result;
+		}
+
 		Sprite subTexture = AllocateBuffer(x, y, paddedWidth, paddedHeight, paddedImage);
 
 		// Cleanup
 		stbi_image_free((void*)rawImage);
 		free((void*)paddedImage);
 
-		return subTexture;
-	}
+		result.Sprite = subTexture;
+		result.Status = AddSpriteStatus::Success;
 
-	Sprite SpriteAtlas::AddTextureAt(const std::filesystem::path& path, int xPos, int yPos)
-	{
-		int32_t width, height, channels;
-		std::filesystem::path absolutePath = RelativePath(path);
-		uint32_t* rawImage = (uint32_t*)stbi_load(absolutePath.string().c_str(), &width, &height, &channels, 4);
-
-		// Add padding to image
-		int paddedWidth = width + 2;
-		int paddedHeight = height + 2;
-		uint32_t* paddedImage = (uint32_t*)malloc(paddedWidth * paddedHeight * sizeof(uint32_t));
-
-		if (!paddedImage)
-			std::cerr << "TextureAtlas::AddTexture: malloc failed!" << std::endl;
-
-		AddPadding(width, height, rawImage, paddedImage);
-		Sprite sprite = AllocateBuffer(xPos - 1, yPos - 1, paddedWidth, paddedHeight, paddedImage);
-
-		// Cleanup
-		stbi_image_free((void*)rawImage);
-		free((void*)paddedImage);
-
-		return sprite;
+		return result;
 	}
 
 	void SpriteAtlas::AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg)
@@ -188,9 +172,7 @@ namespace pxr
 	Sprite SpriteAtlas::AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes)
 	{
 		// Push padded image to GPU
-		glBindTexture(GL_TEXTURE_2D, m_Texture->GetID());
-		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		m_Texture->SetPixels(x, y, width, height, (glm::u8vec4*)bytes);
 
 		// Create Sprite to return
 		Sprite sprite;
@@ -206,10 +188,12 @@ namespace pxr
 		sprite.ScaleFactorX = visibleWidth / (float)m_PixelsPerUnit;
 		sprite.ScaleFactorY = visibleHeight / (float)m_PixelsPerUnit;
 
-		sprite.Xmin = (x + 1) / (float)m_Size;
-		sprite.Ymin = (y + 1) / (float)m_Size;
-		sprite.Xmax = (x + 1 + visibleWidth) / (float)m_Size;
-		sprite.Ymax = (y + 1 + visibleHeight) / (float)m_Size;
+		sprite.Xmin = (x + 1) / (float)m_Width;
+		sprite.Ymin = (y + 1) / (float)m_Height;
+		sprite.Xmax = (x + 1 + visibleWidth) / (float)m_Width;
+		sprite.Ymax = (y + 1 + visibleHeight) / (float)m_Height;
+
+		sprite.TextureUnit = m_TextureUnit;
 
 		return sprite;
 	}
