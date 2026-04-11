@@ -36,6 +36,7 @@ namespace pxr
     };
 
     static RenderStats s_Stats;
+    static uint32_t s_PixelsPerUnit;
 
     struct RendererData
     {
@@ -57,6 +58,8 @@ namespace pxr
 
     void Renderer::Init(uint32_t pixelsPerUnit)
     {
+        s_PixelsPerUnit = pixelsPerUnit;
+
         s_Data.QuadBuffer = new Vertex[s_MaxVertexCount];
         s_Data.PixelsPerUnit = pixelsPerUnit;
 
@@ -229,5 +232,10 @@ namespace pxr
     const RenderStats& Renderer::GetStats()
     {
         return s_Stats;
+    }
+
+    uint32_t Renderer::GetPixelsPerUnit()
+    {
+        return s_PixelsPerUnit;
     }
 }

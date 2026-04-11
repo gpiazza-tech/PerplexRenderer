@@ -12,10 +12,11 @@
 #include "ExampleLogo.h"
 #include "ExampleBurst.h"
 #include "ExampleSpriteBurst.h"
+#include "ExampleScale.h"
+#include "ExampleSmile.h"
 
 int g_Width = 1920;
 int g_Height = 1080;
-int g_PixelsPerUnit = 16;
 
 std::vector<Example*> g_Examples = std::vector<Example*>();
 Example* g_ActiveExample;
@@ -26,19 +27,21 @@ pxr::BloomRenderer g_BloomRenderer;
 pxr::Tonemapper g_Tonemapper;
 pxr::Pixelator g_Pixelator;
 
-pxr::Camera g_Camera = pxr::Camera(glm::vec2(g_Width, g_Height), g_PixelsPerUnit, 6.0f, pxr::ScalingMode::SmallerSide);
+pxr::Camera g_Camera = pxr::Camera(glm::vec2(g_Width, g_Height), 16, 6.0f, pxr::ScalingMode::SmallerSide);
 
 static void PushExamples()
 {
     // Add any examples here
     g_Examples.emplace_back(new ExampleLogo(&g_Camera));
     g_Examples.emplace_back(new ExampleBurst(&g_Camera));
-    g_Examples.emplace_back(new ExampleSpriteBurst(&g_Camera));
+	g_Examples.emplace_back(new ExampleSpriteBurst(&g_Camera));
+	g_Examples.emplace_back(new ExampleScale(&g_Camera));
+	g_Examples.emplace_back(new ExampleSmile(&g_Camera));
 }
 
 void AppStart()
 {
-    pxr::Renderer::Init(g_PixelsPerUnit);
+    pxr::Renderer::Init(16);
     g_Framebuffer = new pxr::Framebuffer(g_Width, g_Height, true);
 
     g_BloomRenderer.Init(g_Width, g_Height);
@@ -112,6 +115,16 @@ void AppUpdate(float ts)
 		ImGui::LabelText("Quads", quadsStr.c_str());
 		ImGui::LabelText("Draw Calls", drawCallsStr.c_str());
 		ImGui::Dummy({ 0.0f, 20.0f });
+
+		ImGui::Text("Camera");
+		static float camZoom = g_Camera.GetZoom();
+		ImGui::DragFloat("Zoom", &camZoom, 0.01f);
+		g_Camera.SetZoom(camZoom);
+		static const char* scalingModeNames[]{ "Width", "Height", "Larger Side", "Smaller Side" };
+		static int scalingMode = 3;
+		if (ImGui::Combo("Scaling Mode", &scalingMode, scalingModeNames, IM_ARRAYSIZE(scalingModeNames)))
+			g_Camera.SetScalingMode((pxr::ScalingMode)(scalingMode + 1));
+
 
 		ImGui::Text("Post Processing");
 		ImGui::Checkbox("Bloom", &bloom);

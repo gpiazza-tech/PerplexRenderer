@@ -36,5 +36,6 @@ namespace pxr
         static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect);
 
         static const RenderStats& GetStats();
+        static uint32_t GetPixelsPerUnit();
     };
 }
