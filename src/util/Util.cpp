@@ -11,8 +11,6 @@
 
 namespace pxr
 {
-    std::string g_ProjectPath = PXR_ROOT_DIR;
-
     std::string StringFromFile(const std::filesystem::path& path)
     {
         std::ifstream file(path.string());
@@ -24,7 +22,7 @@ namespace pxr
 
     std::filesystem::path RelativePath(const std::filesystem::path& path)
     {
-        return g_ProjectPath / path;
+        return std::filesystem::current_path() / path;
     }
 
     float RoundToNearestFraction(float val, float denominator)

@@ -68,7 +68,6 @@ project "PerplexRenderer"
     {
         "GLEW_STATIC",
         "PXR_EXAMPLES",
-        'PXR_ROOT_DIR="' .. path.getabsolute(".") .. '"'
     }
 
     links
@@ -83,6 +82,12 @@ project "PerplexRenderer"
     buildoptions
     {
         "/utf-8"
+    }
+
+    postbuildcommands 
+    {
+      -- copy res folder into output directory
+      "{COPYDIR} %{path.getabsolute('res')} %{cfg.targetdir}/res"
     }
 
     filter "files:vendor/imgui/include/backends/**.cpp"

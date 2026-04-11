@@ -61,7 +61,6 @@ project "PerplexRenderer"
     defines
     {
         "GLEW_STATIC",
-        'PXR_ROOT_DIR="' .. path.getabsolute(".") .. '"'
     }
 
     links
@@ -74,6 +73,12 @@ project "PerplexRenderer"
     buildoptions
     {
         "/utf-8"
+    }
+
+    postbuildcommands 
+    {
+      -- copy res folder into output directory
+      "{COPYDIR} %{path.getabsolute('res')} %{cfg.targetdir}/res"
     }
 
     filter "system:windows"
