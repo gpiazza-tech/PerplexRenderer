@@ -61,7 +61,7 @@ while (!glfwWindowShouldClose(window))
 }
 ```
 
-While we're at it, let's also set up a rendering initialization function called Start that runs once before the update loop called Start, 
+While we're at it, let's also set up an initialization function called Start that runs once before entering the update loop, 
 so our code now looks like this:
 
 ```c
