@@ -16,8 +16,8 @@ public:
 
 	void Enter() override
 	{
-		m_Logo = pxr::SpriteRegistry::GetSprite("res\\textures\\Perplex.png");
-		m_LogoEmission = pxr::SpriteRegistry::GetSprite("res\\textures\\Perplex_Emission.png");
+		m_Logo = pxr::SpriteRegistry::GetSprite("textures\\Perplex.png");
+		m_LogoEmission = pxr::SpriteRegistry::GetSprite("textures\\Perplex_Emission.png");
 	}
 
 	void Update(float ts) override

@@ -16,8 +16,8 @@ public:
 
 	void Enter() override
 	{
-		m_Kablooey = pxr::SpriteRegistry::GetSprite("res\\textures\\Kablooey.png");
-		m_KablooeyEmission = pxr::SpriteRegistry::GetSprite("res\\textures\\Kablooey_Emission.png");
+		m_Kablooey = pxr::SpriteRegistry::GetSprite("textures\\Kablooey.png");
+		m_KablooeyEmission = pxr::SpriteRegistry::GetSprite("textures\\Kablooey_Emission.png");
 
 		m_ParticleSettings->GravityMultiplier = 0.05f;
 		m_ParticleSettings->VelocityMultiplier = 10.0f;

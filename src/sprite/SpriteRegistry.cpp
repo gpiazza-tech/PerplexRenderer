@@ -31,7 +31,7 @@ namespace pxr
 			s_Atlases[i].Create(s_DefaultAtlasSize.x, s_DefaultAtlasSize.y, pixelsPerUnit, i);
 		}
 
-		s_PixelSprite = GetSprite("res\\textures\\White.png");
+		s_PixelSprite = GetSprite("textures\\White.png");
 	}
 
 	void SpriteRegistry::Shutdown()
@@ -68,7 +68,7 @@ namespace pxr
 
 	const Sprite& SpriteRegistry::GetPixelSprite()
 	{
-		return GetSprite("res\\textures\\White.png");
+		return GetSprite("textures\\White.png");
 	}
 
 	void SpriteRegistry::Bind()

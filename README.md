@@ -133,7 +133,8 @@ void Render()
 ```
 
 Rendering a sprite is a similar process, only we need to add the file to the SpriteRegistry before rendering it.
-The path specified in pxr::SpriteRegistry::GetSprite is relative to the root folder of PerplexRenderer.
+The path specified in pxr::SpriteRegistry::GetSprite is relative to PerplexRenderer/res. If you would like to change
+the resource path, you can do so with pxr::SetResourceFolder(path).
 The renderer must be initialized before using the SpriteRegistry:
 
 ```c
@@ -145,7 +146,7 @@ void Start()
 {
 	pxr::Renderer::Init();
 
-	sprite = pxr::SpriteRegistry::GetSprite("res/mysprite.png");
+	sprite = pxr::SpriteRegistry::GetSprite("mysprite.png");
 }
 
 void Render()

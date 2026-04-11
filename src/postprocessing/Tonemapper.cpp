@@ -16,7 +16,7 @@ namespace pxr
 		m_Width = width;
 		m_Height = height;
 
-		m_TonemapShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\TonemapFragment.glsl");
+		m_TonemapShader.Create("shaders\\ScreenVertex.glsl", "shaders\\postprocessing\\TonemapFragment.glsl");
 		m_FBO = new Framebuffer(width, height);
 	}
 

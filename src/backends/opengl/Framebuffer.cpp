@@ -35,7 +35,7 @@ namespace pxr
             std::cout << "Error: Framebuffer is not complete" << std::endl;
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        m_ScreenShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\ScreenFragment.glsl");
+        m_ScreenShader.Create("shaders\\ScreenVertex.glsl", "shaders\\ScreenFragment.glsl");
     }
 
     Framebuffer::~Framebuffer()

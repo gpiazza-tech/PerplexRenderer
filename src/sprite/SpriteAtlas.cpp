@@ -47,7 +47,7 @@ namespace pxr
 		AddSpriteResult result;
 
 		int width, height, channels;
-		std::filesystem::path absolutePath = RelativePath(path);
+		std::filesystem::path absolutePath = Path(path);
 		uint32_t* rawImage = (uint32_t*)stbi_load(absolutePath.string().c_str(), &width, &height, &channels, 4);
 
 		// Add padding to image

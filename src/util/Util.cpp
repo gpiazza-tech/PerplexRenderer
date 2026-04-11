@@ -1,6 +1,8 @@
 #include <pch.h>
 #include "Util.h"
 
+#include "Log.h"
+
 #include <fwd.hpp>
 
 #include <cmath>
@@ -11,6 +13,8 @@
 
 namespace pxr
 {
+    static std::filesystem::path s_ResourcePath = std::filesystem::current_path() / "res";
+
     std::string StringFromFile(const std::filesystem::path& path)
     {
         std::ifstream file(path.string());
@@ -20,9 +24,17 @@ namespace pxr
         return buffer.str();
     }
 
-    std::filesystem::path RelativePath(const std::filesystem::path& path)
+    std::filesystem::path Path(const std::filesystem::path& path)
     {
-        return std::filesystem::current_path() / path;
+        std::filesystem::path absolutePath = s_ResourcePath / path;
+        PXR_ASSERT(std::filesystem::exists(absolutePath), "Path {1} does not exist!", absolutePath.string());
+
+        return absolutePath;
+    }
+
+    void SetResourceFolder(const std::filesystem::path& path)
+    {
+        s_ResourcePath = path;
     }
 
     float RoundToNearestFraction(float val, float denominator)

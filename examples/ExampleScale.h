@@ -18,7 +18,7 @@ public:
 
 	void Enter() override
 	{
-		m_Scale = pxr::SpriteRegistry::GetSprite("res\\textures\\Scale.png");
+		m_Scale = pxr::SpriteRegistry::GetSprite("textures\\Scale.png");
 	}
 
 	void Update(float ts) override

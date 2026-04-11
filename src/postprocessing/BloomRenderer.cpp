@@ -35,10 +35,10 @@ namespace pxr
 		m_PrefilterFBO = new Framebuffer(windowWidth, windowHeight, true);
 
 		// Shaders
-		m_PrefilterShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\PrefilterFragment.glsl");
-		m_DownsampleShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\DownsampleFragment.glsl");
-		m_UpsampleShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\UpsampleFragment.glsl");
-		m_ScreenShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\ScreenFragment.glsl");
+		m_PrefilterShader.Create("shaders\\ScreenVertex.glsl", "shaders\\postprocessing\\PrefilterFragment.glsl");
+		m_DownsampleShader.Create("shaders\\ScreenVertex.glsl", "shaders\\postprocessing\\DownsampleFragment.glsl");
+		m_UpsampleShader.Create("shaders\\ScreenVertex.glsl", "shaders\\postprocessing\\UpsampleFragment.glsl");
+		m_ScreenShader.Create("shaders\\ScreenVertex.glsl", "shaders\\ScreenFragment.glsl");
 
 		m_PrefilterShader.Use();
 		m_PrefilterShader.SetUniformInt("u_Texture", 0);

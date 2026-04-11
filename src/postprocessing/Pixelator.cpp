@@ -18,7 +18,7 @@ namespace pxr
 		m_Width = outWidth;
 		m_Height = outHeight;
 
-		m_PixelatorShader.Create("res\\shaders\\ScreenVertex.glsl", "res\\shaders\\postprocessing\\PixelateFragment.glsl");
+		m_PixelatorShader.Create("shaders\\ScreenVertex.glsl", "shaders\\postprocessing\\PixelateFragment.glsl");
 		m_FBO = new Framebuffer(outWidth, outHeight);
 	}
 

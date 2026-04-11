@@ -61,8 +61,8 @@ namespace pxr
 
     void Shader::Create(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath)
     {
-        std::string vertexSrc = StringFromFile(RelativePath(vertexPath));
-        std::string fragmentSrc = StringFromFile(RelativePath(fragmentPath));
+        std::string vertexSrc = StringFromFile(Path(vertexPath));
+        std::string fragmentSrc = StringFromFile(Path(fragmentPath));
 
         m_RendererID = CreateShader(vertexSrc, fragmentSrc);
     }

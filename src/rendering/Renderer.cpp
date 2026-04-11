@@ -101,7 +101,7 @@ namespace pxr
         s_Data.QuadVAO->AttachBuffers(*s_Data.QuadVBO, ibo);
 
         // Shader
-        s_Data.SpriteShader.Create("res\\shaders\\SpriteVertex.glsl", "res\\shaders\\SpriteFragment.glsl");
+        s_Data.SpriteShader.Create("shaders\\SpriteVertex.glsl", "shaders\\SpriteFragment.glsl");
         s_Data.SpriteShader.Use();
 
         int samplers[32];

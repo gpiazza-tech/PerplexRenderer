@@ -8,7 +8,8 @@
 namespace pxr
 {
 	std::string StringFromFile(const std::filesystem::path& path);
-	std::filesystem::path RelativePath(const std::filesystem::path& path);
+	std::filesystem::path Path(const std::filesystem::path& path);
+	void SetResourceFolder(const std::filesystem::path& path);
 
 	float RoundToNearestFraction(float val, float denominator);
 	glm::vec3 MakePixelPerfect(glm::vec3 vec3, int pixelsPerUnit);
