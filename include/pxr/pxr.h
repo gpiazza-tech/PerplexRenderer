@@ -14,6 +14,7 @@
 #include <sprite/SpriteRegistry.h>
 
 #include <util/Util.h> 
+#include <util/Log.h>
 
 #include <postprocessing/BloomRenderer.h>
 #include <postprocessing/Tonemapper.h>

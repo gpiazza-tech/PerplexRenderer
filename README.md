@@ -46,9 +46,9 @@ ScalingMode. In this case, for example, the scalling mode is set to SmallerSide,
 will have a length of 6 units, and because our pixels per unit value is 16, the smaller side will have a length of 16 * 6 pixels,
 or 96 pixels.
 
-The last thing we'll need is to set up some kind of render loop, which should be already handled by whatever windowing
-library you are using. To keep the code nice and separated, I would create a seperate Render function for Perplex-only code. This function
-should be called every frame immediately before swapping buffers. A super simple example for GLFW might look like this:
+The last thing we'll need is a render function that is called in the update loop, which should already be set up by the windowing
+library you are using. This function, which I just named Render, should be called every frame immediately before swapping buffers. 
+A super simple example for GLFW might look like this:
 ```c
 ... GLFW init code ...
 
@@ -61,7 +61,7 @@ while (!glfwWindowShouldClose(window))
 }
 ```
 
-While we're at it, let's also set up an initialization function called Start that runs once before entering the update loop, 
+While we're at it, let's also set up an initialization function called Start that runs once before entering the update loop.
 so our code now looks like this:
 
 ```c
@@ -80,7 +80,7 @@ void Render()
 
 ### Drawing pixels and sprites
 
-We can now do some basic rendering. The steps to drawing things in PerplexRenderer are
+We're now ready to do some basic rendering. The steps to drawing things in PerplexRenderer are
 
 1. Start the frame
 2. Begin a batch using our camera's projection
@@ -133,9 +133,9 @@ void Render()
 ```
 
 Rendering a sprite is a similar process, only we need to add the file to the SpriteRegistry before rendering it.
-The path specified in pxr::SpriteRegistry::GetSprite is relative to PerplexRenderer/res. If you would like to change
-the resource path, you can do so with pxr::SetResourceFolder(path).
-The renderer must be initialized before using the SpriteRegistry:
+The path specified in pxr::SpriteRegistry::GetSprite is relative to the PerplexRenderer/res folder. 
+If you would like to set the resource folder to something different, you can do so with pxr::SetResourceFolder(path).
+Note that the renderer must be initialized before using the SpriteRegistry:
 
 ```c
 pxr::Camera camera(screenSize, 16, 6.0f, pxr::ScalingMode::SmallerSide);
@@ -161,6 +161,6 @@ void Render()
 }
 ```
 
-And that's all for right now! For more detail on how to do things like postprocessing effects, 
+And that's all for right now! For more detail on how to do things like particles and postprocessing effects, 
 check out the included examples in `PerplexRenderer/examples`. It's still very much a work in progress, and I plan on 
-adding to this a lot as I continue developing it.
+adding lots more documentation as I continue development.

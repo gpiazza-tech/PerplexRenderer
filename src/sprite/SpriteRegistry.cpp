@@ -2,13 +2,15 @@
 #include "SpriteRegistry.h"
 
 #include "Sprite.h"
+#include "SpriteAtlas.h"
 #include <backends/RenderCommands.h>
 #include <util/Log.h>
+
+#include <fwd.hpp>
 
 #include <vector>
 #include <unordered_map>
 #include <filesystem>
-#include <cstdint>
 
 namespace fs = std::filesystem;
 
@@ -44,6 +46,8 @@ namespace pxr
 
 	const Sprite& SpriteRegistry::GetSprite(const std::filesystem::path& spritePath)
 	{
+		PXR_ASSERT(s_Atlases.size() > 0, "GetSprite was called before SpriteRegistry was initialized!");
+
 		if (s_Sprites.find(spritePath) != s_Sprites.end())
 		{
 			return s_Sprites[spritePath];

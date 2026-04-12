@@ -1,11 +1,9 @@
 #pragma once
 
-#include "SpriteAtlas.h"
 #include "Sprite.h"
 
 #include <fwd.hpp>
 
-#include <vector>
 #include <filesystem>
 
 namespace pxr
