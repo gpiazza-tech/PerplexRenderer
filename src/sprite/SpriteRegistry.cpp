@@ -3,10 +3,11 @@
 
 #include "Sprite.h"
 #include "SpriteAtlas.h"
+#include <util/Util.h>
 #include <backends/RenderCommands.h>
 #include <util/Log.h>
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 #include <vector>
 #include <unordered_map>
@@ -33,7 +34,7 @@ namespace pxr
 			s_Atlases[i].Create(s_DefaultAtlasSize.x, s_DefaultAtlasSize.y, pixelsPerUnit, i);
 		}
 
-		s_PixelSprite = GetSprite("textures\\White.png");
+		s_PixelSprite = GetSprite(Path("textures/White.png"));
 	}
 
 	void SpriteRegistry::Shutdown()

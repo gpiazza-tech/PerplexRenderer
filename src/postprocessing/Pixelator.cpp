@@ -4,7 +4,7 @@
 #include <backends/Shader.h>
 #include <backends/RenderCommands.h>
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 // TODO: move glew functions
 #include <GL/glew.h>

@@ -3,13 +3,16 @@
 
 #include "Log.h"
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 #include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <string>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 namespace pxr
 {
@@ -48,5 +51,17 @@ namespace pxr
     glm::vec3 MakePixelPerfect(glm::vec3 vec3, int pixelsPerUnit)
     {
         return glm::vec3(RoundToNearestFraction(vec3.x, pixelsPerUnit), RoundToNearestFraction(vec3.y, pixelsPerUnit), RoundToNearestFraction(vec3.z, pixelsPerUnit));
+    }
+
+    void* ImageLoad(const std::filesystem::path& path, int* width, int* height, int* channels, int desiredChannels)
+    {
+        stbi_set_flip_vertically_on_load(true);
+        std::string pathStr = Path(path).string();
+        return stbi_load(pathStr.c_str(), width, height, channels, desiredChannels);
+    }
+
+    void ImageFree(void* imageData)
+    {
+        stbi_image_free(imageData);
     }
 }

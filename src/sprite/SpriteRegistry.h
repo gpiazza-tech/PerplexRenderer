@@ -2,7 +2,7 @@
 
 #include "Sprite.h"
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 #include <filesystem>
 

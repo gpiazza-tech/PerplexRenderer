@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 #include <cstdint>
 
@@ -12,6 +12,8 @@ namespace pxr
 	class RenderCommands
 	{
 	public:
+		static void LoadFunctions();
+
 		static void DrawScreen();
 		static void ResizeViewport(int width, int height);
 

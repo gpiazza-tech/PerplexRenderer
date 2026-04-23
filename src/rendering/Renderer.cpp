@@ -9,7 +9,7 @@
 #include <sprite/SpriteRegistry.h>
 #include <util/Util.h>
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 #include <cstdint>
 #include <memory>
@@ -58,6 +58,8 @@ namespace pxr
 
     void Renderer::Init(uint32_t pixelsPerUnit)
     {
+        RenderCommands::LoadFunctions();
+
         s_PixelsPerUnit = pixelsPerUnit;
 
         s_Data.QuadBuffer = new Vertex[s_MaxVertexCount];
@@ -120,10 +122,10 @@ namespace pxr
         delete[] s_Data.QuadBuffer;
     }
 
-    void Renderer::BeginFrame()
+    void Renderer::BeginFrame(const glm::vec4& background)
     {
         RenderCommands::EnableAlphaBlending();
-        RenderCommands::Clear({ 0.01f, 0.04f, 0.1f, 1.0f });
+        RenderCommands::Clear(background);
         RenderCommands::EnableDepthTest();
 
         s_Stats.Quads = 0;
@@ -166,6 +168,12 @@ namespace pxr
         DrawQuad(position, glm::vec2(1.0f), pixelSprite, pixelSprite, color, emission, pixelPerfect);
     }
 
+    void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float emission)
+    {
+        const Sprite& pixelSprite = SpriteRegistry::GetPixelSprite();
+        DrawQuad(position, size, pixelSprite, pixelSprite, color, emission, true);
+    }
+
     void Renderer::DrawQuad(const glm::vec2& position, const Sprite& sprite)
     {
         DrawQuad(position, glm::vec2(1.0f), sprite, sprite, glm::vec4(1.0f), 1.0f, true);
@@ -186,7 +194,8 @@ namespace pxr
         }
 
         glm::vec2 scaledSize = { size.x * colorSprite.ScaleFactorX, size.y * colorSprite.ScaleFactorY };
-        glm::vec2 renderPosition = pixelPerfect ? MakePixelPerfect({ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit) : position;
+        glm::vec3 center = { position.x - scaledSize.x / 2, position.y - scaledSize.y / 2, 0.0f };
+        glm::vec2 renderPosition = pixelPerfect ? MakePixelPerfect(center, s_Data.PixelsPerUnit) : center;
 
         s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y, 0.0f };
         s_Data.QuadBufferPtr->Color = color;

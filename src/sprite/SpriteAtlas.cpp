@@ -7,9 +7,6 @@
 #include <util/Util.h>
 #include <util/Log.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #include <cstdint>
 #include <filesystem>
 
@@ -17,8 +14,6 @@ namespace pxr
 {
 	void SpriteAtlas::Create(int width, int height, int pixelsPerUnit, int textureUnit)
 	{
-		stbi_set_flip_vertically_on_load(true);
-
 		m_MaxSize = RenderCommands::GetMaxTextureSize();
 
 		m_Width = width;
@@ -47,8 +42,7 @@ namespace pxr
 		AddSpriteResult result;
 
 		int width, height, channels;
-		std::filesystem::path absolutePath = Path(path);
-		uint32_t* rawImage = (uint32_t*)stbi_load(absolutePath.string().c_str(), &width, &height, &channels, 4);
+		uint32_t* rawImage = (uint32_t*)ImageLoad(path.string().c_str(), &width, &height, &channels, 4);
 
 		// Add padding to image
 		int paddedWidth = width + 2;
@@ -87,7 +81,7 @@ namespace pxr
 		Sprite subTexture = AllocateBuffer(x, y, paddedWidth, paddedHeight, paddedImage);
 
 		// Cleanup
-		stbi_image_free((void*)rawImage);
+		ImageFree((void*)rawImage);
 		free((void*)paddedImage);
 
 		result.Sprite = subTexture;

@@ -6,7 +6,7 @@
 #include <sprite/SpriteRegistry.h>
 #include <rendering/Renderer.h>
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 #include <cstdlib>
 

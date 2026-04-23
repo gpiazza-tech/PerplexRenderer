@@ -3,15 +3,15 @@
 
 #include <util/Util.h>
 
-#include <glm.hpp>
-#include <fwd.hpp>
+#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
 
 #include <algorithm>
 #include <iostream>
 
 namespace pxr
 {
-	void Camera::CalculateViewProjection()
+	void Camera::CalculateProjection()
 	{
 		float ratio = 0;
 
@@ -44,18 +44,18 @@ namespace pxr
 	void Camera::SetZoom(float zoom)
 	{ 
 		m_Zoom = zoom;
-		CalculateViewProjection();
+		CalculateProjection();
 	}
 
 	void Camera::SetScalingMode(ScalingMode scalingMode)
 	{
 		m_ScalingMode = scalingMode;
-		CalculateViewProjection();
+		CalculateProjection();
 	}
 
 	void Camera::Resize(const glm::vec2& resolution)
 	{
 		m_Resolution = resolution;
-		CalculateViewProjection();
+		CalculateProjection();
 	}
 }

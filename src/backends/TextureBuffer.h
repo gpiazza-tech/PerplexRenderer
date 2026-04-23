@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 #include <cstdint>
 

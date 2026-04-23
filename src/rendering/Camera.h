@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 namespace pxr
 {
@@ -16,13 +16,19 @@ namespace pxr
 	class Camera
 	{
 	public:
+		Camera()
+			: m_Resolution(1.0f), m_PixelsPerUnit(16), m_Zoom(1.0f), m_ScalingMode(ScalingMode::SmallerSide)
+		{
+			CalculateProjection();
+		}
 		Camera(const glm::vec2& screenResolution, int pixelsPerUnit, float zoom, ScalingMode scalingMode = ScalingMode::SmallerSide)
 			: m_Resolution(screenResolution), m_PixelsPerUnit(pixelsPerUnit), m_Zoom(zoom), m_ScalingMode(scalingMode)
 		{
-			CalculateViewProjection();
+			CalculateProjection();
 		}
 		~Camera() {}
 
+		inline int GetPixelsPerUnit() const { return m_PixelsPerUnit; }
 		inline const glm::mat4& GetProjection() const { return m_Projection; };
 
 		inline void SetPixelPerfect(bool pixelPerfect) { m_PixelPerfect = pixelPerfect; }
@@ -35,8 +41,8 @@ namespace pxr
 		void SetScalingMode(ScalingMode scalingMode);
 
 		void Resize(const glm::vec2& resolution);
-	private:
-		void CalculateViewProjection();
+	protected:
+		void CalculateProjection();
 	private:
 		float m_PixelsPerUnit; // number of pixels in one unit
 		float m_Zoom; // how many units the screen width (or height or smallest) takes up

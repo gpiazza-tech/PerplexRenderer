@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glm.hpp>
-#include <fwd.hpp>
+#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
 
 namespace pxr
 {

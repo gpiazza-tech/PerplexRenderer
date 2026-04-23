@@ -3,8 +3,8 @@
 #include "Particle.h"
 #include "ParticleSystemSettings.h"
 
-#include <fwd.hpp>
-#include <glm.hpp>
+#include <glm/fwd.hpp>
+#include <glm/glm.hpp>
 
 #include <vector>
 #include <memory>

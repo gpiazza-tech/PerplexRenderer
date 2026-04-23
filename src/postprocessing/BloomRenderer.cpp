@@ -9,7 +9,7 @@
 // TODO: move glew functions
 #include <GL/glew.h>
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 #include <cstdint>
 #include <iostream>
 #include <vector>

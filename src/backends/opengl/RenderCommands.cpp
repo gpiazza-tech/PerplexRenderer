@@ -12,6 +12,11 @@
 
 namespace pxr
 {
+    void RenderCommands::LoadFunctions()
+    {
+        glewInit();
+    }
+
     void RenderCommands::DrawScreen()
     {
         glDisable(GL_DEPTH_TEST);

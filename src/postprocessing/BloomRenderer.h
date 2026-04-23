@@ -4,7 +4,7 @@
 #include <backends/Framebuffer.h>
 #include <backends/Shader.h>
 
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 #include <cstdint>
 
