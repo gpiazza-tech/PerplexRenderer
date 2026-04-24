@@ -73,7 +73,7 @@ namespace pxr
 
 	const Sprite& SpriteRegistry::GetPixelSprite()
 	{
-		return GetSprite("textures\\White.png");
+		return GetSprite(Path("textures/White.png"));
 	}
 
 	void SpriteRegistry::Bind()
