@@ -3,6 +3,7 @@
 #include <glm/fwd.hpp>
 
 #include <cstdint>
+#include <filesystem>
 
 namespace pxr
 { 
@@ -25,6 +26,7 @@ namespace pxr
 	{
 	public:
 		TextureBuffer(int width, int height, TextureBufferType type, TextureBufferFilterMode filterMode);
+		TextureBuffer(const std::filesystem::path& path);
 		~TextureBuffer();
 
 		inline int GetWidth() const { return m_Width; }

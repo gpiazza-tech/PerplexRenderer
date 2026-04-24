@@ -2,6 +2,7 @@
 #include <backends/TextureBuffer.h>
 
 #include <util/Log.h>
+#include <util/Util.h>
 
 #include <GL/glew.h>
 #include <fwd.hpp>
@@ -42,6 +43,27 @@ namespace pxr
         ClearBuffer();
 
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    TextureBuffer::TextureBuffer(const std::filesystem::path& path)
+    {
+        int width, height, channels;
+        void* data = ImageLoad(path.c_str(), &width, &height, &channels, 4);
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+        glTextureStorage2D(m_RendererID, 1, GL_RGBA8, width, height);
+
+        glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        glTextureSubImage2D(m_RendererID, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+        ImageFree(data);
+
+        m_Width = width;
+        m_Height = height;
     }
 
     TextureBuffer::~TextureBuffer()

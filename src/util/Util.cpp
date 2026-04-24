@@ -56,7 +56,7 @@ namespace pxr
     void* ImageLoad(const std::filesystem::path& path, int* width, int* height, int* channels, int desiredChannels)
     {
         stbi_set_flip_vertically_on_load(true);
-        std::string pathStr = Path(path).string();
+        std::string pathStr = path.string();
         return stbi_load(pathStr.c_str(), width, height, channels, desiredChannels);
     }
 
