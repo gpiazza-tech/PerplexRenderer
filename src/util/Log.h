@@ -3,6 +3,7 @@
 #define PXR_ENABLE_LOGGING
 #ifdef PXR_ENABLE_LOGGING
 
+#define SPDLOG_USE_STD_FORMAT
 #include <spdlog/spdlog.h>
 #include <intrin.h>
 

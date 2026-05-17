@@ -34,8 +34,8 @@ namespace pxr
 			break;
 		}
 
-		float semiWidth = RoundToNearestFraction((float)m_Resolution.x * ratio * m_Zoom / 2.0f, m_PixelsPerUnit);
-		float semiHeight = RoundToNearestFraction((float)m_Resolution.y * ratio * m_Zoom / 2.0f, m_PixelsPerUnit);
+		float semiWidth = RoundToNearestFraction((float)m_Resolution.x * ratio * m_Zoom / 2.0f, (float)m_PixelsPerUnit);
+		float semiHeight = RoundToNearestFraction((float)m_Resolution.y * ratio * m_Zoom / 2.0f, (float)m_PixelsPerUnit);
 
 		m_Projection = glm::ortho(-semiWidth, semiWidth, -semiHeight, semiHeight, -1.0f, 1.0f);
 		m_PixelResolution = { m_PixelsPerUnit * semiWidth * 2.0f, m_PixelsPerUnit * semiHeight * 2.0f };

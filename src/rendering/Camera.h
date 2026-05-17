@@ -45,7 +45,7 @@ namespace pxr
 	protected:
 		void CalculateProjection();
 	private:
-		float m_PixelsPerUnit; // number of pixels in one unit
+		int m_PixelsPerUnit; // number of pixels in one unit
 		float m_Zoom; // how many units the screen width (or height or smallest) takes up
 		float m_AspectRatio; // Width / Height
 

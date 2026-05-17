@@ -26,6 +26,6 @@ namespace pxr
 		void SetUniformFloat4(const char* name, float val1, float val2, float val3, float val4);
 		void SetUniformMat4(const char* name, float* val);
 	private:
-		uint32_t m_RendererID;
+		uint32_t m_RendererID{};
 	};
 }

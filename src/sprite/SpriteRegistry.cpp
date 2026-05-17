@@ -31,7 +31,7 @@ namespace pxr
 		for (int i = 0; i < maxTextureUnits; i++)
 		{
 			s_Atlases.emplace_back();
-			s_Atlases[i].Create(s_DefaultAtlasSize.x, s_DefaultAtlasSize.y, pixelsPerUnit, i);
+			s_Atlases[i].Create((int)s_DefaultAtlasSize.x, (int)s_DefaultAtlasSize.y, pixelsPerUnit, i);
 		}
 
 		s_PixelSprite = GetSprite(Path("textures/White.png"));
@@ -68,6 +68,7 @@ namespace pxr
 			}
 
 			PXR_ERROR("Failed to add sprite to any atlas in SpriteRegistry!");
+			return s_Sprites[spritePath];
 		}
 	}
 

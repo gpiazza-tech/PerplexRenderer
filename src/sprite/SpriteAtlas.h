@@ -53,9 +53,6 @@ namespace pxr
 	class SpriteAtlas
 	{
 	public:
-		SpriteAtlas() = default;
-		~SpriteAtlas() {};
-
 		AddSpriteResult AddSprite(const std::filesystem::path& path);
 
 		void Create(int width, int height, int pixelsPerUnit, int textureUnit);
@@ -67,17 +64,17 @@ namespace pxr
 		Sprite AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes);
 		int GetShelfIndex(int textureHeight) const;
 	private:
-		TextureBuffer* m_Texture;
+		TextureBuffer* m_Texture{};
 
-		int m_MaxSize;
-		int m_Width;
-		int m_Height;
-		int m_PixelsPerUnit;
+		int m_MaxSize{};
+		int m_Width{};
+		int m_Height{};
+		int m_PixelsPerUnit{};
 
-		int m_TextureUnit;
+		int m_TextureUnit{};
 
-		std::vector<Shelf> m_Shelves;
-		int m_NextShelf;
+		std::vector<Shelf> m_Shelves{};
+		int m_NextShelf{};
 
 		// TODO: add some kind of free list so that a new texture can fill in the spot of a removed texture
 	};

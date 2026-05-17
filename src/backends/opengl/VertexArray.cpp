@@ -44,8 +44,8 @@ namespace pxr
 		vbo.Bind();
 		ibo.Bind();
 		const auto& elements = vbo.GetLayoutElements();
-		uint32_t offset = 0;
-		uint32_t stride = 0;
+		size_t offset = 0;
+		size_t stride = 0;
 
 		for (size_t i = 0; i < elements.size(); i++)
 		{
@@ -57,7 +57,7 @@ namespace pxr
 			const auto& element = elements[i];
 			glEnableVertexAttribArray((GLuint)i);
 			glVertexAttribPointer((GLuint)i, element.Count, PxrToGlType(element.Type),
-				element.Normalized ? GL_TRUE : GL_FALSE, stride, (const void*)offset);
+				element.Normalized ? GL_TRUE : GL_FALSE, (GLsizei)stride, (const void*)offset);
 			offset += element.Count * SizeOf(element.Type);
 		}
 		Unbind();

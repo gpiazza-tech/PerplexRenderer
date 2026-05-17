@@ -43,14 +43,16 @@ namespace pxr
     float RoundToNearestFraction(float val, float denominator)
     {
         // if denominator (d) = 16: val * 16, round(val), val / 16
-        double buffer = val * denominator;
+        float buffer = val * denominator;
         buffer = round(buffer);
         return buffer / denominator;
     }
 
     glm::vec3 MakePixelPerfect(glm::vec3 vec3, int pixelsPerUnit)
     {
-        return glm::vec3(RoundToNearestFraction(vec3.x, pixelsPerUnit), RoundToNearestFraction(vec3.y, pixelsPerUnit), RoundToNearestFraction(vec3.z, pixelsPerUnit));
+        return { RoundToNearestFraction(vec3.x, (float)pixelsPerUnit), 
+                 RoundToNearestFraction(vec3.y, (float)pixelsPerUnit), 
+                 RoundToNearestFraction(vec3.z, (float)pixelsPerUnit) };
     }
 
     void* ImageLoad(const std::filesystem::path& path, int* width, int* height, int* channels, int desiredChannels)

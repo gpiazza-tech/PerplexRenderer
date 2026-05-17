@@ -41,9 +41,6 @@ namespace pxr
             float bEmit = emissionPixels[i].b / (float)255;
             float aEmit = emissionPixels[i].a / (float)255;
 
-            int pixelX = i % colorSprite.PixelWidth;
-            int pixelY = i / colorSprite.PixelWidth;
-
             // Particle
             Particle particle = Particle();
             particle.Color = { rColor, gColor, bColor, aColor };

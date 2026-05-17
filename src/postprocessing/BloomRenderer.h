@@ -16,9 +16,6 @@ namespace pxr
 	class BloomRenderer
 	{
 	public:
-		BloomRenderer() {}
-		~BloomRenderer() {}
-
 		bool Init(uint32_t windowWidth, uint32_t windowHeight);
 		void Destroy();
 
@@ -32,15 +29,15 @@ namespace pxr
 		void RenderUpsamples(float filterRadius);
 		void Combine(uint32_t srcTexture);
 	private:
-		BloomFBO m_FBO;
-		Framebuffer* m_PrefilterFBO;
+		BloomFBO m_FBO{};
+		Framebuffer* m_PrefilterFBO{};
 
-		glm::ivec2 m_SrcViewportSize;
-		glm::vec2 m_SrcViewportSizeFloat;
+		glm::ivec2 m_SrcViewportSize{};
+		glm::vec2 m_SrcViewportSizeFloat{};
 
-		Shader m_PrefilterShader;
-		Shader m_DownsampleShader;
-		Shader m_UpsampleShader;
-		Shader m_ScreenShader;
+		Shader m_PrefilterShader = Shader();
+		Shader m_DownsampleShader = Shader();
+		Shader m_UpsampleShader = Shader();
+		Shader m_ScreenShader = Shader();
 	};
 }

@@ -16,10 +16,10 @@ namespace pxr
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer(const void* data, uint32_t size, bool dynamic = false);
+		VertexBuffer(const void* data, size_t size, bool dynamic = false);
 		~VertexBuffer();
 
-		void PushData(const void* data, uint32_t size) const;
+		void PushData(const void* data, size_t size) const;
 
 		void Bind() const;
 		void Unbind() const;
