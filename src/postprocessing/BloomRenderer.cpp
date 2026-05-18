@@ -1,10 +1,10 @@
-#include <pch.h>
-#include "BloomRenderer.h"
+#include <pxr/pch.h>
+#include <pxr/postprocessing/BloomRenderer.h>
 
-#include <backends/Shader.h>
-#include <backends/Framebuffer.h>
-#include <backends/TextureBuffer.h>
-#include <backends/RenderCommands.h>
+#include <pxr/backends/Shader.h>
+#include <pxr/backends/Framebuffer.h>
+#include <pxr/backends/TextureBuffer.h>
+#include <pxr/backends/RenderCommands.h>
 
 // TODO: move glew functions
 #include <GL/glew.h>

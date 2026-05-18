@@ -1,11 +1,11 @@
-#include <pch.h>
-#include "SpriteRegistry.h"
+#include <pxr/pch.h>
+#include <pxr/sprite/SpriteRegistry.h>
 
-#include "Sprite.h"
-#include "SpriteAtlas.h"
-#include <util/Util.h>
-#include <backends/RenderCommands.h>
-#include <util/Log.h>
+#include <pxr/sprite/Sprite.h>
+#include <pxr/sprite/SpriteAtlas.h>
+#include <pxr/util/Util.h>
+#include <pxr/util/Log.h>
+#include <pxr/backends/RenderCommands.h>
 
 #include <glm/fwd.hpp>
 

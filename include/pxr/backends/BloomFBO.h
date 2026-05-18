@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TextureBuffer.h"
+#include <pxr/backends/TextureBuffer.h>
 
 #include <vector>
 #include <cstdint>

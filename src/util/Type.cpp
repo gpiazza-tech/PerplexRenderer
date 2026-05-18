@@ -1,5 +1,5 @@
-#include <pch.h>
-#include "Type.h"
+#include <pxr/pch.h>
+#include <pxr/util/Type.h>
 
 #include <iostream>
 

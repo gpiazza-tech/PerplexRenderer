@@ -1,19 +1,19 @@
-#include <pch.h>
-#include "Renderer.h"
+#include <pxr/pch.h>
+#include <pxr/rendering/Renderer.h>
 
-#include <backends/Shader.h>
-#include <backends/VertexArray.h>
-#include <backends/VertexBuffer.h>
-#include <backends/RenderCommands.h>
-#include <sprite/Sprite.h>
-#include <sprite/SpriteRegistry.h>
-#include <util/Util.h>
+#include <pxr/backends/Shader.h>
+#include <pxr/backends/VertexArray.h>
+#include <pxr/backends/VertexBuffer.h>
+#include <pxr/backends/IndexBuffer.h>
+#include <pxr/backends/RenderCommands.h>
+#include <pxr/sprite/Sprite.h>
+#include <pxr/sprite/SpriteRegistry.h>
+#include <pxr/util/Util.h>
 
 #include <glm/fwd.hpp>
 
 #include <cstdint>
 #include <memory>
-#include <backends/IndexBuffer.h>
 
 namespace pxr
 {

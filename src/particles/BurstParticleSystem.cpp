@@ -1,7 +1,7 @@
-#include <pch.h>
-#include "BurstParticleSystem.h"
+#include <pxr/pch.h>
+#include <pxr/particles/BurstParticleSystem.h>
 
-#include <rendering/Renderer.h>
+#include <pxr/rendering/Renderer.h>
 
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>

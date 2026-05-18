@@ -1,7 +1,7 @@
-#include <pch.h>
-#include "Camera.h"
+#include <pxr/pch.h>
+#include <pxr/rendering/Camera.h>
 
-#include <util/Util.h>
+#include <pxr/util/Util.h>
 
 #include <glm/glm.hpp>
 #include <glm/fwd.hpp>

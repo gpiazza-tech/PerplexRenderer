@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Sprite.h"
-#include <backends/TextureBuffer.h>
+#include <pxr/sprite/Sprite.h>
+#include <pxr/backends/TextureBuffer.h>
 
 #include <cstdint>
 #include <vector>

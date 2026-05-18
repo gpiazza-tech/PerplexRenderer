@@ -1,7 +1,7 @@
-#include <pch.h>
-#include "Util.h"
+#include <pxr/pch.h>
+#include <pxr/util/Util.h>
 
-#include "Log.h"
+#include <pxr/util/Log.h>
 
 #include <glm/fwd.hpp>
 

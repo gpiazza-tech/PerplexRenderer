@@ -1,9 +1,9 @@
-#include <pch.h>
-#include <backends/VertexArray.h>
+#include <pxr/pch.h>
+#include <pxr/backends/VertexArray.h>
 
-#include <util/Type.h>
-#include <backends/VertexBuffer.h>
-#include <backends/IndexBuffer.h>
+#include <pxr/util/Type.h>
+#include <pxr/backends/VertexBuffer.h>
+#include <pxr/backends/IndexBuffer.h>
 
 #include <GL/glew.h>
 

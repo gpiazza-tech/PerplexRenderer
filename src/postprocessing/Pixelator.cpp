@@ -1,8 +1,8 @@
-#include <pch.h>
-#include "Pixelator.h"
+#include <pxr/pch.h>
+#include <pxr/postprocessing/Pixelator.h>
 
-#include <backends/Shader.h>
-#include <backends/RenderCommands.h>
+#include <pxr/backends/Shader.h>
+#include <pxr/backends/RenderCommands.h>
 
 #include <glm/fwd.hpp>
 

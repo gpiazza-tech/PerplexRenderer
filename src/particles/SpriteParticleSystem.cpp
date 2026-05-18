@@ -1,10 +1,10 @@
-#include <pch.h>
-#include "SpriteParticleSystem.h"
+#include <pxr/pch.h>
+#include <pxr/particles/SpriteParticleSystem.h>
 
-#include "Particle.h"
-#include <sprite/Sprite.h>
-#include <sprite/SpriteRegistry.h>
-#include <rendering/Renderer.h>
+#include <pxr/particles/Particle.h>
+#include <pxr/sprite/Sprite.h>
+#include <pxr/sprite/SpriteRegistry.h>
+#include <pxr/rendering/Renderer.h>
 
 #include <glm/fwd.hpp>
 

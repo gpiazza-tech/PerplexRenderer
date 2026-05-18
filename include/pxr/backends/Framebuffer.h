@@ -1,7 +1,7 @@
 #pragma once
 
-#include "TextureBuffer.h"
-#include "Shader.h"
+#include <pxr/backends/TextureBuffer.h>
+#include <pxr/backends/Shader.h>
 
 #include <cstdint>
 

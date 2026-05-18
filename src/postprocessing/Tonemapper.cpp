@@ -1,8 +1,8 @@
-#include <pch.h>
-#include "Tonemapper.h"
+#include <pxr/pch.h>
+#include <pxr/postprocessing/Tonemapper.h>
 
-#include <backends/RenderCommands.h>
-#include <backends/Shader.h>
+#include <pxr/backends/RenderCommands.h>
+#include <pxr/backends/Shader.h>
 
 // TODO: move glew functions
 #include <GL/glew.h>

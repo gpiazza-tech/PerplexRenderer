@@ -1,7 +1,7 @@
 #pragma once
 
-#include <backends/VertexArray.h>
-#include <backends/IndexBuffer.h>
+#include <pxr/backends/VertexArray.h>
+#include <pxr/backends/IndexBuffer.h>
 
 #include <cstdint>
 

@@ -1,5 +1,5 @@
-#include <pch.h>
-#include <backends/IndexBuffer.h>
+#include <pxr/pch.h>
+#include <pxr/backends/IndexBuffer.h>
 
 #include <GL/glew.h>
 

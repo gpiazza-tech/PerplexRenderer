@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Particle.h"
-#include "ParticleSystemSettings.h"
-#include <sprite/Sprite.h>
+#include <pxr/particles/Particle.h>
+#include <pxr/particles/ParticleSystemSettings.h>
+#include <pxr/sprite/Sprite.h>
 
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>

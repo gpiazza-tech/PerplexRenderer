@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Sprite.h"
+#include <pxr/sprite/Sprite.h>
 
 #include <glm/fwd.hpp>
 

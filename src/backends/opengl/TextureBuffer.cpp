@@ -1,11 +1,11 @@
-#include <pch.h>
-#include <backends/TextureBuffer.h>
+#include <pxr/pch.h>
+#include <pxr/backends/TextureBuffer.h>
 
-#include <util/Log.h>
-#include <util/Util.h>
+#include <pxr/util/Log.h>
+#include <pxr/util/Util.h>
 
 #include <GL/glew.h>
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 
 #include <iostream>
 

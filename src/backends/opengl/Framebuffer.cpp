@@ -1,9 +1,9 @@
-#include <pch.h>
-#include <backends/Framebuffer.h>
+#include <pxr/pch.h>
+#include <pxr/backends/Framebuffer.h>
 
-#include <backends/TextureBuffer.h>
-#include <backends/Shader.h>
-#include <backends/RenderCommands.h>
+#include <pxr/backends/TextureBuffer.h>
+#include <pxr/backends/Shader.h>
+#include <pxr/backends/RenderCommands.h>
 
 #include <GL/glew.h>
 

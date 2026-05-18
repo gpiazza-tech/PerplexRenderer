@@ -1,6 +1,6 @@
 #pragma once
 
-#include <util/Type.h>
+#include <pxr/util/Type.h>
 
 #include <cstdint>
 

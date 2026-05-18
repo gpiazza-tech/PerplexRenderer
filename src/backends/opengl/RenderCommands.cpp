@@ -1,12 +1,12 @@
-#include <pch.h>
-#include <backends/RenderCommands.h>
+#include <pxr/pch.h>
+#include <pxr/backends/RenderCommands.h>
 
-#include <backends/ScreenQuad.h>
-#include <backends/VertexArray.h>
+#include <pxr/backends/ScreenQuad.h>
+#include <pxr/backends/VertexArray.h>
 
 #include <GL/glew.h>
-#include <fwd.hpp>
-#include <glm.hpp>
+#include <glm/fwd.hpp>
+#include <glm/glm.hpp>
 
 #include <cstdint>
 

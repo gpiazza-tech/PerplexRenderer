@@ -1,10 +1,10 @@
-#include <pch.h>
-#include <backends/BloomFBO.h>
+#include <pxr/pch.h>
+#include <pxr/backends/BloomFBO.h>
 
-#include <backends/TextureBuffer.h>
+#include <pxr/backends/TextureBuffer.h>
 
 #include <GL/glew.h>
-#include <fwd.hpp>
+#include <glm/fwd.hpp>
 #include <cstdint>
 #include <iostream>
 #include <ostream>

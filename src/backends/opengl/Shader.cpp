@@ -1,8 +1,8 @@
-#include <pch.h>
-#include <backends/Shader.h>
+#include <pxr/pch.h>
+#include <pxr/backends/Shader.h>
 
-#include <rendering/Renderer.h>
-#include <util/Util.h>
+#include <pxr/rendering/Renderer.h>
+#include <pxr/util/Util.h>
 
 #include <GL/glew.h>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Particle.h"
-#include "ParticleSystemSettings.h"
+#include <pxr/particles/Particle.h>
+#include <pxr/particles/ParticleSystemSettings.h>
 
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>

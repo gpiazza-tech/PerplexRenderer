@@ -1,11 +1,11 @@
-#include <pch.h>
-#include "SpriteAtlas.h"
+#include <pxr/pch.h>
+#include <pxr/sprite/SpriteAtlas.h>
 
-#include "Sprite.h"
-#include <backends/TextureBuffer.h>
-#include <backends/RenderCommands.h>
-#include <util/Util.h>
-#include <util/Log.h>
+#include <pxr/sprite/Sprite.h>
+#include <pxr/backends/TextureBuffer.h>
+#include <pxr/backends/RenderCommands.h>
+#include <pxr/util/Util.h>
+#include <pxr/util/Log.h>
 
 #include <cstdint>
 #include <filesystem>
