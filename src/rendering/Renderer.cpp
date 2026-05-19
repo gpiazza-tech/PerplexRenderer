@@ -187,8 +187,7 @@ namespace pxr
     void Renderer::DrawRotatedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect)
     {
         glm::vec2 scaledSize = { size.x * colorSprite.ScaleFactorX, size.y * colorSprite.ScaleFactorY };
-        glm::vec3 center = { position.x - scaledSize.x / 2, position.y - scaledSize.y / 2, 0.0f };
-        glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect(center, s_Data.PixelsPerUnit) : center;
+        glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect({ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit) : glm::vec3{ position.x, position.y, 0.0f };
 
         glm::mat4 transform = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), renderPosition), rotation.z, glm::vec3{ 0.0f, 0.0f, 1.0f }), { scaledSize.x, scaledSize.y, 1.0f });
 
@@ -198,8 +197,7 @@ namespace pxr
     void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect)
     {
         glm::vec2 scaledSize = { size.x * colorSprite.ScaleFactorX, size.y * colorSprite.ScaleFactorY };
-        glm::vec3 center = { position.x - scaledSize.x / 2, position.y - scaledSize.y / 2, 0.0f };
-        glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect(center, s_Data.PixelsPerUnit) : center;
+        glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect({ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit) : glm::vec3{ position.x, position.y, 0.0f };
 
         glm::mat4 transform = glm::scale(glm::translate(glm::mat4(1.0f), renderPosition), { scaledSize.x, scaledSize.y, 1.0f });
 
