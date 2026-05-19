@@ -184,7 +184,29 @@ namespace pxr
         DrawQuad(position, glm::vec2(1.0f), sprite, sprite, glm::vec4(1.0f), emission, true);
     }
 
+    void Renderer::DrawRotatedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect)
+    {
+        glm::vec2 scaledSize = { size.x * colorSprite.ScaleFactorX, size.y * colorSprite.ScaleFactorY };
+        glm::vec3 center = { position.x - scaledSize.x / 2, position.y - scaledSize.y / 2, 0.0f };
+        glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect(center, s_Data.PixelsPerUnit) : center;
+
+        glm::mat4 transform = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), renderPosition), rotation.z, glm::vec3{ 0.0f, 0.0f, 1.0f }), { scaledSize.x, scaledSize.y, 1.0f });
+
+        DrawQuad(transform, colorSprite, emissionSprite, color, emission);
+    }
+
     void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect)
+    {
+        glm::vec2 scaledSize = { size.x * colorSprite.ScaleFactorX, size.y * colorSprite.ScaleFactorY };
+        glm::vec3 center = { position.x - scaledSize.x / 2, position.y - scaledSize.y / 2, 0.0f };
+        glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect(center, s_Data.PixelsPerUnit) : center;
+
+        glm::mat4 transform = glm::scale(glm::translate(glm::mat4(1.0f), renderPosition), { scaledSize.x, scaledSize.y, 1.0f });
+
+        DrawQuad(transform, colorSprite, emissionSprite, color, emission);
+    }
+
+    void Renderer::DrawQuad(const glm::mat4& transform, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission)
     {
         if (s_Data.IndexCount >= s_MaxIndexCount)
         {
@@ -193,11 +215,7 @@ namespace pxr
             BeginBatch(s_Data.Projection);
         }
 
-        glm::vec2 scaledSize = { size.x * colorSprite.ScaleFactorX, size.y * colorSprite.ScaleFactorY };
-        glm::vec3 center = { position.x - scaledSize.x / 2, position.y - scaledSize.y / 2, 0.0f };
-        glm::vec2 renderPosition = pixelPerfect ? MakePixelPerfect(center, s_Data.PixelsPerUnit) : center;
-
-        s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y, 0.0f };
+        s_Data.QuadBufferPtr->Position = transform * glm::vec4{ -0.5f, -0.5f, 0.0f, 1.0f };
         s_Data.QuadBufferPtr->Color = color;
         s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmin, colorSprite.Ymin };
         s_Data.QuadBufferPtr->ColorTexIndex = (float)colorSprite.TextureUnit;
@@ -206,7 +224,7 @@ namespace pxr
         s_Data.QuadBufferPtr->EmissionTexIndex = (float)emissionSprite.TextureUnit;
         s_Data.QuadBufferPtr++;
 
-        s_Data.QuadBufferPtr->Position = { renderPosition.x + scaledSize.x, renderPosition.y, 0.0f };
+        s_Data.QuadBufferPtr->Position = transform * glm::vec4{ 0.5f, -0.5f, 0.0f, 1.0f };
         s_Data.QuadBufferPtr->Color = color;
         s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmax, colorSprite.Ymin };
         s_Data.QuadBufferPtr->ColorTexIndex = (float)colorSprite.TextureUnit;
@@ -215,7 +233,7 @@ namespace pxr
         s_Data.QuadBufferPtr->EmissionTexIndex = (float)emissionSprite.TextureUnit;
         s_Data.QuadBufferPtr++;
 
-        s_Data.QuadBufferPtr->Position = { renderPosition.x + scaledSize.x, renderPosition.y + scaledSize.y, 0.0f };
+        s_Data.QuadBufferPtr->Position = transform * glm::vec4{ 0.5f, 0.5f, 0.0f, 1.0f };
         s_Data.QuadBufferPtr->Color = color;
         s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmax, colorSprite.Ymax };
         s_Data.QuadBufferPtr->ColorTexIndex = (float)colorSprite.TextureUnit;
@@ -224,7 +242,7 @@ namespace pxr
         s_Data.QuadBufferPtr->EmissionTexIndex = (float)emissionSprite.TextureUnit;
         s_Data.QuadBufferPtr++;
 
-        s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y + scaledSize.y, 0.0f };
+        s_Data.QuadBufferPtr->Position = transform * glm::vec4{ -0.5f, 0.5f, 0.0f, 1.0f };
         s_Data.QuadBufferPtr->Color = color;
         s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmin, colorSprite.Ymax };
         s_Data.QuadBufferPtr->ColorTexIndex = (float)colorSprite.TextureUnit;
