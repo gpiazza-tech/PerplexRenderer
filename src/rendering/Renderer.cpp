@@ -50,6 +50,7 @@ namespace pxr
 
         Shader SpriteShader{};
         uint32_t PixelsPerUnit{};
+        Sprite PixelSprite{};
 
         glm::mat4 Projection{};
     };
@@ -115,6 +116,7 @@ namespace pxr
         s_Data.SpriteShader.EndUse();
 
         SpriteRegistry::Init(pixelsPerUnit);
+        s_Data.PixelSprite = SpriteRegistry::GetPixelSprite();
     }
 
     void Renderer::Shutdown()
@@ -160,12 +162,6 @@ namespace pxr
         s_Data.IndexCount = 0;
 
         s_Stats.DrawCalls++;
-    }
-
-    void Renderer::DrawPixel(const glm::vec2& position, const glm::vec4& color, float emission, bool pixelPerfect)
-    {
-        const Sprite& pixelSprite = SpriteRegistry::GetPixelSprite();
-        DrawQuad(position, glm::vec2(1.0f), pixelSprite, pixelSprite, color, emission, pixelPerfect);
     }
 
     void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float emission)
@@ -247,6 +243,64 @@ namespace pxr
         s_Data.QuadBufferPtr->Emission = emission;
         s_Data.QuadBufferPtr->EmissionTexCoord = { emissionSprite.Xmin, emissionSprite.Ymax };
         s_Data.QuadBufferPtr->EmissionTexIndex = (float)emissionSprite.TextureUnit;
+        s_Data.QuadBufferPtr++;
+
+        s_Data.IndexCount += 6;
+
+        s_Stats.Quads++;
+    }
+
+    void Renderer::DrawPixel(const glm::vec2& position, const glm::vec4& color, float emission, bool pixelPerfect)
+    {
+        const Sprite& pixelSprite = s_Data.PixelSprite;
+        const float size = pixelSprite.ScaleFactorX;
+        glm::vec3 renderPosition = pixelPerfect
+            ? MakePixelPerfect(glm::vec3{ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit)
+            : glm::vec3{ position.x, position.y, 0.0f };
+
+        if (s_Data.IndexCount >= s_MaxIndexCount)
+        {
+            EndBatch();
+            Flush(); 
+            BeginBatch(s_Data.Projection);
+        }
+
+        const float textureUnit = (float)pixelSprite.TextureUnit;
+
+        s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y, 0.0f };
+        s_Data.QuadBufferPtr->Color = color;
+        s_Data.QuadBufferPtr->ColorTexCoord = { pixelSprite.Xmin, pixelSprite.Ymin };
+        s_Data.QuadBufferPtr->ColorTexIndex = textureUnit;
+        s_Data.QuadBufferPtr->Emission = emission;
+        s_Data.QuadBufferPtr->EmissionTexCoord = { pixelSprite.Xmin, pixelSprite.Ymin };
+        s_Data.QuadBufferPtr->EmissionTexIndex = textureUnit;
+        s_Data.QuadBufferPtr++;
+
+        s_Data.QuadBufferPtr->Position = { renderPosition.x + size, renderPosition.y, 0.0f };
+        s_Data.QuadBufferPtr->Color = color;
+        s_Data.QuadBufferPtr->ColorTexCoord = { pixelSprite.Xmax, pixelSprite.Ymin };
+        s_Data.QuadBufferPtr->ColorTexIndex = textureUnit;
+        s_Data.QuadBufferPtr->Emission = emission;
+        s_Data.QuadBufferPtr->EmissionTexCoord = { pixelSprite.Xmax, pixelSprite.Ymin };
+        s_Data.QuadBufferPtr->EmissionTexIndex = textureUnit;
+        s_Data.QuadBufferPtr++;
+
+        s_Data.QuadBufferPtr->Position = { renderPosition.x + size, renderPosition.y + size, 0.0f };
+        s_Data.QuadBufferPtr->Color = color;
+        s_Data.QuadBufferPtr->ColorTexCoord = { pixelSprite.Xmax, pixelSprite.Ymax };
+        s_Data.QuadBufferPtr->ColorTexIndex = textureUnit;
+        s_Data.QuadBufferPtr->Emission = emission;
+        s_Data.QuadBufferPtr->EmissionTexCoord = { pixelSprite.Xmax, pixelSprite.Ymax };
+        s_Data.QuadBufferPtr->EmissionTexIndex = textureUnit;
+        s_Data.QuadBufferPtr++;
+
+        s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y + size, 0.0f };
+        s_Data.QuadBufferPtr->Color = color;
+        s_Data.QuadBufferPtr->ColorTexCoord = { pixelSprite.Xmin, pixelSprite.Ymax };
+        s_Data.QuadBufferPtr->ColorTexIndex = textureUnit;
+        s_Data.QuadBufferPtr->Emission = emission;
+        s_Data.QuadBufferPtr->EmissionTexCoord = { pixelSprite.Xmin, pixelSprite.Ymax };
+        s_Data.QuadBufferPtr->EmissionTexIndex = textureUnit;
         s_Data.QuadBufferPtr++;
 
         s_Data.IndexCount += 6;

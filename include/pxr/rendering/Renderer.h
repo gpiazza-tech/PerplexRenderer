@@ -31,13 +31,13 @@ namespace pxr
         static void EndBatch();
         static void Flush();
 
-        static void DrawPixel(const glm::vec2& position, const glm::vec4& color = glm::vec4(1.0f), float emission = 0.0f, bool pixelPerfect = true);
         static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color = glm::vec4(1.0f), float emission = 1.0f);
         static void DrawQuad(const glm::vec2& position, const Sprite& sprite);
         static void DrawQuad(const glm::vec2& position, const Sprite& sprite, float emission);
         static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect);
         static void DrawRotatedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect);
         static void DrawQuad(const glm::mat4& transform, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission);
+        static void DrawPixel(const glm::vec2& position, const glm::vec4& color = glm::vec4(1.0f), float emission = 0.0f, bool pixelPerfect = true);
 
 
         static const RenderStats& GetStats();
