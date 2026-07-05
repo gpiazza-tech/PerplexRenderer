@@ -1,5 +1,7 @@
 #pragma once
 
+#include <pxr/sprite/ImageBuffer.h>
+
 #include <glm/fwd.hpp>
 
 #include <filesystem>
@@ -13,6 +15,8 @@ namespace pxr
 
 	float RoundToNearestFraction(float val, float denominator);
 	glm::vec3 MakePixelPerfect(glm::vec3 vec3, int pixelsPerUnit);
+
+	ImageBuffer LoadPNG(const std::filesystem::path& path);
 
 	void* ImageLoad(const std::filesystem::path& path, int* width, int* height, int* channels, int desiredChannels);
 	void ImageFree(void* imageData);

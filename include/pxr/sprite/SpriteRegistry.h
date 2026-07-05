@@ -1,10 +1,9 @@
 #pragma once
 
 #include <pxr/sprite/Sprite.h>
+#include <pxr/sprite/ImageBuffer.h>
 
 #include <glm/fwd.hpp>
-
-#include <filesystem>
 
 namespace pxr
 {
@@ -16,8 +15,8 @@ namespace pxr
 		static void Init(int pixelsPerUnit);
 		static void Shutdown();
 
-		static const Sprite& GetSprite(const std::filesystem::path& spritePath);
-		static const Sprite& GetPixelSprite();
+		static Sprite AddSprite(const ImageBuffer& image);
+		static Sprite GetPixelSprite();
 
 		static void Bind();
 

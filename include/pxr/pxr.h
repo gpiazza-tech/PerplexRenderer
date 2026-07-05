@@ -15,6 +15,7 @@
 
 #include <pxr/util/Util.h> 
 #include <pxr/util/Log.h>
+#include <pxr/sprite/ImageBuffer.h>
 
 #include <pxr/postprocessing/BloomRenderer.h>
 #include <pxr/postprocessing/Tonemapper.h>

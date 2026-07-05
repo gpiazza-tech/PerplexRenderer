@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pxr/sprite/Sprite.h>
+#include <pxr/sprite/ImageBuffer.h>
 #include <pxr/backends/TextureBuffer.h>
 
 #include <cstdint>
@@ -53,15 +54,15 @@ namespace pxr
 	class SpriteAtlas
 	{
 	public:
-		AddSpriteResult AddSprite(const std::filesystem::path& path);
+		AddSpriteResult AddSprite(const ImageBuffer& imageBuffer);
 
 		void Create(int width, int height, int pixelsPerUnit, int textureUnit);
 		void Destroy();
 
 		TextureBuffer* GetTexture() { return m_Texture; }
 	private:
-		void AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg);
-		Sprite AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes);
+		void AddPadding(ImageBuffer& image);
+		Sprite AllocateBuffer(size_t x, size_t y, size_t width, size_t height, uint32_t* bytes);
 		int GetShelfIndex(int textureHeight) const;
 	private:
 		TextureBuffer* m_Texture{};

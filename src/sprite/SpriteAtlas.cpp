@@ -2,6 +2,7 @@
 #include <pxr/sprite/SpriteAtlas.h>
 
 #include <pxr/sprite/Sprite.h>
+#include <pxr/sprite/ImageBuffer.h>
 #include <pxr/backends/TextureBuffer.h>
 #include <pxr/backends/RenderCommands.h>
 #include <pxr/util/Util.h>
@@ -9,6 +10,8 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <glm/fwd.hpp>
+#include <malloc.h>
 
 namespace pxr
 {
@@ -37,31 +40,25 @@ namespace pxr
 		m_NextShelf = 0;
 	}
 
-	AddSpriteResult SpriteAtlas::AddSprite(const std::filesystem::path& path)
+	AddSpriteResult SpriteAtlas::AddSprite(const ImageBuffer& imageBuffer)
 	{
-		AddSpriteResult result;
+		AddSpriteResult result{};
 
-		int width, height, channels;
-		uint32_t* rawImage = (uint32_t*)ImageLoad(path.string().c_str(), &width, &height, &channels, 4);
+		ImageBuffer paddedImage = imageBuffer;
+		AddPadding(paddedImage);
 
-		// Add padding to image
-		int paddedWidth = width + 2;
-		int paddedHeight = height + 2;
-		uint32_t* paddedImage = (uint32_t*)malloc(paddedWidth * paddedHeight * sizeof(uint32_t));
-
-		PXR_ASSERT(paddedImage, "TextureAtlas::AddTexture: malloc failed!");
-
-		AddPadding(width, height, rawImage, paddedImage);
+		size_t imageWidth = paddedImage.GetWidth();
+		size_t imageHeight = paddedImage.GetHeight();
 
 		// determine position
-		int shelfIndex = GetShelfIndex(paddedHeight);
+		int shelfIndex = GetShelfIndex(static_cast<int>(imageHeight));
 		for (int i = (int)m_Shelves.size(); i <= shelfIndex; i++)
 			// start at the shelf size and continue adding until we reach the desired index
 		{
 			m_Shelves.emplace_back(Shelf(-1, m_PixelsPerUnit * i + m_PixelsPerUnit + 2, 0));
 		}
 		Shelf& shelf = m_Shelves[shelfIndex];
-		if (shelf.Y == -1 || shelf.NextTextureX + paddedWidth >= m_Width)
+		if (shelf.Y == -1 || shelf.NextTextureX + imageWidth >= m_Width)
 			// if shelf does not exist or runs out of room
 		{
 			shelf = Shelf(m_NextShelf, shelf.Height, 0);
@@ -69,7 +66,7 @@ namespace pxr
 		}
 		int x = shelf.NextTextureX;
 		int y = shelf.Y;
-		shelf.NextTextureX += paddedWidth;
+		shelf.NextTextureX += static_cast<int>(imageWidth);
 
 		if (m_NextShelf > m_MaxSize)
 			// Completely out of room, return AddSpriteStatus::Fail
@@ -78,11 +75,7 @@ namespace pxr
 			return result;
 		}
 
-		Sprite subTexture = AllocateBuffer(x, y, paddedWidth, paddedHeight, paddedImage);
-
-		// Cleanup
-		ImageFree((void*)rawImage);
-		free((void*)paddedImage);
+		Sprite subTexture = AllocateBuffer(x, y, imageWidth, imageHeight, (uint32_t*)paddedImage.Data());
 
 		result.Sprite = subTexture;
 		result.Status = AddSpriteStatus::Success;
@@ -90,67 +83,34 @@ namespace pxr
 		return result;
 	}
 
-	void SpriteAtlas::AddPadding(int width, int height, const uint32_t* img, uint32_t* newImg)
+	void SpriteAtlas::AddPadding(ImageBuffer& image)
 	{
-		int paddedWidth = width + 2;
-		int paddedHeight = height + 2;
+		size_t oldWidth{ image.GetWidth() }, oldHeight{ image.GetHeight() };
+		
+		// Add padding
+		image.Resize(1, 1, 1, 1);
 
-		int targetIndex = 0;
-		for (int32_t i = 0; i < width * height; i++)
+		size_t paddedWidth{ image.GetWidth() }, paddedHeight{ image.GetHeight() };
+
+		// Set vertical padding:
+		for (size_t x{}; x < oldWidth; ++x)
 		{
-			// Map the original buffer to the larger buffer:
-			// 
-			//						-------
-			//			 -----		|	  |
-			//			 | * |		|  *  |
-			//			 |***|  ->	| *** |
-			//			 | * |		|  *  |
-			//			 -----		|	  |
-			//			  			-------
-			// This should be benchmarked against a 
-			// nested for loop approach.
-			//
-			targetIndex = (i / width * paddedWidth) + i % width + paddedWidth + 1;
-			newImg[targetIndex] = img[i];
+			image.At(x, 0) = image.At(x, 1);
+			image.At(x, paddedHeight - 1) = image.At(x, oldHeight - 1);
 		}
 
-		for (int32_t i = 0; i < width; i++)
+		// Set horizontal padding
+		for (size_t y{}; y < oldHeight; ++y)
 		{
-			// Add vertical padding:
-			// 
-			//			------- 	-------
-			//			|     | 	|  *  |
-			//			|  *  |		|  *  |
-			//			| *** |  ->	| *** |
-			//			|  *  |		|  *  |
-			//			|     | 	|  *  |
-			//			------- 	-------
-			//
-			newImg[i + 1] = img[i];
-			newImg[(paddedWidth * paddedHeight - 2) - i] = img[(width * height - 1) - i];
-		}
-
-		for (int32_t i = 0; i < height; i++)
-		{
-			// Add horizontal padding:
-			// 
-			//			------- 	-------
-			//			|  *  | 	|  *  |
-			//			|  *  |		|  *  |
-			//			| *** |  ->	|*****|
-			//			|  *  |		|  *  |
-			//			|  *  | 	|  *  |
-			//			------- 	-------
-			//
-			newImg[paddedWidth + i * paddedWidth] = img[i * width];
-			newImg[2 * paddedWidth + i * paddedWidth - 1] = img[width + i * width - 1];
+			image.At(0, y) = image.At(1, y);
+			image.At(paddedWidth - 1, y) = image.At(oldWidth - 1, y);
 		}
 
 		// Corners
-		newImg[0] = img[0];
-		newImg[paddedWidth - 1] = img[width - 1];
-		newImg[paddedWidth * paddedHeight - 1] = img[width * height - 1];
-		newImg[paddedWidth * paddedHeight - paddedWidth] = img[width * height - width];
+		image.At(0, 0) = image.At(1, 1);
+		image.At(paddedWidth - 1, 0) = image.At(oldWidth - 1, 1);
+		image.At(paddedWidth - 1, paddedHeight - 1) = image.At(oldWidth - 1, oldHeight - 1);
+		image.At(0, paddedHeight - 1) = image.At(1, oldHeight - 1);
 	}
 
 	int SpriteAtlas::GetShelfIndex(int textureHeight) const
@@ -163,27 +123,34 @@ namespace pxr
 		return (textureHeight - 3) / m_PixelsPerUnit;
 	}
 
-	Sprite SpriteAtlas::AllocateBuffer(int x, int y, int width, int height, uint32_t* bytes)
+	Sprite SpriteAtlas::AllocateBuffer(size_t x, size_t y, size_t width, size_t height, uint32_t* bytes)
 	{
+		PXR_ASSERT(width > 2 && height > 2, "Buffer width and height are too small to allocate!");
+
+		int ix = static_cast<int>(x);
+		int iy = static_cast<int>(y);
+		int iwidth = static_cast<int>(width);
+		int iheight = static_cast<int>(height);
+
 		// Push padded image to GPU
-		m_Texture->SetPixels(x, y, width, height, (glm::u8vec4*)bytes);
+		m_Texture->SetPixels(ix, iy, iwidth, iheight, (glm::u8vec4*)bytes);
 
 		// Create Sprite to return
 		Sprite sprite;
 
-		int visibleWidth = width - 2;
-		int visibleHeight = height - 2;
+		size_t visibleWidth = width - 2;
+		size_t visibleHeight = height - 2;
 
-		sprite.PixelX = x + 1;
-		sprite.PixelY = y + 1;
-		sprite.PixelWidth = visibleWidth;
-		sprite.PixelHeight = visibleHeight;
+		sprite.PixelX = ix + 1;
+		sprite.PixelY = iy + 1;
+		sprite.PixelWidth = static_cast<int>(visibleWidth);
+		sprite.PixelHeight = static_cast<int>(visibleHeight);
 
 		sprite.ScaleFactorX = visibleWidth / (float)m_PixelsPerUnit;
 		sprite.ScaleFactorY = visibleHeight / (float)m_PixelsPerUnit;
 
-		sprite.Xmin = (x + 1) / (float)m_Width;
-		sprite.Ymin = (y + 1) / (float)m_Height;
+		sprite.Xmin = (ix + 1) / (float)m_Width;
+		sprite.Ymin = (iy + 1) / (float)m_Height;
 		sprite.Xmax = (x + 1 + visibleWidth) / (float)m_Width;
 		sprite.Ymax = (y + 1 + visibleHeight) / (float)m_Height;
 

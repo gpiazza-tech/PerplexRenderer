@@ -3,6 +3,7 @@
 
 #include <pxr/sprite/Sprite.h>
 #include <pxr/sprite/SpriteAtlas.h>
+#include <pxr/sprite/ImageBuffer.h>
 #include <pxr/util/Util.h>
 #include <pxr/util/Log.h>
 #include <pxr/backends/RenderCommands.h>
@@ -34,7 +35,7 @@ namespace pxr
 			s_Atlases[i].Create((int)s_DefaultAtlasSize.x, (int)s_DefaultAtlasSize.y, pixelsPerUnit, i);
 		}
 
-		s_PixelSprite = GetSprite(Path("textures/White.png"));
+		s_PixelSprite = AddSprite(LoadPNG(Path("textures/White.png")));
 	}
 
 	void SpriteRegistry::Shutdown()
@@ -45,36 +46,25 @@ namespace pxr
 		}
 	}
 
-	const Sprite& SpriteRegistry::GetSprite(const std::filesystem::path& spritePath)
+	Sprite SpriteRegistry::AddSprite(const ImageBuffer& image)
 	{
-		PXR_ASSERT(s_Atlases.size() > 0, "GetSprite was called before SpriteRegistry was initialized!");
+		for (auto& atlas : s_Atlases)
+		{
+			AddSpriteResult result = atlas.AddSprite(image);
 
-		if (s_Sprites.find(spritePath) != s_Sprites.end())
-		{
-			return s_Sprites[spritePath];
-		}
-		else
-		{
-			for (auto& atlas : s_Atlases)
+			if (result.Status == AddSpriteStatus::Success)
 			{
-				const AddSpriteResult& result = atlas.AddSprite(spritePath);
-				if (result.Status == AddSpriteStatus::Success)
-				{
-					PXR_INFO("Creating sprite from path {0}", spritePath.string());
-
-					s_Sprites[spritePath] = result.Sprite;
-					return s_Sprites[spritePath];
-				}
+				return result.Sprite;
 			}
-
-			PXR_ERROR("Failed to add sprite to any atlas in SpriteRegistry!");
-			return s_Sprites[spritePath];
 		}
+
+		PXR_ASSERT(false, "Failed to create sprite from image!");
+		return Sprite{};
 	}
 
-	const Sprite& SpriteRegistry::GetPixelSprite()
+	Sprite SpriteRegistry::GetPixelSprite()
 	{
-		return GetSprite(Path("textures/White.png"));
+		return s_PixelSprite;
 	}
 
 	void SpriteRegistry::Bind()
@@ -82,13 +72,13 @@ namespace pxr
 		int maxTextureUnits = RenderCommands::GetMaxTextureUnits();
 		for (int i = 0; i < maxTextureUnits; i++)
 		{
-			s_Atlases[i].GetTexture()->BindUnit(i);
+			s_Atlases.at(i).GetTexture()->BindUnit(i);
 		}
 	}
 
 	void SpriteRegistry::FetchPixels(const Sprite& sprite, glm::u8vec4* pixels)
 	{
-		s_Atlases[sprite.TextureUnit].GetTexture()->GetPixels
+		s_Atlases.at(sprite.TextureUnit).GetTexture()->GetPixels
 		(sprite.PixelX, sprite.PixelY, sprite.PixelWidth, sprite.PixelHeight, pixels);
 	}
 }

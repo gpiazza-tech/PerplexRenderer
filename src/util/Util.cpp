@@ -2,6 +2,7 @@
 #include <pxr/util/Util.h>
 
 #include <pxr/util/Log.h>
+#include <pxr/sprite/ImageBuffer.h>
 
 #include <glm/fwd.hpp>
 
@@ -53,6 +54,19 @@ namespace pxr
         return { RoundToNearestFraction(vec3.x, (float)pixelsPerUnit), 
                  RoundToNearestFraction(vec3.y, (float)pixelsPerUnit), 
                  RoundToNearestFraction(vec3.z, (float)pixelsPerUnit) };
+    }
+
+    ImageBuffer LoadPNG(const std::filesystem::path& path)
+    {
+        int width, height, channels;
+        void* imageData = ImageLoad(path, &width, &height, &channels, 4);
+
+        ImageBuffer image{ static_cast<size_t>(width), static_cast<size_t>(height) };
+        image.Fill((glm::i8vec4*)imageData);
+
+        ImageFree(imageData);
+
+        return image;
     }
 
     void* ImageLoad(const std::filesystem::path& path, int* width, int* height, int* channels, int desiredChannels)
