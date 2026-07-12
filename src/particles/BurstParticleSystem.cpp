@@ -24,11 +24,11 @@ namespace pxr
         }
     }
 
-    void BurstParticleSystem::Render(glm::vec2 position)
+    void BurstParticleSystem::Render(glm::vec3 position)
     {
         for (auto& particle : m_Particles)
         {
-            Renderer::DrawPixel(particle.Position + position, particle.Color, particle.Emission * m_Settings->EmissionMultiplier, m_Settings->PixelPerfect);
+            Renderer::DrawPixel(glm::vec3{ particle.Position.x, particle.Position.y, 0.0f } + position, particle.Color, particle.Emission * m_Settings->EmissionMultiplier, m_Settings->PixelPerfect);
         }
     }
 

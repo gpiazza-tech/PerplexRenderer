@@ -31,7 +31,7 @@ namespace pxr
     std::filesystem::path Path(const std::filesystem::path& path)
     {
         std::filesystem::path absolutePath = s_ResourcePath / path;
-        PXR_ASSERT(std::filesystem::exists(absolutePath), "Path {1} does not exist!", absolutePath.string());
+        PXR_ASSERT(std::filesystem::exists(absolutePath), "Path {0} does not exist!", absolutePath.string());
 
         return absolutePath;
     }
@@ -47,6 +47,17 @@ namespace pxr
         float buffer = val * denominator;
         buffer = round(buffer);
         return buffer / denominator;
+    }
+
+    float MakePixelPerfect(float val, int pixelsPerUnit)
+    {
+        return RoundToNearestFraction(val, (float)pixelsPerUnit);
+    }
+
+    glm::vec2 MakePixelPerfect(glm::vec2 vec2, int pixelsPerUnit)
+    {
+        return { RoundToNearestFraction(vec2.x, (float)pixelsPerUnit),
+                 RoundToNearestFraction(vec2.y, (float)pixelsPerUnit) };
     }
 
     glm::vec3 MakePixelPerfect(glm::vec3 vec3, int pixelsPerUnit)

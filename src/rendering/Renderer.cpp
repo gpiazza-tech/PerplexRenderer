@@ -14,20 +14,18 @@
 
 #include <cstdint>
 #include <memory>
+#include <utility>
 
 namespace pxr
 {
-    static const size_t s_MaxQuadCount = 10000;
-    static const size_t s_MaxVertexCount = s_MaxQuadCount * 4;
-    static const size_t s_MaxIndexCount = s_MaxQuadCount * 6;
-    static const size_t s_MaxTextures = 32;
+    static RenderStats s_Stats;
 
-    struct Vertex
+    struct SpriteVertex
     {
         glm::vec3 Position;
 
         glm::vec4 Color;
-        glm::vec2 ColorTexCoord;
+        glm::vec2 ColorTexCoord; 
         float ColorTexIndex;
 
         float Emission;
@@ -35,56 +33,71 @@ namespace pxr
         float EmissionTexIndex;
     };
 
-    static RenderStats s_Stats;
-    static uint32_t s_PixelsPerUnit;
-
-    struct RendererData
+    struct PixelVertex
     {
-        std::shared_ptr<VertexArray> QuadVAO = nullptr;
-        std::shared_ptr<VertexBuffer> QuadVBO = nullptr;
+        glm::vec3 Position;
 
-        uint32_t IndexCount = 0;
+        glm::vec4 Color;
+        float Emission;
+    };
 
-        Vertex* QuadBuffer = nullptr;
-        Vertex* QuadBufferPtr = nullptr;
+    struct LineVertex
+    {
+        glm::vec3 Position;
 
-        Shader SpriteShader{};
-        uint32_t PixelsPerUnit{};
+        float Slope;
+
+        glm::vec4 Color;
+        float Emission;
+    };
+
+    struct CircleVertex
+    {
+        glm::vec3 Position;
+
+        float Radius;
+        float Thickness;
+
+        glm::vec4 Color;
+        float Emission;
+    };
+
+    struct RenderFrameData
+    {
         Sprite PixelSprite{};
-
+        uint32_t PixelsPerUnit{};
+        glm::vec2 PixelResolution{};
         glm::mat4 Projection{};
     };
 
-    static RendererData s_Data;
-
-    void Renderer::Init(uint32_t pixelsPerUnit)
+    template<typename Vertex>
+    struct RenderPassData
     {
-        RenderCommands::LoadFunctions();
+        size_t MaxCount{ 10000 };
+        size_t MaxVertexCount{ MaxCount * 4 };
+        size_t MaxIndexCount{ MaxCount * 6 };
 
-        s_PixelsPerUnit = pixelsPerUnit;
+        std::shared_ptr<VertexArray> VAO{ nullptr };
+        std::shared_ptr<VertexBuffer> VBO{ nullptr };
 
-        s_Data.QuadBuffer = new Vertex[s_MaxVertexCount];
-        s_Data.PixelsPerUnit = pixelsPerUnit;
+        uint32_t IndexCount{ 0 };
 
-        // Vertex Buffer
-        s_Data.QuadVBO = std::make_shared<VertexBuffer>(nullptr, s_MaxVertexCount * sizeof(Vertex), true);
-        s_Data.QuadVBO->SetLayout(
-            {
-                { Type::Float, 3, false }, // Position
+        Vertex* VertexBufferBegin{ nullptr };
+        Vertex* VertexBufferCurrent{ nullptr };
 
-                { Type::Float, 4, false }, // Color
-                { Type::Float, 2, false }, // Color Texture Coords
-                { Type::Float, 1, false }, // Color Texture Index
+        Shader Shader{};
+    };
 
-                { Type::Float, 1, false }, // Emission
-                { Type::Float, 2, false }, // Emission Texture Coords
-                { Type::Float, 1, false }, // Emission Texture Index
-            });
+    static RenderFrameData s_FrameData;
 
-        // Index Buffer
-        uint32_t indices[s_MaxIndexCount];
+    static RenderPassData<SpriteVertex> s_SpriteData;
+    static RenderPassData<LineVertex> s_LineData;
+
+    static std::unique_ptr<uint32_t[]> MakeQuadIndexBuffer(size_t indexCount)
+    {
+        std::unique_ptr<uint32_t[]> indices = std::make_unique_for_overwrite<uint32_t[]>(indexCount);
         uint32_t offset = 0;
-        for (size_t i = 0; i < s_MaxIndexCount; i += 6)
+        for (size_t i = 0; i < indexCount; i += 6)
         {
             indices[i + 0] = 0 + offset;
             indices[i + 1] = 1 + offset;
@@ -96,222 +109,357 @@ namespace pxr
 
             offset += 4;
         }
+        return std::move(indices);
+    }
 
-        IndexBuffer ibo(indices, s_MaxIndexCount);
-
-        // Vertex Array
-        s_Data.QuadVAO = std::make_shared<VertexArray>();
-        s_Data.QuadVAO->AttachBuffers(*s_Data.QuadVBO, ibo);
-
-        // Shader
-        s_Data.SpriteShader.Create("shaders\\SpriteVertex.glsl", "shaders\\SpriteFragment.glsl");
-        s_Data.SpriteShader.Use();
-
-        int samplers[32];
-        for (int i = 0; i < 32; i++)
-            samplers[i] = i;
-        glm::mat4 transform = glm::mat4(1.0f);
-        s_Data.SpriteShader.SetUniformMat4("u_Transform", (float*)&transform);
-        s_Data.SpriteShader.SetUniformIntArray("u_Textures", 32, samplers);
-        s_Data.SpriteShader.EndUse();
+    void Renderer::Init(uint32_t pixelsPerUnit)
+    {
+        RenderCommands::LoadFunctions();
+        s_FrameData.PixelsPerUnit = pixelsPerUnit;
 
         SpriteRegistry::Init(pixelsPerUnit);
-        s_Data.PixelSprite = SpriteRegistry::GetPixelSprite();
+        s_FrameData.PixelSprite = SpriteRegistry::GetPixelSprite();
+
+        // SPRITES
+        {
+            s_SpriteData.VertexBufferBegin = new SpriteVertex[s_SpriteData.MaxVertexCount];
+
+            // Vertex Buffer
+            s_SpriteData.VBO = std::make_shared<VertexBuffer>(nullptr, s_SpriteData.MaxVertexCount * sizeof(SpriteVertex), true);
+            s_SpriteData.VBO->SetLayout(
+                {
+                    { Type::Float, 3, false }, // Position
+
+                    { Type::Float, 4, false }, // Color
+                    { Type::Float, 2, false }, // Color Texture Coords
+                    { Type::Float, 1, false }, // Color Texture Index
+
+                    { Type::Float, 1, false }, // Emission
+                    { Type::Float, 2, false }, // Emission Texture Coords
+                    { Type::Float, 1, false }, // Emission Texture Index
+                });
+
+            // Index Buffer
+            std::unique_ptr<uint32_t[]> indices = MakeQuadIndexBuffer(s_SpriteData.MaxIndexCount);
+            IndexBuffer ibo(indices.get(), (uint32_t)s_SpriteData.MaxIndexCount);
+
+            // Vertex Array
+            s_SpriteData.VAO = std::make_shared<VertexArray>();
+            s_SpriteData.VAO->AttachBuffers(*s_SpriteData.VBO, ibo);
+
+            // Shader
+            s_SpriteData.Shader.Create("shaders\\SpriteVertex.glsl", "shaders\\SpriteFragment.glsl");
+            s_SpriteData.Shader.Use();
+
+            int samplers[32];
+            for (int i = 0; i < 32; i++)
+                samplers[i] = i;
+            glm::mat4 transform = glm::mat4(1.0f);
+            s_SpriteData.Shader.SetUniformMat4("u_Transform", (float*)&transform);
+            s_SpriteData.Shader.SetUniformIntArray("u_Textures", 32, samplers);
+            s_SpriteData.Shader.EndUse();
+        }
+
+        // PIXELS
+
+        // CIRCLES
+
+        // LINES
+        {
+            s_LineData.VertexBufferBegin = new LineVertex[s_LineData.MaxVertexCount];
+
+            // Vertex Buffer
+            s_LineData.VBO = std::make_shared<VertexBuffer>(nullptr, s_LineData.MaxVertexCount * sizeof(LineVertex), true);
+            s_LineData.VBO->SetLayout(
+                {
+                    { Type::Float, 3, false }, // Position
+
+                    { Type::Float, 1, false }, // Slope
+
+                    { Type::Float, 4, false }, // Color
+                    { Type::Float, 1, false }, // Emission
+                });
+
+            // Index Buffer
+            std::unique_ptr<uint32_t[]> indices = MakeQuadIndexBuffer(s_LineData.MaxIndexCount);
+            IndexBuffer ibo(indices.get(), (uint32_t)s_LineData.MaxIndexCount);
+
+            // Vertex Array
+            s_LineData.VAO = std::make_shared<VertexArray>();
+            s_LineData.VAO->AttachBuffers(*s_LineData.VBO, ibo);
+
+            // Shader
+            s_LineData.Shader.Create("shaders\\LineVertex.glsl", "shaders\\LineFragment.glsl");
+            s_LineData.Shader.Use();
+
+            glm::mat4 transform = glm::mat4(1.0f);
+            s_LineData.Shader.SetUniformMat4("u_Transform", (float*)&transform);
+            s_LineData.Shader.EndUse();
+        }
     }
 
     void Renderer::Shutdown()
     {
-        delete[] s_Data.QuadBuffer;
+        delete[] s_SpriteData.VertexBufferBegin;
+        delete[] s_LineData.VertexBufferBegin;
     }
 
-    void Renderer::BeginFrame(const glm::vec4& background)
+    void Renderer::BeginFrame(glm::mat4 projection, glm::vec2 pixelResolution, glm::vec4 background)
     {
         RenderCommands::EnableAlphaBlending();
         RenderCommands::Clear(background);
         RenderCommands::EnableDepthTest();
 
+        s_FrameData.Projection = projection;
+        s_FrameData.PixelResolution = pixelResolution;
+
         s_Stats.Quads = 0;
         s_Stats.DrawCalls = 0;
     }
 
-    void Renderer::BeginBatch(glm::mat4 projection)
+    void Renderer::BeginBatch()
     {
-        s_Data.QuadBufferPtr = s_Data.QuadBuffer;
+        // SPRITE
+        {
+            s_SpriteData.VertexBufferCurrent = s_SpriteData.VertexBufferBegin;
 
-        s_Data.Projection = projection;
-        glm::mat4 viewProj = projection * glm::mat4(1.0f);
-        s_Data.SpriteShader.Use();
-        s_Data.SpriteShader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
+            glm::mat4 viewProj = s_FrameData.Projection * glm::mat4(1.0f);
+            s_SpriteData.Shader.Use();
+            s_SpriteData.Shader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
+            s_SpriteData.Shader.EndUse();
+        }
+
+        // LINE
+        {
+            s_LineData.VertexBufferCurrent = s_LineData.VertexBufferBegin;
+
+            glm::mat4 viewProj = s_FrameData.Projection * glm::mat4(1.0f);
+            s_LineData.Shader.Use();
+            s_LineData.Shader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
+            s_LineData.Shader.SetUniformFloat("u_PixelsPerUnit", (float)s_FrameData.PixelsPerUnit);
+            s_LineData.Shader.EndUse();
+        }
 
         SpriteRegistry::Bind();
     }
 
     void Renderer::EndBatch()
     {
-        size_t size = (uint8_t*)s_Data.QuadBufferPtr - (uint8_t*)s_Data.QuadBuffer;
+        // SPRITE
+        {
+            size_t size = (uint8_t*)s_SpriteData.VertexBufferCurrent - (uint8_t*)s_SpriteData.VertexBufferBegin;
+            s_SpriteData.VBO->PushData(s_SpriteData.VertexBufferBegin, static_cast<uint32_t>(size));
+        }
 
-        s_Data.QuadVBO->PushData(s_Data.QuadBuffer, static_cast<uint32_t>(size));
+        // LINE
+        {
+            size_t size = (uint8_t*)s_LineData.VertexBufferCurrent - (uint8_t*)s_LineData.VertexBufferBegin;
+            s_LineData.VBO->PushData(s_LineData.VertexBufferBegin, static_cast<uint32_t>(size));
+        }
     }
 
     void Renderer::Flush()
     {
-        s_Data.SpriteShader.Use();
-        RenderCommands::DrawTriangles(*s_Data.QuadVAO, s_Data.IndexCount);
-        s_Data.SpriteShader.EndUse();
+        // SPRITE
+        {
+            s_SpriteData.Shader.Use();
+            RenderCommands::DrawTriangles(*s_SpriteData.VAO, s_SpriteData.IndexCount);
+            s_SpriteData.Shader.EndUse();
 
-        s_Data.IndexCount = 0;
+            s_SpriteData.IndexCount = 0;
+            s_Stats.DrawCalls++;
+        }
 
-        s_Stats.DrawCalls++;
+        // LINE
+        {
+            s_LineData.Shader.Use();
+            RenderCommands::DrawTriangles(*s_LineData.VAO, s_LineData.IndexCount);
+            s_LineData.Shader.EndUse();
+
+            s_LineData.IndexCount = 0;
+            s_Stats.DrawCalls++;
+        }
     }
 
-    void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float emission)
+    void Renderer::DrawSprite(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& size, const glm::vec4& color, float emission, bool pixelPerfect)
     {
-        const Sprite& pixelSprite = SpriteRegistry::GetPixelSprite();
-        DrawQuad(position, size, pixelSprite, pixelSprite, color, emission, true);
+        DrawSprite(position, rotation, size, s_FrameData.PixelSprite, s_FrameData.PixelSprite, color, emission, pixelPerfect);
     }
 
-    void Renderer::DrawQuad(const glm::vec2& position, const Sprite& sprite)
-    {
-        DrawQuad(position, glm::vec2(1.0f), sprite, sprite, glm::vec4(1.0f), 1.0f, true);
-    }
-
-    void Renderer::DrawQuad(const glm::vec2& position, const Sprite& sprite, float emission)
-    {
-        DrawQuad(position, glm::vec2(1.0f), sprite, sprite, glm::vec4(1.0f), emission, true);
-    }
-
-    void Renderer::DrawRotatedQuad(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect)
-    {
-        glm::vec2 scaledSize = { size.x * colorSprite.ScaleFactorX, size.y * colorSprite.ScaleFactorY };
-        glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect({ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit) : glm::vec3{ position.x, position.y, 0.0f };
-
-        if (colorSprite.PixelWidth % 2 != 0)
-            renderPosition.x += 0.5f / s_Data.PixelsPerUnit;
-        if (colorSprite.PixelHeight % 2 != 0)
-            renderPosition.y += 0.5f / s_Data.PixelsPerUnit;
-        glm::mat4 transform = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), renderPosition), rotation.z, glm::vec3{ 0.0f, 0.0f, 1.0f }), { scaledSize.x, scaledSize.y, 1.0f });
-
-        DrawQuad(transform, colorSprite, emissionSprite, color, emission);
-    }
-
-    void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect)
+    void Renderer::DrawSprite(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect)
     {
         glm::vec2 scaledSize = { size.x * colorSprite.ScaleFactorX, size.y * colorSprite.ScaleFactorY };
-        glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect({ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit) : glm::vec3{ position.x, position.y, 0.0f };
+        glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect(position, s_FrameData.PixelsPerUnit) : position;
 
         if (colorSprite.PixelWidth % 2 != 0)
-            renderPosition.x += 0.5f / s_Data.PixelsPerUnit;
+            renderPosition.x += 0.5f / s_FrameData.PixelsPerUnit;
         if (colorSprite.PixelHeight % 2 != 0)
-            renderPosition.y += 0.5f / s_Data.PixelsPerUnit;
-        glm::mat4 transform = glm::scale(glm::translate(glm::mat4(1.0f), renderPosition), { scaledSize.x, scaledSize.y, 1.0f });
+            renderPosition.y += 0.5f / s_FrameData.PixelsPerUnit;
+
+        glm::mat4 transform{};
+        if (rotation.z != 0.0f)
+            transform = glm::scale(glm::rotate(glm::translate(glm::mat4(1.0f), renderPosition), rotation.z, glm::vec3{ 0.0f, 0.0f, 1.0f }), { scaledSize.x, scaledSize.y, 1.0f });
+        else
+            transform = glm::scale(glm::translate(glm::mat4(1.0f), renderPosition), { scaledSize.x, scaledSize.y, 1.0f });
 
         DrawQuad(transform, colorSprite, emissionSprite, color, emission);
     }
 
     void Renderer::DrawQuad(const glm::mat4& transform, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission)
     {
-        if (s_Data.IndexCount >= s_MaxIndexCount)
+        if (s_SpriteData.IndexCount >= s_SpriteData.MaxIndexCount)
         {
             EndBatch();
             Flush();
-            BeginBatch(s_Data.Projection);
+            BeginBatch();
         }
 
-        s_Data.QuadBufferPtr->Position = transform * glm::vec4{ -0.5f, -0.5f, 0.0f, 1.0f };
-        s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmin, colorSprite.Ymin };
-        s_Data.QuadBufferPtr->ColorTexIndex = (float)colorSprite.TextureUnit;
-        s_Data.QuadBufferPtr->Emission = emission;
-        s_Data.QuadBufferPtr->EmissionTexCoord = { emissionSprite.Xmin, emissionSprite.Ymin };
-        s_Data.QuadBufferPtr->EmissionTexIndex = (float)emissionSprite.TextureUnit;
-        s_Data.QuadBufferPtr++;
+        s_SpriteData.VertexBufferCurrent->Position = transform * glm::vec4{ -0.5f, -0.5f, 0.0f, 1.0f };
+        s_SpriteData.VertexBufferCurrent->Color = color;
+        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { colorSprite.Xmin, colorSprite.Ymin };
+        s_SpriteData.VertexBufferCurrent->ColorTexIndex = (float)colorSprite.TextureUnit;
+        s_SpriteData.VertexBufferCurrent->Emission = emission;
+        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { emissionSprite.Xmin, emissionSprite.Ymin };
+        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = (float)emissionSprite.TextureUnit;
+        s_SpriteData.VertexBufferCurrent++;
 
-        s_Data.QuadBufferPtr->Position = transform * glm::vec4{ 0.5f, -0.5f, 0.0f, 1.0f };
-        s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmax, colorSprite.Ymin };
-        s_Data.QuadBufferPtr->ColorTexIndex = (float)colorSprite.TextureUnit;
-        s_Data.QuadBufferPtr->Emission = emission;
-        s_Data.QuadBufferPtr->EmissionTexCoord = { emissionSprite.Xmax, emissionSprite.Ymin };
-        s_Data.QuadBufferPtr->EmissionTexIndex = (float)emissionSprite.TextureUnit;
-        s_Data.QuadBufferPtr++;
+        s_SpriteData.VertexBufferCurrent->Position = transform * glm::vec4{ 0.5f, -0.5f, 0.0f, 1.0f };
+        s_SpriteData.VertexBufferCurrent->Color = color;
+        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { colorSprite.Xmax, colorSprite.Ymin };
+        s_SpriteData.VertexBufferCurrent->ColorTexIndex = (float)colorSprite.TextureUnit;
+        s_SpriteData.VertexBufferCurrent->Emission = emission;
+        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { emissionSprite.Xmax, emissionSprite.Ymin };
+        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = (float)emissionSprite.TextureUnit;
+        s_SpriteData.VertexBufferCurrent++;
 
-        s_Data.QuadBufferPtr->Position = transform * glm::vec4{ 0.5f, 0.5f, 0.0f, 1.0f };
-        s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmax, colorSprite.Ymax };
-        s_Data.QuadBufferPtr->ColorTexIndex = (float)colorSprite.TextureUnit;
-        s_Data.QuadBufferPtr->Emission = emission;
-        s_Data.QuadBufferPtr->EmissionTexCoord = { emissionSprite.Xmax, emissionSprite.Ymax };
-        s_Data.QuadBufferPtr->EmissionTexIndex = (float)emissionSprite.TextureUnit;
-        s_Data.QuadBufferPtr++;
+        s_SpriteData.VertexBufferCurrent->Position = transform * glm::vec4{ 0.5f, 0.5f, 0.0f, 1.0f };
+        s_SpriteData.VertexBufferCurrent->Color = color;
+        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { colorSprite.Xmax, colorSprite.Ymax };
+        s_SpriteData.VertexBufferCurrent->ColorTexIndex = (float)colorSprite.TextureUnit;
+        s_SpriteData.VertexBufferCurrent->Emission = emission;
+        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { emissionSprite.Xmax, emissionSprite.Ymax };
+        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = (float)emissionSprite.TextureUnit;
+        s_SpriteData.VertexBufferCurrent++;
 
-        s_Data.QuadBufferPtr->Position = transform * glm::vec4{ -0.5f, 0.5f, 0.0f, 1.0f };
-        s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->ColorTexCoord = { colorSprite.Xmin, colorSprite.Ymax };
-        s_Data.QuadBufferPtr->ColorTexIndex = (float)colorSprite.TextureUnit;
-        s_Data.QuadBufferPtr->Emission = emission;
-        s_Data.QuadBufferPtr->EmissionTexCoord = { emissionSprite.Xmin, emissionSprite.Ymax };
-        s_Data.QuadBufferPtr->EmissionTexIndex = (float)emissionSprite.TextureUnit;
-        s_Data.QuadBufferPtr++;
+        s_SpriteData.VertexBufferCurrent->Position = transform * glm::vec4{ -0.5f, 0.5f, 0.0f, 1.0f };
+        s_SpriteData.VertexBufferCurrent->Color = color;
+        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { colorSprite.Xmin, colorSprite.Ymax };
+        s_SpriteData.VertexBufferCurrent->ColorTexIndex = (float)colorSprite.TextureUnit;
+        s_SpriteData.VertexBufferCurrent->Emission = emission;
+        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { emissionSprite.Xmin, emissionSprite.Ymax };
+        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = (float)emissionSprite.TextureUnit;
+        s_SpriteData.VertexBufferCurrent++;
 
-        s_Data.IndexCount += 6;
+        s_SpriteData.IndexCount += 6;
 
         s_Stats.Quads++;
     }
 
-    void Renderer::DrawPixel(const glm::vec2& position, const glm::vec4& color, float emission, bool pixelPerfect)
+    void Renderer::DrawPixel(const glm::vec3& position, const glm::vec4& color, float emission, bool pixelPerfect)
     {
-        const Sprite& pixelSprite = s_Data.PixelSprite;
+        const Sprite& pixelSprite = s_FrameData.PixelSprite;
         const float size = pixelSprite.ScaleFactorX;
-        glm::vec3 renderPosition = pixelPerfect
-            ? MakePixelPerfect(glm::vec3{ position.x, position.y, 0.0f }, s_Data.PixelsPerUnit)
-            : glm::vec3{ position.x, position.y, 0.0f };
+        glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect(position, s_FrameData.PixelsPerUnit) : position;
 
-        if (s_Data.IndexCount >= s_MaxIndexCount)
+        if (s_SpriteData.IndexCount >= s_SpriteData.MaxIndexCount)
         {
             EndBatch();
             Flush(); 
-            BeginBatch(s_Data.Projection);
-        }
+            BeginBatch();
+         }
 
         const float textureUnit = (float)pixelSprite.TextureUnit;
 
-        s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y, 0.0f };
-        s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->ColorTexCoord = { pixelSprite.Xmin, pixelSprite.Ymin };
-        s_Data.QuadBufferPtr->ColorTexIndex = textureUnit;
-        s_Data.QuadBufferPtr->Emission = emission;
-        s_Data.QuadBufferPtr->EmissionTexCoord = { pixelSprite.Xmin, pixelSprite.Ymin };
-        s_Data.QuadBufferPtr->EmissionTexIndex = textureUnit;
-        s_Data.QuadBufferPtr++;
+        s_SpriteData.VertexBufferCurrent->Position = { renderPosition.x, renderPosition.y, 0.0f };
+        s_SpriteData.VertexBufferCurrent->Color = color;
+        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { pixelSprite.Xmin, pixelSprite.Ymin };
+        s_SpriteData.VertexBufferCurrent->ColorTexIndex = textureUnit;
+        s_SpriteData.VertexBufferCurrent->Emission = emission;
+        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { pixelSprite.Xmin, pixelSprite.Ymin };
+        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = textureUnit;
+        s_SpriteData.VertexBufferCurrent++;
 
-        s_Data.QuadBufferPtr->Position = { renderPosition.x + size, renderPosition.y, 0.0f };
-        s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->ColorTexCoord = { pixelSprite.Xmax, pixelSprite.Ymin };
-        s_Data.QuadBufferPtr->ColorTexIndex = textureUnit;
-        s_Data.QuadBufferPtr->Emission = emission;
-        s_Data.QuadBufferPtr->EmissionTexCoord = { pixelSprite.Xmax, pixelSprite.Ymin };
-        s_Data.QuadBufferPtr->EmissionTexIndex = textureUnit;
-        s_Data.QuadBufferPtr++;
+        s_SpriteData.VertexBufferCurrent->Position = { renderPosition.x + size, renderPosition.y, 0.0f };
+        s_SpriteData.VertexBufferCurrent->Color = color;
+        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { pixelSprite.Xmax, pixelSprite.Ymin };
+        s_SpriteData.VertexBufferCurrent->ColorTexIndex = textureUnit;
+        s_SpriteData.VertexBufferCurrent->Emission = emission;
+        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { pixelSprite.Xmax, pixelSprite.Ymin };
+        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = textureUnit;
+        s_SpriteData.VertexBufferCurrent++;
 
-        s_Data.QuadBufferPtr->Position = { renderPosition.x + size, renderPosition.y + size, 0.0f };
-        s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->ColorTexCoord = { pixelSprite.Xmax, pixelSprite.Ymax };
-        s_Data.QuadBufferPtr->ColorTexIndex = textureUnit;
-        s_Data.QuadBufferPtr->Emission = emission;
-        s_Data.QuadBufferPtr->EmissionTexCoord = { pixelSprite.Xmax, pixelSprite.Ymax };
-        s_Data.QuadBufferPtr->EmissionTexIndex = textureUnit;
-        s_Data.QuadBufferPtr++;
+        s_SpriteData.VertexBufferCurrent->Position = { renderPosition.x + size, renderPosition.y + size, 0.0f };
+        s_SpriteData.VertexBufferCurrent->Color = color;
+        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { pixelSprite.Xmax, pixelSprite.Ymax };
+        s_SpriteData.VertexBufferCurrent->ColorTexIndex = textureUnit;
+        s_SpriteData.VertexBufferCurrent->Emission = emission;
+        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { pixelSprite.Xmax, pixelSprite.Ymax };
+        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = textureUnit;
+        s_SpriteData.VertexBufferCurrent++;
 
-        s_Data.QuadBufferPtr->Position = { renderPosition.x, renderPosition.y + size, 0.0f };
-        s_Data.QuadBufferPtr->Color = color;
-        s_Data.QuadBufferPtr->ColorTexCoord = { pixelSprite.Xmin, pixelSprite.Ymax };
-        s_Data.QuadBufferPtr->ColorTexIndex = textureUnit;
-        s_Data.QuadBufferPtr->Emission = emission;
-        s_Data.QuadBufferPtr->EmissionTexCoord = { pixelSprite.Xmin, pixelSprite.Ymax };
-        s_Data.QuadBufferPtr->EmissionTexIndex = textureUnit;
-        s_Data.QuadBufferPtr++;
+        s_SpriteData.VertexBufferCurrent->Position = { renderPosition.x, renderPosition.y + size, 0.0f };
+        s_SpriteData.VertexBufferCurrent->Color = color;
+        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { pixelSprite.Xmin, pixelSprite.Ymax };
+        s_SpriteData.VertexBufferCurrent->ColorTexIndex = textureUnit;
+        s_SpriteData.VertexBufferCurrent->Emission = emission;
+        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { pixelSprite.Xmin, pixelSprite.Ymax };
+        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = textureUnit;
+        s_SpriteData.VertexBufferCurrent++;
 
-        s_Data.IndexCount += 6;
+        s_SpriteData.IndexCount += 6;
+
+        s_Stats.Quads++;
+    }
+
+    void Renderer::DrawLine(glm::vec2 start, glm::vec2 end, glm::vec4 color, float emission)
+    {
+        float pixelSize{ 1.0f / s_FrameData.PixelsPerUnit };
+
+        start = MakePixelPerfect(start, s_FrameData.PixelsPerUnit);
+        end = MakePixelPerfect(end, s_FrameData.PixelsPerUnit);
+
+        // avoid rendering a box with width or height of 0
+        if (start.x == end.x)
+            end.x += pixelSize;
+        if (start.y == end.y)
+            end.y += pixelSize;
+
+        glm::vec2 center{ (end.x + start.x) / 2.0f, (end.y + start.y) / 2.0f };
+        glm::vec2 bounds = { center.x - start.x, center.y - start.y };
+        float slope = (end.y - start.y) / (end.x - start.x);
+
+        if (s_LineData.IndexCount >= s_LineData.MaxIndexCount)
+        {
+            EndBatch();
+            Flush();
+            BeginBatch();
+        }
+
+        s_LineData.VertexBufferCurrent->Position = { center.x - bounds.x, center.y - bounds.y, 0.0f };
+        s_LineData.VertexBufferCurrent->Slope = slope;
+        s_LineData.VertexBufferCurrent->Color = color;
+        s_LineData.VertexBufferCurrent->Emission = emission;
+        s_LineData.VertexBufferCurrent++;
+
+        s_LineData.VertexBufferCurrent->Position = { center.x + bounds.x, center.y - bounds.y, 0.0f };
+        s_LineData.VertexBufferCurrent->Slope = slope;
+        s_LineData.VertexBufferCurrent->Color = color;
+        s_LineData.VertexBufferCurrent->Emission = emission;
+        s_LineData.VertexBufferCurrent++;
+
+        s_LineData.VertexBufferCurrent->Position = { center.x + bounds.x, center.y + bounds.y, 0.0f };
+        s_LineData.VertexBufferCurrent->Slope = slope;
+        s_LineData.VertexBufferCurrent->Color = color;
+        s_LineData.VertexBufferCurrent->Emission = emission;
+        s_LineData.VertexBufferCurrent++;
+
+        s_LineData.VertexBufferCurrent->Position = { center.x - bounds.x, center.y + bounds.y, 0.0f };
+        s_LineData.VertexBufferCurrent->Slope = slope;
+        s_LineData.VertexBufferCurrent->Color = color;
+        s_LineData.VertexBufferCurrent->Emission = emission;
+        s_LineData.VertexBufferCurrent++;
+
+        s_LineData.IndexCount += 6;
 
         s_Stats.Quads++;
     }
@@ -323,6 +471,6 @@ namespace pxr
 
     uint32_t Renderer::GetPixelsPerUnit()
     {
-        return s_PixelsPerUnit;
+        return s_FrameData.PixelsPerUnit;
     }
 }

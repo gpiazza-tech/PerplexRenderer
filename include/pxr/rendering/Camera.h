@@ -33,7 +33,7 @@ namespace pxr
 		inline const glm::mat4& GetProjection() const { return m_Projection; };
 
 		inline void SetPixelPerfect(bool pixelPerfect) { m_PixelPerfect = pixelPerfect; }
-		inline const glm::vec2& GetPixelResolution() { return m_PixelResolution; }
+		inline const glm::vec2& GetPixelResolution() const { return m_PixelResolution; }
 
 		inline float GetZoom() const { return m_Zoom; }
 		void SetZoom(float zoom);

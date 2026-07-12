@@ -38,7 +38,7 @@ namespace pxr
 		inline bool Playing() const { return m_Playing; };
 
 		void Update(float ts);
-		void Render(glm::vec2 position);
+		void Render(glm::vec3 position);
 	private:
 		void InitParticles();
 		void InitParticle(Particle& particle);
