@@ -36,7 +36,8 @@ namespace pxr
         static void DrawSprite(const glm::vec3& position, const glm::vec3& rotation, const glm::vec2& size, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission, bool pixelPerfect);
         static void DrawQuad(const glm::mat4& transform, const Sprite& colorSprite, const Sprite& emissionSprite, const glm::vec4& color, float emission);
 
-        static void DrawLine(glm::vec2 start, glm::vec2 end, glm::vec4 color = glm::vec4{ 1.0f }, float emission = 0.0f);
+        static void DrawCircle(glm::vec2 center, float radius, float thickness, glm::vec4 color = glm::vec4{ 1.0f }, float emission = 0.0f, bool pixelPerfect = true);
+        static void DrawLine(glm::vec2 start, glm::vec2 end, glm::vec4 color = glm::vec4{ 1.0f }, float emission = 0.0f, bool pixelPerfect = true);
 
         static const RenderStats& GetStats();
         static uint32_t GetPixelsPerUnit();
