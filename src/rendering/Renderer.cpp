@@ -52,6 +52,17 @@ namespace pxr
         float Emission;
     };
 
+    struct BoxVertex
+    {
+        glm::vec3 Position;
+
+        glm::vec2 Center;
+        glm::vec2 Bounds;
+
+        glm::vec4 Color;
+        float Emission;
+    };
+
     struct CircleVertex
     {
         glm::vec3 Position;
@@ -93,8 +104,10 @@ namespace pxr
     static RenderFrameData s_FrameData;
 
     static RenderPassData<SpriteVertex> s_SpriteData;
-    static RenderPassData<CircleVertex> s_CircleData;
+    static RenderPassData<PixelVertex> s_PixelData;
     static RenderPassData<LineVertex> s_LineData;
+    static RenderPassData<BoxVertex> s_BoxData;
+    static RenderPassData<CircleVertex> s_CircleData;
 
     static std::unique_ptr<uint32_t[]> MakeQuadIndexBuffer(size_t indexCount)
     {
@@ -164,6 +177,35 @@ namespace pxr
         }
 
         // PIXELS
+        {
+            s_PixelData.VertexBufferBegin = new PixelVertex[s_PixelData.MaxVertexCount];
+
+            // Vertex Buffer
+            s_PixelData.VBO = std::make_shared<VertexBuffer>(nullptr, s_PixelData.MaxVertexCount * sizeof(PixelVertex), true);
+            s_PixelData.VBO->SetLayout(
+                {
+                    { Type::Float, 3, false }, // Position
+
+                    { Type::Float, 4, false }, // Color
+                    { Type::Float, 1, false }, // Emission
+                });
+
+            // Index Buffer
+            std::unique_ptr<uint32_t[]> indices = MakeQuadIndexBuffer(s_PixelData.MaxIndexCount);
+            IndexBuffer ibo(indices.get(), (uint32_t)s_PixelData.MaxIndexCount);
+
+            // Vertex Array
+            s_PixelData.VAO = std::make_shared<VertexArray>();
+            s_PixelData.VAO->AttachBuffers(*s_PixelData.VBO, ibo);
+
+            // Shader
+            s_PixelData.Shader.Create("shaders\\PixelVertex.glsl", "shaders\\PixelFragment.glsl");
+            s_PixelData.Shader.Use();
+
+            glm::mat4 transform = glm::mat4(1.0f);
+            s_PixelData.Shader.SetUniformMat4("u_Transform", (float*)&transform);
+            s_PixelData.Shader.EndUse();
+        }
 
         // CIRCLES
         {
@@ -198,6 +240,40 @@ namespace pxr
             glm::mat4 transform = glm::mat4(1.0f);
             s_CircleData.Shader.SetUniformMat4("u_Transform", (float*)&transform);
             s_CircleData.Shader.EndUse();
+        }
+
+        // BOX
+        {
+            s_BoxData.VertexBufferBegin = new BoxVertex[s_BoxData.MaxVertexCount];
+
+            // Vertex Buffer
+            s_BoxData.VBO = std::make_shared<VertexBuffer>(nullptr, s_BoxData.MaxVertexCount * sizeof(BoxVertex), true);
+            s_BoxData.VBO->SetLayout(
+                {
+                    { Type::Float, 3, false }, // Position
+
+                    { Type::Float, 2, false }, // Center
+                    { Type::Float, 2, false }, // Bounds
+
+                    { Type::Float, 4, false }, // Color
+                    { Type::Float, 1, false }, // Emission
+                });
+
+            // Index Buffer
+            std::unique_ptr<uint32_t[]> indices = MakeQuadIndexBuffer(s_BoxData.MaxIndexCount);
+            IndexBuffer ibo(indices.get(), (uint32_t)s_BoxData.MaxIndexCount);
+
+            // Vertex Array
+            s_BoxData.VAO = std::make_shared<VertexArray>();
+            s_BoxData.VAO->AttachBuffers(*s_BoxData.VBO, ibo);
+
+            // Shader
+            s_BoxData.Shader.Create("shaders\\BoxVertex.glsl", "shaders\\BoxFragment.glsl");
+            s_BoxData.Shader.Use();
+
+            glm::mat4 transform = glm::mat4(1.0f);
+            s_BoxData.Shader.SetUniformMat4("u_Transform", (float*)&transform);
+            s_BoxData.Shader.EndUse();
         }
 
         // LINES
@@ -266,6 +342,16 @@ namespace pxr
             s_SpriteData.Shader.EndUse();
         }
 
+        // PIXEL
+        {
+            s_PixelData.VertexBufferCurrent = s_PixelData.VertexBufferBegin;
+
+            glm::mat4 viewProj = s_FrameData.Projection * glm::mat4(1.0f);
+            s_PixelData.Shader.Use();
+            s_PixelData.Shader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
+            s_PixelData.Shader.EndUse();
+        }
+
         // CIRCLE
         {
             s_CircleData.VertexBufferCurrent = s_CircleData.VertexBufferBegin;
@@ -275,6 +361,17 @@ namespace pxr
             s_CircleData.Shader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
             s_CircleData.Shader.SetUniformFloat("u_PixelsPerUnit", (float)s_FrameData.PixelsPerUnit);
             s_CircleData.Shader.EndUse();
+        }
+
+        // BOX
+        {
+            s_BoxData.VertexBufferCurrent = s_BoxData.VertexBufferBegin;
+
+            glm::mat4 viewProj = s_FrameData.Projection * glm::mat4(1.0f);
+            s_BoxData.Shader.Use();
+            s_BoxData.Shader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
+            s_BoxData.Shader.SetUniformFloat("u_PixelsPerUnit", (float)s_FrameData.PixelsPerUnit);
+            s_BoxData.Shader.EndUse();
         }
 
         // LINE
@@ -299,10 +396,22 @@ namespace pxr
             s_SpriteData.VBO->PushData(s_SpriteData.VertexBufferBegin, static_cast<uint32_t>(size));
         }
 
+        // PIXEL
+        {
+            size_t size = (uint8_t*)s_PixelData.VertexBufferCurrent - (uint8_t*)s_PixelData.VertexBufferBegin;
+            s_PixelData.VBO->PushData(s_PixelData.VertexBufferBegin, static_cast<uint32_t>(size));
+        }
+
         // CIRCLE
         {
             size_t size = (uint8_t*)s_CircleData.VertexBufferCurrent - (uint8_t*)s_CircleData.VertexBufferBegin;
             s_CircleData.VBO->PushData(s_CircleData.VertexBufferBegin, static_cast<uint32_t>(size));
+        }
+
+        // BOX
+        {
+            size_t size = (uint8_t*)s_BoxData.VertexBufferCurrent - (uint8_t*)s_BoxData.VertexBufferBegin;
+            s_BoxData.VBO->PushData(s_BoxData.VertexBufferBegin, static_cast<uint32_t>(size));
         }
 
         // LINE
@@ -324,6 +433,16 @@ namespace pxr
             s_Stats.DrawCalls++;
         }
 
+        // PIXEL
+        {
+            s_PixelData.Shader.Use();
+            RenderCommands::DrawTriangles(*s_PixelData.VAO, s_PixelData.IndexCount);
+            s_PixelData.Shader.EndUse();
+
+            s_PixelData.IndexCount = 0;
+            s_Stats.DrawCalls++;
+        }
+
         // CIRCLE
         {
             s_CircleData.Shader.Use();
@@ -331,6 +450,16 @@ namespace pxr
             s_CircleData.Shader.EndUse();
 
             s_CircleData.IndexCount = 0;
+            s_Stats.DrawCalls++;
+        }
+
+        // BOX
+        {
+            s_BoxData.Shader.Use();
+            RenderCommands::DrawTriangles(*s_BoxData.VAO, s_BoxData.IndexCount);
+            s_BoxData.Shader.EndUse();
+
+            s_BoxData.IndexCount = 0;
             s_Stats.DrawCalls++;
         }
 
@@ -421,62 +550,51 @@ namespace pxr
 
     void Renderer::DrawPixel(const glm::vec3& position, const glm::vec4& color, float emission, bool pixelPerfect)
     {
+        if (s_SpriteData.IndexCount >= s_SpriteData.MaxIndexCount)
+        {
+            EndBatch();
+            Flush();
+            BeginBatch();
+        }
+
         const Sprite& pixelSprite = s_FrameData.PixelSprite;
         const float size = pixelSprite.ScaleFactorX;
         glm::vec3 renderPosition = pixelPerfect ? MakePixelPerfect(position, s_FrameData.PixelsPerUnit) : position;
 
-        if (s_SpriteData.IndexCount >= s_SpriteData.MaxIndexCount)
-        {
-            EndBatch();
-            Flush(); 
-            BeginBatch();
-         }
+        s_PixelData.VertexBufferCurrent->Position = { renderPosition.x, renderPosition.y, 0.0f };
+        s_PixelData.VertexBufferCurrent->Color = color;
+        s_PixelData.VertexBufferCurrent->Emission = emission;
+        s_PixelData.VertexBufferCurrent++;
 
-        const float textureUnit = (float)pixelSprite.TextureUnit;
+        s_PixelData.VertexBufferCurrent->Position = { renderPosition.x + size, renderPosition.y, 0.0f };
+        s_PixelData.VertexBufferCurrent->Color = color;
+        s_PixelData.VertexBufferCurrent->Emission = emission;
+        s_PixelData.VertexBufferCurrent++;
 
-        s_SpriteData.VertexBufferCurrent->Position = { renderPosition.x, renderPosition.y, 0.0f };
-        s_SpriteData.VertexBufferCurrent->Color = color;
-        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { pixelSprite.Xmin, pixelSprite.Ymin };
-        s_SpriteData.VertexBufferCurrent->ColorTexIndex = textureUnit;
-        s_SpriteData.VertexBufferCurrent->Emission = emission;
-        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { pixelSprite.Xmin, pixelSprite.Ymin };
-        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = textureUnit;
-        s_SpriteData.VertexBufferCurrent++;
+        s_PixelData.VertexBufferCurrent->Position = { renderPosition.x + size, renderPosition.y + size, 0.0f };
+        s_PixelData.VertexBufferCurrent->Color = color;
+        s_PixelData.VertexBufferCurrent->Emission = emission;
+        s_PixelData.VertexBufferCurrent++;
 
-        s_SpriteData.VertexBufferCurrent->Position = { renderPosition.x + size, renderPosition.y, 0.0f };
-        s_SpriteData.VertexBufferCurrent->Color = color;
-        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { pixelSprite.Xmax, pixelSprite.Ymin };
-        s_SpriteData.VertexBufferCurrent->ColorTexIndex = textureUnit;
-        s_SpriteData.VertexBufferCurrent->Emission = emission;
-        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { pixelSprite.Xmax, pixelSprite.Ymin };
-        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = textureUnit;
-        s_SpriteData.VertexBufferCurrent++;
+        s_PixelData.VertexBufferCurrent->Position = { renderPosition.x, renderPosition.y + size, 0.0f };
+        s_PixelData.VertexBufferCurrent->Color = color;
+        s_PixelData.VertexBufferCurrent->Emission = emission;
+        s_PixelData.VertexBufferCurrent++;
 
-        s_SpriteData.VertexBufferCurrent->Position = { renderPosition.x + size, renderPosition.y + size, 0.0f };
-        s_SpriteData.VertexBufferCurrent->Color = color;
-        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { pixelSprite.Xmax, pixelSprite.Ymax };
-        s_SpriteData.VertexBufferCurrent->ColorTexIndex = textureUnit;
-        s_SpriteData.VertexBufferCurrent->Emission = emission;
-        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { pixelSprite.Xmax, pixelSprite.Ymax };
-        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = textureUnit;
-        s_SpriteData.VertexBufferCurrent++;
-
-        s_SpriteData.VertexBufferCurrent->Position = { renderPosition.x, renderPosition.y + size, 0.0f };
-        s_SpriteData.VertexBufferCurrent->Color = color;
-        s_SpriteData.VertexBufferCurrent->ColorTexCoord = { pixelSprite.Xmin, pixelSprite.Ymax };
-        s_SpriteData.VertexBufferCurrent->ColorTexIndex = textureUnit;
-        s_SpriteData.VertexBufferCurrent->Emission = emission;
-        s_SpriteData.VertexBufferCurrent->EmissionTexCoord = { pixelSprite.Xmin, pixelSprite.Ymax };
-        s_SpriteData.VertexBufferCurrent->EmissionTexIndex = textureUnit;
-        s_SpriteData.VertexBufferCurrent++;
-
-        s_SpriteData.IndexCount += 6;
+        s_PixelData.IndexCount += 6;
 
         s_Stats.Quads++;
     }
 
     void Renderer::DrawCircle(glm::vec2 center, float radius, float thickness, glm::vec4 color, float emission, bool pixelPerfect)
     {
+        if (s_CircleData.IndexCount >= s_CircleData.MaxIndexCount)
+        {
+            EndBatch();
+            Flush();
+            BeginBatch();
+        }
+
         float pixelSize{ 1.0f / s_FrameData.PixelsPerUnit };
 
         if (pixelPerfect)
@@ -486,13 +604,6 @@ namespace pxr
         }
 
         float bounds = radius + pixelSize;
-
-        if (s_CircleData.IndexCount >= s_CircleData.MaxIndexCount)
-        {
-            EndBatch();
-            Flush();
-            BeginBatch();
-        }
 
         s_CircleData.VertexBufferCurrent->Position = { center.x - bounds, center.y - bounds, 0.0f };
         s_CircleData.VertexBufferCurrent->Center = center;
@@ -527,6 +638,62 @@ namespace pxr
         s_CircleData.VertexBufferCurrent++;
 
         s_CircleData.IndexCount += 6;
+
+        s_Stats.Quads++;
+    }
+
+    void Renderer::DrawBox(glm::vec2 center, glm::vec2 bounds, glm::vec4 color, float emission, bool pixelPerfect)
+    {
+        if (s_BoxData.IndexCount >= s_BoxData.MaxIndexCount)
+        {
+            EndBatch();
+            Flush();
+            BeginBatch();
+        }
+
+        float pixelSize{ 1.0f / s_FrameData.PixelsPerUnit };
+
+        if (pixelPerfect)
+        {
+            bounds = MakePixelPerfect(bounds, s_FrameData.PixelsPerUnit);
+            center = MakePixelPerfect(center, s_FrameData.PixelsPerUnit);
+        }
+
+        // avoid rendering a box with width or height of 0
+        bounds.x = glm::max(abs(bounds.x), pixelSize / 2.0f);
+        bounds.y = glm::max(abs(bounds.y), pixelSize / 2.0f);
+
+        glm::vec2 paddedBounds = bounds + glm::vec2{ pixelSize, pixelSize };
+
+        s_BoxData.VertexBufferCurrent->Position = { center.x - paddedBounds.x, center.y - paddedBounds.y, 0.0f };
+        s_BoxData.VertexBufferCurrent->Center = center;
+        s_BoxData.VertexBufferCurrent->Bounds = bounds;
+        s_BoxData.VertexBufferCurrent->Color = color;
+        s_BoxData.VertexBufferCurrent->Emission = emission;
+        s_BoxData.VertexBufferCurrent++;
+
+        s_BoxData.VertexBufferCurrent->Position = { center.x + paddedBounds.x, center.y - paddedBounds.y, 0.0f };
+        s_BoxData.VertexBufferCurrent->Center = center;
+        s_BoxData.VertexBufferCurrent->Bounds = bounds;
+        s_BoxData.VertexBufferCurrent->Color = color;
+        s_BoxData.VertexBufferCurrent->Emission = emission;
+        s_BoxData.VertexBufferCurrent++;
+
+        s_BoxData.VertexBufferCurrent->Position = { center.x + paddedBounds.x, center.y + paddedBounds.y, 0.0f };
+        s_BoxData.VertexBufferCurrent->Center = center;
+        s_BoxData.VertexBufferCurrent->Bounds = bounds;
+        s_BoxData.VertexBufferCurrent->Color = color;
+        s_BoxData.VertexBufferCurrent->Emission = emission;
+        s_BoxData.VertexBufferCurrent++;
+
+        s_BoxData.VertexBufferCurrent->Position = { center.x - paddedBounds.x, center.y + paddedBounds.y, 0.0f };
+        s_BoxData.VertexBufferCurrent->Center = center;
+        s_BoxData.VertexBufferCurrent->Bounds = bounds;
+        s_BoxData.VertexBufferCurrent->Color = color;
+        s_BoxData.VertexBufferCurrent->Emission = emission;
+        s_BoxData.VertexBufferCurrent++;
+
+        s_BoxData.IndexCount += 6;
 
         s_Stats.Quads++;
     }
