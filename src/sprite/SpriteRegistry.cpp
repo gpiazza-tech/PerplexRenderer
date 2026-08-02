@@ -23,18 +23,18 @@ namespace pxr
 
 	static std::vector<SpriteAtlas> s_Atlases;
 
-	static glm::vec2 s_DefaultAtlasSize = { 1024, 1024 };
+	static glm::vec2 s_DefaultAtlasSize = { 2048, 1024 };
 
 	void SpriteRegistry::Init(int pixelsPerUnit)
 	{
 		int maxTextureUnits = RenderCommands::GetMaxTextureUnits();
+		int maxTextureSize = RenderCommands::GetMaxTextureSize();
 		s_Atlases.reserve(maxTextureUnits);
 		for (int i = 0; i < maxTextureUnits; i++)
 		{
 			s_Atlases.emplace_back();
 			s_Atlases[i].Create((int)s_DefaultAtlasSize.x, (int)s_DefaultAtlasSize.y, pixelsPerUnit, i);
 		}
-
 		s_PixelSprite = AddSprite(LoadPNG(Path("textures/White.png")));
 	}
 
@@ -65,6 +65,19 @@ namespace pxr
 	Sprite SpriteRegistry::GetPixelSprite()
 	{
 		return s_PixelSprite;
+	}
+
+	std::vector<uint32_t> SpriteRegistry::GetAtlasIDs()
+	{
+		std::vector<uint32_t> atlasIDs(s_Atlases.size(), 0);
+		for (size_t i{ 0 }; i < s_Atlases.size(); ++i)
+			atlasIDs.emplace_back(s_Atlases.at(i).GetTexture()->GetID());
+		return atlasIDs;
+	}
+
+	glm::ivec2 SpriteRegistry::GetAtlasSize()
+	{
+		return glm::ivec2{ s_Atlases.at(0).GetTexture()->GetWidth(), s_Atlases.at(0).GetTexture()->GetHeight() };
 	}
 
 	void SpriteRegistry::Bind()

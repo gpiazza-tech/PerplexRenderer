@@ -77,6 +77,7 @@ namespace pxr
 		RenderUpsamples(filterRadius);
 		Combine(srcTexture);
 
+		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, m_SrcViewportSize.x, m_SrcViewportSize.y);
 	}
@@ -92,8 +93,7 @@ namespace pxr
 		glViewport(0, 0, m_SrcViewportSize.x, m_SrcViewportSize.y);
 
 		// input texture
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, srcTexture);
+		glBindTextureUnit(0, srcTexture);
 		// output texture
 		m_PrefilterFBO->Bind();
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -117,8 +117,7 @@ namespace pxr
 		m_DownsampleShader.SetUniformFloat2("u_Resolution", m_SrcViewportSizeFloat.x, m_SrcViewportSizeFloat.y);
 
 		// Bind srcTexture as the initial texture input
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, srcTexture);
+		glBindTextureUnit(0, srcTexture);
 
 		m_FBO.Bind();
 
@@ -158,8 +157,7 @@ namespace pxr
 			const TextureBuffer& nextMip = mipChain[i - 1];
 
 			// Set read texture
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, mip.GetID());
+			glBindTextureUnit(0, mip.GetID());
 
 			// Set write texture
 			glViewport(0, 0, (GLsizei)nextMip.GetWidth(), (GLsizei)nextMip.GetHeight());

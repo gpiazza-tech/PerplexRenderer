@@ -24,7 +24,7 @@ namespace pxr
 
 		m_TextureUnit = textureUnit;
 
-		PXR_ASSERT(m_Width < m_MaxSize && m_Height < m_MaxSize, 
+		PXR_ASSERT(m_Width <= m_MaxSize && m_Height <= m_MaxSize, 
 			"Failed to create TextureAtlas with size ({1}, {2}) because the max texture size on this system is {3}!",
 			m_Width, m_Height, m_MaxSize);
 
