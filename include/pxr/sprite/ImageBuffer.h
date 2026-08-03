@@ -74,6 +74,7 @@ namespace pxr
 		size_t GetHeight() const { return m_Height; }
 
 		glm::i8vec4* Data() { return m_Buffer.data(); }
+		const glm::i8vec4* Data() const { return m_Buffer.data(); }
 
 		void Fill(const glm::i8vec4* data)
 		{

@@ -4,6 +4,7 @@
 #include <pxr/backends/TextureBuffer.h>
 #include <pxr/backends/Shader.h>
 #include <pxr/backends/RenderCommands.h>
+#include <pxr/sprite/ImageBuffer.h>
 
 #include <GL/glew.h>
 
@@ -105,5 +106,23 @@ namespace pxr
 
         m_ColorTexture->Resize(width, height);
         m_DepthStencilTexture->Resize(width, height);
+    }
+
+    ImageBuffer Framebuffer::FetchPixels()
+    {
+        ImageBuffer buf{ (size_t)m_Width, (size_t)m_Height };
+
+        glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+
+        // 4. Align pixel storage to 1 byte (avoids padding issues with odd widths)
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+        // 5. Read the pixels into the CPU array
+        glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, buf.Data());
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        return buf;
     }
 }

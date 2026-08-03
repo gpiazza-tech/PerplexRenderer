@@ -19,6 +19,7 @@ namespace pxr
 	glm::vec3 MakePixelPerfect(glm::vec3 vec3, int pixelsPerUnit);
 
 	ImageBuffer LoadPNG(const std::filesystem::path& path);
+	void SavePNG(const std::filesystem::path& path, const ImageBuffer& imageBuffer);
 
 	void* ImageLoad(const std::filesystem::path& path, int* width, int* height, int* channels, int desiredChannels);
 	void ImageFree(void* imageData);

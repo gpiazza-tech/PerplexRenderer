@@ -15,6 +15,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
+#include <gif.h>
+
 namespace pxr
 {
     static std::filesystem::path s_ResourcePath = std::filesystem::current_path() / "res";
@@ -78,6 +83,12 @@ namespace pxr
         ImageFree(imageData);
 
         return image;
+    }
+
+    void SavePNG(const std::filesystem::path& path, const ImageBuffer& imageBuffer)
+    {
+        stbi_flip_vertically_on_write(true);
+        stbi_write_png(path.string().c_str(), (int)imageBuffer.GetWidth(), (int)imageBuffer.GetHeight(), 4, imageBuffer.Data(), (int)imageBuffer.GetWidth() * 4);
     }
 
     void* ImageLoad(const std::filesystem::path& path, int* width, int* height, int* channels, int desiredChannels)

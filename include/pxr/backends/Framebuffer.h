@@ -8,6 +8,7 @@
 namespace pxr
 {
 	class Shader;
+	class ImageBuffer;
 
 	class Framebuffer
 	{
@@ -26,6 +27,8 @@ namespace pxr
 		inline const int GetHeight() const { return m_Height; }
 
 		void Resize(int width, int height);
+
+		ImageBuffer FetchPixels();
 	private:
 		uint32_t m_FBO;
 
