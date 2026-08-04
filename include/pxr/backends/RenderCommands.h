@@ -8,6 +8,7 @@ namespace pxr
 {
 	class Shader;
 	class VertexArray;
+	class ImageBuffer;
 
 	class RenderCommands
 	{
@@ -31,5 +32,7 @@ namespace pxr
 
 		static int GetMaxTextureSize();
 		static int GetMaxTextureUnits();
+
+		static ImageBuffer FetchFramebufferPixels(uint32_t fbo, uint64_t x, uint64_t y, uint64_t width, uint64_t height);
 	};
 }

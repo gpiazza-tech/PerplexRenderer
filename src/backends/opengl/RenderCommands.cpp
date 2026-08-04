@@ -3,6 +3,7 @@
 
 #include <pxr/backends/ScreenQuad.h>
 #include <pxr/backends/VertexArray.h>
+#include <pxr/sprite/ImageBuffer.h>
 
 #include <GL/glew.h>
 #include <glm/fwd.hpp>
@@ -90,5 +91,20 @@ namespace pxr
        int maxTextureUnits = 0;
        glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
        return maxTextureUnits;
+    }
+
+    ImageBuffer RenderCommands::FetchFramebufferPixels(uint32_t fbo, uint64_t x, uint64_t y, uint64_t width, uint64_t height)
+    {
+        ImageBuffer buf{ (size_t)width, (size_t)height };
+
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
+        glReadPixels((GLint)x, (GLint)y, (GLsizei)width, (GLsizei)height, GL_RGBA, GL_UNSIGNED_BYTE, buf.Data());
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        return buf;
     }
 }
