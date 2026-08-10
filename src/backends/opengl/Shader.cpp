@@ -86,66 +86,66 @@ namespace pxr
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniform1i(location, value);
+        glProgramUniform1i(m_RendererID, location, value);
     }
     void Shader::SetUniformInt2(const char* name, int val1, int val2)
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniform2i(location, val1, val2);
+        glProgramUniform2i(m_RendererID, location, val1, val2);
     }
     void Shader::SetUniformInt3(const char* name, int val1, int val2, int val3)
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniform3i(location, val1, val2, val3);
+        glProgramUniform3i(m_RendererID, location, val1, val2, val3);
     }
     void Shader::SetUniformInt4(const char* name, int val1, int val2, int val3, int val4)
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniform4i(location, val1, val2, val3, val4);
+        glProgramUniform4i(m_RendererID, location, val1, val2, val3, val4);
     }
     void Shader::SetUniformIntArray(const char* name, int count, int* array)
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniform1iv(location, 32, array);
+        glProgramUniform1iv(m_RendererID, location, 32, array);
     }
     void Shader::SetUniformFloat(const char* name, float val)
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniform1f(location, val);
+        glProgramUniform1f(m_RendererID, location, val);
     }
     void Shader::SetUniformFloat(const char* name, float* ptr)
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniform1fv(location, 1, (GLfloat*)ptr);
+        glProgramUniform1fv(m_RendererID, location, 1, (GLfloat*)ptr);
     }
     void Shader::SetUniformFloat2(const char* name, float val1, float val2)
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniform2f(location, val1, val2);
+        glProgramUniform2f(m_RendererID, location, val1, val2);
     }
     void Shader::SetUniformFloat3(const char* name, float val1, float val2, float val3)
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniform3f(location, val1, val2, val3);
+        glProgramUniform3f(m_RendererID, location, val1, val2, val3);
     }
     void Shader::SetUniformFloat4(const char* name, float val1, float val2, float val3, float val4)
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniform4f(location, val1, val2, val3, val4);
+        glProgramUniform4f(m_RendererID, location, val1, val2, val3, val4);
     }
     void Shader::SetUniformMat4(const char* name, float* val)
     {
         int32_t location = glGetUniformLocation(m_RendererID, name);
         ASSERT(location != -1);
-        glUniformMatrix4fv(location, 1, GL_FALSE, val);
+        glProgramUniformMatrix4fv(m_RendererID, location, 1, GL_FALSE, val);
     }
 }

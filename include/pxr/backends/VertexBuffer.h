@@ -26,6 +26,8 @@ namespace pxr
 
 		void SetLayout(const std::vector<VertexBufferElement>& elements) { m_LayoutElements = elements; }
 		inline const std::vector<VertexBufferElement>& GetLayoutElements() const { return m_LayoutElements; }
+
+		uint32_t GetID() const { return m_RendererID; };
 	private:
 		uint32_t m_RendererID = 0;
 

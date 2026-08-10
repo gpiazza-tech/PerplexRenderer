@@ -165,7 +165,6 @@ namespace pxr
 
             // Shader
             s_SpriteData.Shader.Create("shaders\\SpriteVertex.glsl", "shaders\\SpriteFragment.glsl");
-            s_SpriteData.Shader.Use();
 
             int samplers[32];
             for (int i = 0; i < 32; i++)
@@ -173,7 +172,6 @@ namespace pxr
             glm::mat4 transform = glm::mat4(1.0f);
             s_SpriteData.Shader.SetUniformMat4("u_Transform", (float*)&transform);
             s_SpriteData.Shader.SetUniformIntArray("u_Textures", 32, samplers);
-            s_SpriteData.Shader.EndUse();
         }
 
         // PIXELS
@@ -200,11 +198,9 @@ namespace pxr
 
             // Shader
             s_PixelData.Shader.Create("shaders\\PixelVertex.glsl", "shaders\\PixelFragment.glsl");
-            s_PixelData.Shader.Use();
 
             glm::mat4 transform = glm::mat4(1.0f);
             s_PixelData.Shader.SetUniformMat4("u_Transform", (float*)&transform);
-            s_PixelData.Shader.EndUse();
         }
 
         // CIRCLES
@@ -235,11 +231,9 @@ namespace pxr
 
             // Shader
             s_CircleData.Shader.Create("shaders\\CircleVertex.glsl", "shaders\\CircleFragment.glsl");
-            s_CircleData.Shader.Use();
 
             glm::mat4 transform = glm::mat4(1.0f);
             s_CircleData.Shader.SetUniformMat4("u_Transform", (float*)&transform);
-            s_CircleData.Shader.EndUse();
         }
 
         // BOX
@@ -269,11 +263,9 @@ namespace pxr
 
             // Shader
             s_BoxData.Shader.Create("shaders\\BoxVertex.glsl", "shaders\\BoxFragment.glsl");
-            s_BoxData.Shader.Use();
 
             glm::mat4 transform = glm::mat4(1.0f);
             s_BoxData.Shader.SetUniformMat4("u_Transform", (float*)&transform);
-            s_BoxData.Shader.EndUse();
         }
 
         // LINES
@@ -303,11 +295,9 @@ namespace pxr
 
             // Shader
             s_LineData.Shader.Create("shaders\\LineVertex.glsl", "shaders\\LineFragment.glsl");
-            s_LineData.Shader.Use();
 
             glm::mat4 transform = glm::mat4(1.0f);
             s_LineData.Shader.SetUniformMat4("u_Transform", (float*)&transform);
-            s_LineData.Shader.EndUse();
         }
     }
 
@@ -337,9 +327,7 @@ namespace pxr
             s_SpriteData.VertexBufferCurrent = s_SpriteData.VertexBufferBegin;
 
             glm::mat4 viewProj = s_FrameData.Projection * glm::mat4(1.0f);
-            s_SpriteData.Shader.Use();
             s_SpriteData.Shader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
-            s_SpriteData.Shader.EndUse();
         }
 
         // PIXEL
@@ -347,9 +335,7 @@ namespace pxr
             s_PixelData.VertexBufferCurrent = s_PixelData.VertexBufferBegin;
 
             glm::mat4 viewProj = s_FrameData.Projection * glm::mat4(1.0f);
-            s_PixelData.Shader.Use();
             s_PixelData.Shader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
-            s_PixelData.Shader.EndUse();
         }
 
         // CIRCLE
@@ -357,10 +343,8 @@ namespace pxr
             s_CircleData.VertexBufferCurrent = s_CircleData.VertexBufferBegin;
 
             glm::mat4 viewProj = s_FrameData.Projection * glm::mat4(1.0f);
-            s_CircleData.Shader.Use();
             s_CircleData.Shader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
             s_CircleData.Shader.SetUniformFloat("u_PixelsPerUnit", (float)s_FrameData.PixelsPerUnit);
-            s_CircleData.Shader.EndUse();
         }
 
         // BOX
@@ -368,10 +352,8 @@ namespace pxr
             s_BoxData.VertexBufferCurrent = s_BoxData.VertexBufferBegin;
 
             glm::mat4 viewProj = s_FrameData.Projection * glm::mat4(1.0f);
-            s_BoxData.Shader.Use();
             s_BoxData.Shader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
             s_BoxData.Shader.SetUniformFloat("u_PixelsPerUnit", (float)s_FrameData.PixelsPerUnit);
-            s_BoxData.Shader.EndUse();
         }
 
         // LINE
@@ -379,10 +361,8 @@ namespace pxr
             s_LineData.VertexBufferCurrent = s_LineData.VertexBufferBegin;
 
             glm::mat4 viewProj = s_FrameData.Projection * glm::mat4(1.0f);
-            s_LineData.Shader.Use();
             s_LineData.Shader.SetUniformMat4("u_ViewProj", (float*)&viewProj);
             s_LineData.Shader.SetUniformFloat("u_PixelsPerUnit", (float)s_FrameData.PixelsPerUnit);
-            s_LineData.Shader.EndUse();
         }
 
         SpriteRegistry::Bind();

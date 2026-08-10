@@ -29,19 +29,18 @@ namespace pxr
 	void Tonemapper::RenderTonemap(uint32_t srcTexture)
 	{
 		m_FBO->Bind();
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, srcTexture);
+		
+		constexpr uint32_t textureUnit{ 0 };
+		glBindTextureUnit(textureUnit, srcTexture);
 
 		m_TonemapShader.Use();
-		m_TonemapShader.SetUniformInt("u_Texture", 1);
+		m_TonemapShader.SetUniformInt("u_Texture", textureUnit);
 
 		RenderCommands::DrawScreen();
 
 		m_TonemapShader.EndUse();
 
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTextureUnit(textureUnit, 0);
 	}
 
 	uint32_t Tonemapper::TonemappedTexture()

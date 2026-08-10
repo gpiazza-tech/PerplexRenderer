@@ -40,21 +40,10 @@ namespace pxr
 		m_UpsampleShader.Create("shaders\\ScreenVertex.glsl", "shaders\\postprocessing\\UpsampleFragment.glsl");
 		m_ScreenShader.Create("shaders\\ScreenVertex.glsl", "shaders\\ScreenFragment.glsl");
 
-		m_PrefilterShader.Use();
 		m_PrefilterShader.SetUniformInt("u_Texture", 0);
-		m_PrefilterShader.EndUse();
-
-		m_DownsampleShader.Use();
 		m_DownsampleShader.SetUniformInt("u_Texture", 0);
-		m_DownsampleShader.EndUse();
-
-		m_UpsampleShader.Use();
 		m_UpsampleShader.SetUniformInt("u_Texture", 0);
-		m_UpsampleShader.EndUse();
-
-		m_ScreenShader.Use();
 		m_ScreenShader.SetUniformInt("u_Texture", 0);
-		m_ScreenShader.EndUse();
 
 		return true;
 	}
@@ -93,18 +82,22 @@ namespace pxr
 		glViewport(0, 0, m_SrcViewportSize.x, m_SrcViewportSize.y);
 
 		// input texture
-		glBindTextureUnit(0, srcTexture);
+		constexpr uint32_t textureUnit{ 0 };
+		glBindTextureUnit(textureUnit, srcTexture);
+
 		// output texture
 		m_PrefilterFBO->Bind();
+
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		m_PrefilterShader.Use();
 		m_PrefilterShader.SetUniformFloat("u_Threshold", threshold);
+
+		m_PrefilterShader.Use();
 		RenderCommands::DrawScreen();
 		m_PrefilterShader.EndUse();
 
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTextureUnit(textureUnit, 0);
 	}
 
 	void BloomRenderer::RenderDownsamples(uint32_t srcTexture)
@@ -172,18 +165,22 @@ namespace pxr
 
 	void BloomRenderer::Combine(uint32_t srcTexture)
 	{
-		glBindTextureUnit(0, srcTexture);
+		constexpr uint32_t textureUnit{ 0 };
+		glBindTextureUnit(textureUnit, srcTexture);
+
 		m_FBO.Bind();
 
-		m_ScreenShader.Use();
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);
 		glBlendEquation(GL_FUNC_ADD);
 
+		m_ScreenShader.Use();
 		RenderCommands::DrawScreen();
+		m_ScreenShader.EndUse();
 
 		glDisable(GL_BLEND);
-		m_ScreenShader.EndUse();
+
+		glBindTextureUnit(textureUnit, 0);
 	}
 
 	void BloomRenderer::Resize(uint32_t width, uint32_t height)

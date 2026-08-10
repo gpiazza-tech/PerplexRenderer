@@ -31,20 +31,19 @@ namespace pxr
 	void Pixelator::RenderPixelator(uint32_t srcTexture, const glm::vec2& targetResolution)
 	{
 		m_FBO->Bind();
+		glDisable(GL_BLEND);
 
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, srcTexture);
+		constexpr uint32_t textureUnit{ 0 };
+		glBindTextureUnit(textureUnit, srcTexture);
 
-		m_PixelatorShader.Use();
-		m_PixelatorShader.SetUniformInt("u_Texture", 1);
+		m_PixelatorShader.SetUniformInt("u_Texture", textureUnit);
 		m_PixelatorShader.SetUniformFloat2("u_TargetResolution", targetResolution.x, targetResolution.y);
 
+		m_PixelatorShader.Use(); 
 		RenderCommands::DrawScreen();
-
 		m_PixelatorShader.EndUse();
 
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindTextureUnit(textureUnit, 0);
 	}
 
 	uint32_t Pixelator::PixelatedTexture()

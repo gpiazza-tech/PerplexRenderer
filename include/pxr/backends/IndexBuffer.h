@@ -14,6 +14,8 @@ namespace pxr
 		void Unbind() const;
 
 		inline const uint32_t GetCount() const { return m_Count; }
+
+		uint32_t GetID() const { return m_RendererID; }
 	private:
 		uint32_t m_RendererID = 0;
 		uint32_t m_Count = 0;

@@ -30,7 +30,7 @@ namespace pxr
 
 	VertexArray::VertexArray()
 	{
-		glGenVertexArrays(1, &m_RendererID);
+		glCreateVertexArrays(1, &m_RendererID);
 	}
 	
 	VertexArray::~VertexArray()
@@ -40,9 +40,6 @@ namespace pxr
 
 	void VertexArray::AttachBuffers(const VertexBuffer& vbo, const IndexBuffer& ibo)
 	{
-		Bind();
-		vbo.Bind();
-		ibo.Bind();
 		const auto& elements = vbo.GetLayoutElements();
 		size_t offset = 0;
 		size_t stride = 0;
@@ -52,17 +49,25 @@ namespace pxr
 			stride += elements[i].Count * SizeOf(elements[i].Type);
 		}
 
+		constexpr uint32_t bindingIndex{ 0 };
+		glVertexArrayVertexBuffer(m_RendererID, bindingIndex, vbo.GetID(), offset, (uint32_t)stride);
+		glVertexArrayElementBuffer(m_RendererID, ibo.GetID());
+
+
 		for (size_t i = 0; i < elements.size(); i++)
 		{
 			const auto& element = elements[i];
-			glEnableVertexAttribArray((GLuint)i);
-			glVertexAttribPointer((GLuint)i, element.Count, PxrToGlType(element.Type),
-				element.Normalized ? GL_TRUE : GL_FALSE, (GLsizei)stride, (const void*)offset);
+			uint32_t attribIndex{ static_cast<uint32_t>(i) };
+
+			glVertexArrayAttribBinding(m_RendererID, attribIndex, bindingIndex);
+
+			glVertexArrayAttribFormat(m_RendererID, attribIndex, element.Count, PxrToGlType(element.Type),
+				element.Normalized ? GL_TRUE : GL_FALSE, (uint32_t)offset);
+
+			glEnableVertexArrayAttrib(m_RendererID, attribIndex);
 			offset += element.Count * SizeOf(element.Type);
 		}
-		Unbind();
-		vbo.Unbind();
-		ibo.Unbind();
+
 	}
 
 	void VertexArray::Bind() const
